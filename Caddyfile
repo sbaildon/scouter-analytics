@@ -1,0 +1,22 @@
+{
+	email {$USER}@{$HOSTNAME}
+	acme_ca https://ca.localhost:8448/acme/acme/directory
+	acme_ca_root {$XDG_DATA_HOME}/step/certs/root_ca.crt
+}
+
+{$DASHBOARD_HOST} {
+	log stdout {
+		format console
+	}
+	reverse_proxy 127.0.0.1:{$DASHBOARD_PORT} {
+		header_up x-stats-bucket {$ASSET_BUCKET}
+	}
+}
+
+{$MINIO_CONSOLE_HOST} {
+	reverse_proxy 127.0.0.1:{$MINIO_CONSOLE_PORT}
+}
+
+{$MINIO_API_HOST} {
+	reverse_proxy 127.0.0.1:{$MINIO_API_PORT}
+}

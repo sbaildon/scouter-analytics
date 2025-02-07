@@ -50,13 +50,14 @@ defmodule Stats.MixProject do
       {:heroicons,
        github: "tailwindlabs/heroicons", tag: "v2.1.1", sparse: "optimized", app: false, compile: false, depth: 1},
       {:swoosh, "~> 1.16"},
-      {:req, "~> 0.5.4"},
+      {:req, git: "https://github.com/wojtekmach/req", ref: "5d751a0791876921afde0d23404111fbdbeb7a17", override: true},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.26"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
-      {:styler, "~> 1.0", only: [:dev, :test], runtime: false}
+      {:styler, "~> 1.0", only: [:dev, :test], runtime: false},
+      {:objex, git: "https://git.sr.ht/~sbaildon/objex", ref: "8fad06bad1b5684b9919ceccc020662f8ea3e4b4"}
     ]
   end
 

@@ -10,13 +10,12 @@ defmodule Stats.Application do
     children = [
       StatsWeb.Telemetry,
       Stats.Repo,
+      {Finch, Application.fetch_env!(:stats, Finch)},
       {Ecto.Migrator, repos: Application.fetch_env!(:stats, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:stats, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Stats.PubSub},
-      # Start a worker by calling: Stats.Worker.start_link(arg)
-      # {Stats.Worker, arg},
-      # Start to serve requests, typically the last entry
-      StatsWeb.Endpoint
+      StatsWeb.Endpoint,
+      {Objex, Application.fetch_env!(:stats, Objex)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

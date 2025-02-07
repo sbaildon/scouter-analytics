@@ -26,6 +26,9 @@ defmodule StatsWeb.Endpoint do
     gzip: not code_reloading?,
     only: StatsWeb.static_paths()
 
+  plug Objex.Plug,
+    paths: StatsWeb.object_paths()
+
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do

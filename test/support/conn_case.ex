@@ -20,6 +20,7 @@ defmodule StatsWeb.ConnCase do
   using do
     quote do
       use StatsWeb, :verified_routes
+
       import Phoenix.ConnTest
       import Plug.Conn
       import StatsWeb.ConnCase

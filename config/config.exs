@@ -1,13 +1,11 @@
-# This file is responsible for configuring your application
-# and its dependencies with the aid of the Config module.
-#
-# This configuration file is loaded before any dependency and
-# is restricted to this project.
-
-# General application configuration
 import Config
 
-# Configure esbuild (the version is required)
+config :ecto_sqlite3,
+  binary_id_type: :binary,
+  uuid_type: :binary,
+  foreign_keys: :on,
+  journal_mode: :wal
+
 config :esbuild,
   version: "0.17.11",
   stats: [
@@ -16,35 +14,29 @@ config :esbuild,
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
 
-# Configures Elixir's Logger
 config :logger, :default_formatter,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
 config :phoenix, :json_library, JSON
 
-# Configures the mailer
-#
-# By default it uses the "Local" adapter which stores the emails
-# locally. You can see the emails in your browser, at "/dev/mailbox".
-#
-# For production it's recommended to configure a different adapter
-# at the `config/runtime.exs`.
-config :stats, Stats.Mailer, adapter: Swoosh.Adapters.Local
+config :stats, Finch, name: Stats.Finch
 
-# Configures the endpoint
+config :stats, Stats.Repo,
+  migration_primary_key: [name: :id, type: :binary_id, null: false],
+  migration_timestamps: [type: :utc_datetime_usec]
+
 config :stats, StatsWeb.Endpoint,
-  url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
     formats: [html: StatsWeb.ErrorHTML, json: StatsWeb.ErrorJSON],
     layout: false
   ],
-  pubsub_server: Stats.PubSub,
-  live_view: [signing_salt: "NGGMhL/n"]
+  pubsub_server: Stats.PubSub
 
 config :stats,
   ecto_repos: [Stats.Repo],
+  app_name: "Stats",
   generators: [timestamp_type: :utc_datetime, binary_id: true]
 
 config :tailwind,
