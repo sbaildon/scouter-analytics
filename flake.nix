@@ -1,0 +1,65 @@
+{
+  description = "Stats";
+
+  outputs =
+    {
+      self,
+      nixpkgs,
+    }:
+    let
+      pkgs = nixpkgs.legacyPackages.aarch64-darwin;
+      beamPkgs = pkgs.beam.packages.erlang_27;
+    in
+    {
+      formatter.aarch64-darwin = pkgs.nixfmt;
+
+      # nix develop
+      # https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/darwin/apple-sdk/frameworks.nix
+      devShells.aarch64-darwin.default = pkgs.mkShell {
+        buildInputs = with pkgs.darwin.apple_sdk.frameworks; [
+          beamPkgs.elixir_1_18
+          pkgs.sqlite
+          pkgs.caddy
+          pkgs.minio
+          pkgs.imgproxy
+          pkgs.minio-client
+          pkgs.lima
+          Foundation
+          CoreServices
+          AppKit
+        ];
+      };
+
+      apps.aarch64-darwin.iex = {
+        type = "app";
+        program = "${beamPkgs.elixir_1_18}/bin/iex";
+      };
+
+      apps.aarch64-darwin.mix = {
+        type = "app";
+        program = "${beamPkgs.elixir_1_18}/bin/mix";
+      };
+
+      apps.aarch64-darwin.caddy = {
+        type = "app";
+        program = "${pkgs.caddy}/bin/caddy";
+      };
+
+      apps.aarch64-darwin.minio = {
+        type = "app";
+        program = "${pkgs.minio}/bin/minio";
+      };
+
+      apps.aarch64-darwin.mc = {
+        type = "app";
+        program = "${pkgs.minio-client}/bin/mc";
+      };
+
+      apps.aarch64-darwin.imgproxy = {
+        type = "app";
+        program = "${pkgs.imgproxy}/bin/imgproxy";
+      };
+
+      packages.aarch64-darwin.default = beamPkgs.elixir_1_18;
+    };
+}
