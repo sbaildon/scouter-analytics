@@ -47,19 +47,13 @@ config :stats,
   ecto_repos: [Stats.Repo],
   generators: [timestamp_type: :utc_datetime, binary_id: true]
 
-# Configure tailwind (the version is required)
 config :tailwind,
-  version: "3.4.3",
+  version: "4.0.4",
   stats: [
     args: ~w(
-      --config=tailwind.config.js
-      --input=css/app.css
-      --output=../priv/static/assets/app.css
-    ),
-
-    # Import environment specific config. This must remain at the bottom
-    # of this file so it overrides the configuration defined above.
-    cd: Path.expand("../assets", __DIR__)
+      --input=./assets/css/app.css
+      --output=./priv/static/assets/app.css
+    )
   ]
 
 import_config "#{config_env()}.exs"
