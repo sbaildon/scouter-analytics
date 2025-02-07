@@ -10,9 +10,7 @@ defmodule Stats.Application do
     children = [
       StatsWeb.Telemetry,
       Stats.Repo,
-      {Ecto.Migrator,
-        repos: Application.fetch_env!(:stats, :ecto_repos),
-        skip: skip_migrations?()},
+      {Ecto.Migrator, repos: Application.fetch_env!(:stats, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:stats, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Stats.PubSub},
       # Start a worker by calling: Stats.Worker.start_link(arg)
@@ -35,7 +33,7 @@ defmodule Stats.Application do
     :ok
   end
 
-  defp skip_migrations?() do
+  defp skip_migrations? do
     # By default, sqlite migrations are run when using a release
     System.get_env("RELEASE_NAME") != nil
   end
