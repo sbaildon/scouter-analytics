@@ -17,7 +17,7 @@ config :stats, Stats.Repo,
   stacktrace: true,
   show_sensitive_data_on_connection_error: true
 
-config :stats, StatsWeb.Endpoint,
+config :stats, Dashboard.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
@@ -30,7 +30,7 @@ config :stats, StatsWeb.Endpoint,
     patterns: [
       ~r"priv/static/(?!uploads/).*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
-      ~r"lib/stats_web/(controllers|live|components)/.*(ex|heex)$"
+      ~r"lib/dashboard/(controllers|live|components)/.*(ex|heex)$"
     ]
   ]
 

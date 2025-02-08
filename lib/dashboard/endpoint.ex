@@ -1,4 +1,4 @@
-defmodule StatsWeb.Endpoint do
+defmodule Dashboard.Endpoint do
   use Phoenix.Endpoint, otp_app: :stats
 
   # The session will be stored in the cookie and signed,
@@ -24,10 +24,10 @@ defmodule StatsWeb.Endpoint do
     at: "/",
     from: :stats,
     gzip: not code_reloading?,
-    only: StatsWeb.static_paths()
+    only: Dashboard.static_paths()
 
   plug Objex.Plug,
-    paths: StatsWeb.object_paths()
+    paths: Dashboard.object_paths()
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
@@ -53,5 +53,5 @@ defmodule StatsWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
-  plug StatsWeb.Router
+  plug Dashboard.Router
 end

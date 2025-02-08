@@ -26,10 +26,10 @@ config :stats, Stats.Repo,
   migration_primary_key: [name: :id, type: :uuid, null: false],
   migration_timestamps: [type: :utc_datetime_usec]
 
-config :stats, StatsWeb.Endpoint,
+config :stats, Dashboard.Endpoint,
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
-    formats: [html: StatsWeb.ErrorHTML, json: StatsWeb.ErrorJSON],
+    formats: [html: Dashboard.ErrorHTML, json: Dashboard.ErrorJSON],
     layout: false
   ],
   pubsub_server: Stats.PubSub

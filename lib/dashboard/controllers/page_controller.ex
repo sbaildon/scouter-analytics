@@ -1,5 +1,5 @@
-defmodule StatsWeb.PageController do
-  use StatsWeb, :controller
+defmodule Dashboard.PageController do
+  use Dashboard, :controller
 
   def home(conn, _params) do
     # The home page is often custom made,

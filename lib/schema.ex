@@ -13,10 +13,6 @@ defmodule Stats.Schema do
       @foreign_key_type TypeID
       @timestamps_opts [type: :utc_datetime_usec]
 
-      def id do
-        Identifier.autogenerate(%{primary_key: true, prefix: unquote(prefix)})
-      end
-
       def inherit_account_id(child, %{account_id: nil}), do: child
 
       def inherit_account_id(child, %{account_id: account_id}), do: %{child | account_id: account_id}

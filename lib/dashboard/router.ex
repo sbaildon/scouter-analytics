@@ -1,11 +1,11 @@
-defmodule StatsWeb.Router do
-  use StatsWeb, :router
+defmodule Dashboard.Router do
+  use Dashboard, :router
 
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_live_flash
-    plug :put_root_layout, html: {StatsWeb.Layouts, :root}
+    plug :put_root_layout, html: {Dashboard.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
@@ -14,14 +14,14 @@ defmodule StatsWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", StatsWeb do
+  scope "/", Dashboard do
     pipe_through :browser
 
     get "/", PageController, :home
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", StatsWeb do
+  # scope "/api", Dashboard do
   #   pipe_through :api
   # end
 
@@ -37,7 +37,7 @@ defmodule StatsWeb.Router do
     scope "/dev" do
       pipe_through :browser
 
-      live_dashboard "/dashboard", metrics: StatsWeb.Telemetry
+      live_dashboard "/dashboard", metrics: Dashboard.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
   end

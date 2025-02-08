@@ -46,7 +46,7 @@ config :stats, Stats.Repo,
   database: env!.("DATABASE_PATH"),
   pool_size: env_as.("POOL_SIZE", "10", :integer)
 
-config :stats, StatsWeb.Endpoint,
+config :stats, Dashboard.Endpoint,
   url: [host: env!.("DASHBOARD_HOST"), port: 443, scheme: "https"],
   http: [
     ip: {0, 0, 0, 0, 0, 0, 0, 0},

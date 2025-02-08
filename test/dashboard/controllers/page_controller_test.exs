@@ -1,5 +1,5 @@
-defmodule StatsWeb.PageControllerTest do
-  use StatsWeb.ConnCase
+defmodule Dashboard.PageControllerTest do
+  use Dashboard.ConnCase
 
   test "GET /", %{conn: conn} do
     conn = get(conn, ~p"/")

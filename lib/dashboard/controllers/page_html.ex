@@ -1,10 +1,10 @@
-defmodule StatsWeb.PageHTML do
+defmodule Dashboard.PageHTML do
   @moduledoc """
   This module contains pages rendered by PageController.
 
   See the `page_html` directory for all templates available.
   """
-  use StatsWeb, :html
+  use Dashboard, :html
 
   embed_templates "page_html/*"
 end

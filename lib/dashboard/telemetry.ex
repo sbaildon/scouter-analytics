@@ -1,4 +1,4 @@
-defmodule StatsWeb.Telemetry do
+defmodule Dashboard.Telemetry do
   @moduledoc false
   use Supervisor
 
@@ -88,7 +88,7 @@ defmodule StatsWeb.Telemetry do
     [
       # A module, function and arguments to be invoked periodically.
       # This function must call :telemetry.execute/3 and a metric must be added above.
-      # {StatsWeb, :count_users, []}
+      # {Dashboard, :count_users, []}
     ]
   end
 end

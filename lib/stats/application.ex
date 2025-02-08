@@ -8,13 +8,13 @@ defmodule Stats.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      StatsWeb.Telemetry,
+      Dashboard.Telemetry,
       Stats.Repo,
       {Finch, Application.fetch_env!(:stats, Finch)},
       {Ecto.Migrator, repos: Application.fetch_env!(:stats, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:stats, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Stats.PubSub},
-      StatsWeb.Endpoint,
+      Dashboard.Endpoint,
       {Objex, Application.fetch_env!(:stats, Objex)}
     ]
 
@@ -28,7 +28,7 @@ defmodule Stats.Application do
   # whenever the application is updated.
   @impl true
   def config_change(changed, _new, removed) do
-    StatsWeb.Endpoint.config_change(changed, removed)
+    Dashboard.Endpoint.config_change(changed, removed)
     :ok
   end
 
