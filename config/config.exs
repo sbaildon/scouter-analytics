@@ -48,4 +48,7 @@ config :tailwind,
     )
   ]
 
+config :typeid_elixir,
+  default_type: :uuid
+
 import_config "#{config_env()}.exs"

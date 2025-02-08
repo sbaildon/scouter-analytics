@@ -38,6 +38,9 @@ config :stats, dev_routes: true
 
 config :swoosh, :api_client, false
 
+config :typeid_elixir,
+  default_type: :string
+
 with {:ok, object_storage_url} <- System.fetch_env("MINIO_API_HOST") do
   config :stats, Finch,
     pools: %{

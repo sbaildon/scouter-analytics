@@ -57,7 +57,8 @@ defmodule Stats.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
       {:styler, "~> 1.0", only: [:dev, :test], runtime: false},
-      {:objex, git: "https://git.sr.ht/~sbaildon/objex", ref: "8fad06bad1b5684b9919ceccc020662f8ea3e4b4"}
+      {:objex, git: "https://git.sr.ht/~sbaildon/objex", ref: "8fad06bad1b5684b9919ceccc020662f8ea3e4b4"},
+      {:typeid_elixir, "~> 1.1"}
     ]
   end
 
