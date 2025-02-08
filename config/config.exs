@@ -23,7 +23,7 @@ config :phoenix, :json_library, JSON
 config :stats, Finch, name: Stats.Finch
 
 config :stats, Stats.Repo,
-  migration_primary_key: [name: :id, type: :binary_id, null: false],
+  migration_primary_key: [name: :id, type: :uuid, null: false],
   migration_timestamps: [type: :utc_datetime_usec]
 
 config :stats, StatsWeb.Endpoint,
