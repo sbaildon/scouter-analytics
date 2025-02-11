@@ -30,6 +30,10 @@ config :stats, Dashboard.Endpoint,
     ]
   ]
 
+config :stats, Stats.EventsRepo,
+  stacktrace: true,
+  show_sensitive_data_on_connection_error: true
+
 config :stats, Stats.Repo,
   stacktrace: true,
   show_sensitive_data_on_connection_error: true

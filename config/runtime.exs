@@ -51,6 +51,11 @@ config :stats, Objex,
   region: env.("AWS_REGION", "auto"),
   http_client: {Finch, name: Stats.Finch}
 
+config :stats, Stats.EventsRepo,
+  database: "events",
+  socket: Path.join([env!.("XDG_RUNTIME_DIR"), "scouter", ".s.PGSQL.5432"]),
+  pool_size: env_as.("POOL_SIZE", "10", :integer)
+
 config :stats, Stats.Repo,
   database: env!.("DATABASE_PATH"),
   pool_size: env_as.("POOL_SIZE", "10", :integer)

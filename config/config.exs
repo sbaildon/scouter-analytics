@@ -29,12 +29,17 @@ config :stats, Dashboard.Endpoint,
   pubsub_server: Stats.PubSub
 
 config :stats, Finch, name: Stats.Finch
+
+config :stats, Stats.EventsRepo,
+  migration_primary_key: [name: :id, type: :uuid, null: false],
+  migration_timestamps: [type: :utc_datetime_usec]
+
 config :stats, Stats.Repo,
   migration_primary_key: [name: :id, type: :uuid, null: false],
   migration_timestamps: [type: :utc_datetime_usec]
 
 config :stats,
-  ecto_repos: [Stats.Repo],
+  ecto_repos: [Stats.Repo, Stats.EventsRepo],
   app_name: "Stats",
   generators: [timestamp_type: :utc_datetime, binary_id: true]
 
