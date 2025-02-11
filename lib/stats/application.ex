@@ -10,11 +10,13 @@ defmodule Stats.Application do
     children = [
       Dashboard.Telemetry,
       Stats.Repo,
+      Stats.EventsRepo,
       {Finch, Application.fetch_env!(:stats, Finch)},
       {Ecto.Migrator, repos: Application.fetch_env!(:stats, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:stats, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Stats.PubSub},
       Dashboard.Endpoint,
+      Stats.Events,
       {Objex, Application.fetch_env!(:stats, Objex)}
     ]
 
