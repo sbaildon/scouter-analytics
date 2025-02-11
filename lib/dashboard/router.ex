@@ -17,7 +17,7 @@ defmodule Dashboard.Router do
   scope "/", Dashboard do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", StatsLive, :index
   end
 
   if Application.compile_env(:stats, :dev_routes) do

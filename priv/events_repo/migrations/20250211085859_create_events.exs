@@ -20,6 +20,8 @@ defmodule Stats.EventsRepo.Migrations.CreateEvents do
       add :city_geoname_id, :text
       add :operating_system, :text
       add :operating_system_version, :text
+      add :browser, :text
+      add :browser_version, :text
     end
   end
 end

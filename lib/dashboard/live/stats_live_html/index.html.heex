@@ -1,0 +1,23 @@
+<nav>
+  <form method="GET" action="/">
+    <ul class="flex flex-row gap-x-2 py-0.5 px-1 bg-zinc-200">
+      <li class="px-2 bg-zinc-100">
+        <label>
+          <input phx-change="filter" type="checkbox" />
+          <span>all</span>
+        </label>
+      </li>
+      <li :for={domain <- @domains} class="px-2 bg-zinc-100">
+        <label>
+          <input value={domain.host} phx-change="filter" name="sites[]" type="checkbox" />
+          <span>{domain.host}</span>
+        </label>
+      </li>
+    </ul>
+  </form>
+</nav>
+
+<div class="grid grid-cols-8">
+  <.timeline title="Hourly" events={@hourly} />
+  <.bar_chart title="Paths" events={@events} />
+</div>

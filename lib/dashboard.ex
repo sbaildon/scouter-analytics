@@ -88,6 +88,7 @@ defmodule Dashboard do
       use Gettext, backend: Dashboard.Gettext
 
       import Dashboard.CoreComponents
+      import Dashboard.StatComponents
 
       # HTML escaping functionality
       import Phoenix.HTML

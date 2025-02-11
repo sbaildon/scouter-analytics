@@ -3,6 +3,7 @@ defmodule Stats.Event do
   use Ecto.Schema
 
   import Ecto.Changeset
+  import Ecto.Query
 
   @primary_key false
   schema "events" do
@@ -22,6 +23,8 @@ defmodule Stats.Event do
     field :city_geoname_id, :integer
     field :operating_system, :string
     field :operating_system_version, :string
+    field :browser, :string
+    field :browser_version, :string
   end
 
   def changeset(params) do
@@ -45,7 +48,31 @@ defmodule Stats.Event do
       :subdivision2_code,
       :city_geoname_id,
       :operating_system,
-      :operating_system_version
+      :operating_system_version,
+      :browser,
+      :browser_version
     ])
+  end
+
+  defp named_binding, do: :event
+
+  def query do
+    from(__MODULE__, as: ^named_binding())
+  end
+
+  def hourly(query) do
+    from([{^named_binding(), event}] in query,
+      group_by: fragment("date_trunc('hour', ?)", event.timestamp),
+      order_by: [asc: fragment("date_trunc('hour', ?)", event.timestamp)],
+      select: %{count: count("*"), hour: fragment("date_trunc('hour', ?)", event.timestamp)}
+    )
+  end
+
+  def count_by_path(query) do
+    from([{^named_binding(), event}] in query,
+      group_by: event.path,
+      select: {count(event.path), event.path},
+      order_by: [desc: count(event.path)]
+    )
   end
 end
