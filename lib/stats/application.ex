@@ -35,7 +35,6 @@ defmodule Stats.Application do
   end
 
   defp skip_migrations? do
-    # By default, sqlite migrations are run when using a release
-    System.get_env("RELEASE_NAME") != nil
+    if System.get_env("RUN_MIGRATIONS"), do: false, else: true
   end
 end
