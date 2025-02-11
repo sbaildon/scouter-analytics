@@ -14,6 +14,11 @@ config :phoenix_live_view,
 #
 # The MIX_TEST_PARTITION environment variable can be used
 
+config :stats, Dashboard.Endpoint,
+  http: [ip: {127, 0, 0, 1}, port: 4002],
+  secret_key_base: "gPM0g+G+Sk0f4bJZRS0uNhkGhAzJ2vLfcI1q+PKPIq2wrZZEy2zxFeSEiPJ5j6wr",
+  server: false
+
 # In test we don't send emails
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
@@ -25,11 +30,6 @@ config :stats, Stats.Repo,
   # We don't run a server during test. If one is required,
   # you can enable the server option below.
   pool: Ecto.Adapters.SQL.Sandbox
-
-config :stats, Dashboard.Endpoint,
-  http: [ip: {127, 0, 0, 1}, port: 4002],
-  secret_key_base: "gPM0g+G+Sk0f4bJZRS0uNhkGhAzJ2vLfcI1q+PKPIq2wrZZEy2zxFeSEiPJ5j6wr",
-  server: false
 
 # Disable swoosh api client as it is only required for production adapters
 config :swoosh, :api_client, false

@@ -87,10 +87,11 @@ defmodule Dashboard do
       # Translation
       use Gettext, backend: Dashboard.Gettext
 
+      import Dashboard.CoreComponents
+
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components
-      import Dashboard.CoreComponents
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

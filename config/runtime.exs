@@ -33,6 +33,15 @@ end
 s3_endpoint =
   Regex.named_captures(~r/^(?<proto>.+):\/\/(?<endpoint>.+):(?<port>\d+)$/, env!.("S3_ENDPOINT"))
 
+config :stats, Dashboard.Endpoint,
+  url: [host: env!.("DASHBOARD_HOST"), port: 443, scheme: "https"],
+  http: [
+    ip: {0, 0, 0, 0, 0, 0, 0, 0},
+    port: env_as!.("DASHBOARD_PORT", :integer)
+  ],
+  secret_key_base: env!.("DASHBOARD_SECRET_KEY_BASE"),
+  live_view: [signing_salt: env!.("DASHBOARD_SIGNING_SALT")]
+
 config :stats, Objex,
   access_key_id: env!.("AWS_ACCESS_KEY_ID"),
   secret_access_key: env!.("AWS_SECRET_KEY"),
@@ -45,15 +54,6 @@ config :stats, Objex,
 config :stats, Stats.Repo,
   database: env!.("DATABASE_PATH"),
   pool_size: env_as.("POOL_SIZE", "10", :integer)
-
-config :stats, Dashboard.Endpoint,
-  url: [host: env!.("DASHBOARD_HOST"), port: 443, scheme: "https"],
-  http: [
-    ip: {0, 0, 0, 0, 0, 0, 0, 0},
-    port: env_as!.("DASHBOARD_PORT", :integer)
-  ],
-  secret_key_base: env!.("DASHBOARD_SECRET_KEY_BASE"),
-  live_view: [signing_salt: env!.("DASHBOARD_SIGNING_SALT")]
 
 config :stats, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 

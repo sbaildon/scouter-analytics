@@ -13,10 +13,6 @@ config :phoenix_live_view,
   debug_heex_annotations: true,
   enable_expensive_runtime_checks: true
 
-config :stats, Stats.Repo,
-  stacktrace: true,
-  show_sensitive_data_on_connection_error: true
-
 config :stats, Dashboard.Endpoint,
   check_origin: false,
   code_reloader: true,
@@ -33,6 +29,10 @@ config :stats, Dashboard.Endpoint,
       ~r"lib/dashboard/(controllers|live|components)/.*(ex|heex)$"
     ]
   ]
+
+config :stats, Stats.Repo,
+  stacktrace: true,
+  show_sensitive_data_on_connection_error: true
 
 config :stats, dev_routes: true
 

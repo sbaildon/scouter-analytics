@@ -21,9 +21,10 @@ defmodule Dashboard.ConnCase do
     quote do
       use Dashboard, :verified_routes
 
+      import Dashboard.ConnCase
       import Phoenix.ConnTest
       import Plug.Conn
-      import Dashboard.ConnCase
+
       # The default endpoint for testing
       @endpoint Dashboard.Endpoint
 
