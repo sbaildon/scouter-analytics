@@ -11,9 +11,9 @@ defmodule Stats.Events do
     Agent.start_link(fn -> nil end, name: __MODULE__)
   end
 
-  def hourly do
+  def scale(scale) do
     Event.query()
-    |> Event.hourly()
+    |> Event.scale(scale)
     |> EventsRepo.all()
   end
 
@@ -32,6 +32,10 @@ defmodule Stats.Events do
 
   defp filter(query, [{_, []} | rest]) do
     filter(query, rest)
+  end
+
+  defp filter(query, [{:sites, values} | rest]) do
+    filter(Event.where_in(query, :host, values), rest)
   end
 
   defp filter(query, [{:operating_systems, values} | rest]) do

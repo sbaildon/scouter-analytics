@@ -62,11 +62,14 @@ defmodule Stats.Event do
     from(__MODULE__, as: ^named_binding())
   end
 
-  def hourly(query) do
+  def scale(query, scale) do
     from([{^named_binding(), event}] in query,
-      group_by: fragment("date_trunc('hour', ?)", event.timestamp),
-      order_by: [asc: fragment("date_trunc('hour', ?)", event.timestamp)],
-      select: %{count: count("*"), hour: fragment("date_trunc('hour', ?)", event.timestamp)}
+      group_by: selected_as(:period),
+      order_by: [asc: selected_as(:period)],
+      select: %{
+        count: selected_as(count("*"), :count),
+        period: selected_as(fragment("date_trunc(?, ?)", ^scale, event.timestamp), :period)
+      }
     )
   end
 

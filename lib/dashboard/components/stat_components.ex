@@ -19,7 +19,7 @@ defmodule Dashboard.StatComponents do
         </thead>
         <tbody class="contents">
           <tr :for={event <- @events} class="contents">
-            <td>{strftime(event.hour, :hh_mm)}</td>
+            <td>{strftime(event.period, :hh_mm)}</td>
             <td>{event.count}</td>
           </tr>
         </tbody>
@@ -164,43 +164,37 @@ defmodule Dashboard.StatComponents do
 
   def sites(assigns) do
     ~H"""
-    <fieldset class="border border-zinc-600 pb-1 px-2">
-      <legend class="px-1">{gettext("Sites")}</legend>
-      <ul class="flex flex-col">
-        <li :for={domain <- @domains}>
-          <label>
-            <input value={domain.host} form="query" name="sites[]" type="checkbox" />
-            <span>{domain.host}</span>
-          </label>
-        </li>
-      </ul>
-    </fieldset>
+    <form method="GET" action="/" phx-change="filter">
+      <fieldset class="border border-zinc-600 pb-1 px-2">
+        <legend class="px-1">{gettext("Sites")}</legend>
+        <ul class="flex flex-col">
+          <li :for={domain <- @domains}>
+            <label>
+              <input value={domain.host} name="sites[]" type="checkbox" />
+              <span>{domain.host}</span>
+            </label>
+          </li>
+        </ul>
+      </fieldset>
+    </form>
     """
   end
 
+  attr :query, Dashboard.StatsLive.Query, required: true
+
   def scale(assigns) do
     ~H"""
-    <fieldset class="border border-zinc-600 pb-1 px-2">
-      <legend class="px-1">Scale</legend>
-      <fieldset class="flex flex-col">
-        <label>
-          <input form="query" type="radio" name="scale" value="day" />
-          <span>{gettext("Day")}</span>
-        </label>
-        <label>
-          <input form="query" type="radio" name="scale" value="week" />
-          <span>{gettext("Week")}</span>
-        </label>
-        <label>
-          <input form="query" type="radio" name="scale" value="month" />
-          <span>{gettext("Month")}</span>
-        </label>
-        <label>
-          <input form="query" type="radio" name="scale" value="year" />
-          <span>{gettext("Year")}</span>
-        </label>
+    <form id="scale" phx-update="ignore" method="GET" action="/" phx-change="scale">
+      <fieldset class="border border-zinc-600 pb-1 px-2">
+        <legend class="px-1">Scale</legend>
+        <fieldset class="flex flex-col">
+          <label :for={{label, value} <- Dashboard.StatsLive.Query.scale()}>
+            <input checked={@query.scale == value} type="radio" name="scale" value={value} />
+            <span>{gettext("%{label}", label: label)}</span>
+          </label>
+        </fieldset>
       </fieldset>
-    </fieldset>
+    </form>
     """
   end
 

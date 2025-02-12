@@ -6,17 +6,22 @@ defmodule Dashboard.StatsLive do
   alias Stats.Domains
   alias Stats.Events
 
-  defp do_work(socket, query) do
+  defp period(socket, query) do
+    scaled_events = Events.scale(query.scale)
+
+    assign(socket, :events, scaled_events)
+  end
+
+  defp aggregates(socket, query) do
     filters = Enum.to_list(Map.from_struct(query))
+
     path_aggregate = Events.retrieve(:path, filters)
     browser_aggregate = Events.retrieve(:browser, filters)
     browser_version_aggregate = Events.retrieve(:browser_version, filters)
     operating_system_aggregate = Events.retrieve(:operating_system, filters)
     operating_system_version_aggregate = Events.retrieve(:operating_system_version, filters)
 
-    socket
-    |> assign(:query, query)
-    |> assign(:aggregates, %{
+    assign(socket, :aggregates, %{
       paths: path_aggregate,
       browsers: browser_aggregate,
       browser_versions: browser_version_aggregate,
@@ -27,17 +32,24 @@ defmodule Dashboard.StatsLive do
 
   @impl true
   def mount(params, _, socket) do
-    hourly = Events.hourly()
-
     params |> Plug.Conn.Query.encode() |> IO.inspect()
 
     {:ok, query} = params |> Query.validate() |> IO.inspect()
 
     {:ok,
      socket
+     |> assign(:query, query)
      |> assign(:domains, Domains.list())
-     |> do_work(query)
-     |> assign(:hourly, hourly), temporary_assigns: [hourly: [], aggregate: []]}
+     |> aggregates(query)
+     |> period(query), temporary_assigns: [hourly: [], aggregate: []]}
+  end
+
+  def handle_event("scale", params, socket) do
+    %{query: existing_query} = socket.assigns
+
+    {:ok, query} = Query.validate(existing_query, params)
+
+    {:noreply, socket |> period(query) |> patch(query)}
   end
 
   @impl true
@@ -49,8 +61,7 @@ defmodule Dashboard.StatsLive do
 
     {:noreply,
      socket
-     |> do_work(query)
-     |> assign(:query, query)
+     |> aggregates(query)
      |> patch(query)}
   end
 
@@ -77,7 +88,9 @@ defmodule Dashboard.StatsLive do
       |> Map.reject(fn {_k, v} -> is_nil(v) end)
       |> Enum.to_list()
 
-    push_patch(socket, to: ~p"/?#{query_params}")
+    socket
+    |> assign(:query, query)
+    |> push_patch(to: ~p"/?#{query_params}")
   end
 
   defmodule Period do

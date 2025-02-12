@@ -4,11 +4,11 @@
   <nav class="flex flex-col mx-[1ch] gap-y-[1lh]">
     <.sites domains={@domains} />
     <.period />
-    <.scale />
+    <.scale query={@query} />
   </nav>
   <div class="grid grid-cols-1 gap-20 sm:grid-cols-4">
     <div class="col-span-full">
-      <.timeline title="Hourly" events={@hourly} />
+      <.timeline title="Events" events={@events} />
     </div>
     <.tabbed_chart>
       <:tab
