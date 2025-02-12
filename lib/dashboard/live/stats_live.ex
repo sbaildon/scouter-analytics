@@ -54,9 +54,7 @@ defmodule Dashboard.StatsLive do
     {:ok,
      socket
      |> assign(:query, query)
-     |> assign(:domains, Domains.list())
-     |> aggregates(query)
-     |> period(query), temporary_assigns: [hourly: [], aggregate: []]}
+     |> assign(:domains, Domains.list()), temporary_assigns: [hourly: [], aggregate: []]}
   end
 
   def handle_event("scale", params, socket) do
@@ -64,19 +62,15 @@ defmodule Dashboard.StatsLive do
 
     {:ok, query} = Query.validate(existing_query, params)
 
-    {:noreply, socket |> period(query) |> patch(query)}
+    {:noreply, patch(socket, query)}
   end
 
   def handle_event("limit", params, socket) do
     %{query: existing_query} = socket.assigns
 
-    case Query.validate(existing_query, params) do
-      {:ok, query} ->
-        {:noreply, socket |> period(query) |> aggregates(query) |> patch(query)}
+    {:ok, query} = Query.validate(existing_query, params)
 
-      _ ->
-        {:noreply, socket}
-    end
+    {:noreply, patch(socket, query)}
   end
 
   @impl true
@@ -86,11 +80,7 @@ defmodule Dashboard.StatsLive do
 
     {:ok, query} = Query.validate(existing_query, proposed_query)
 
-    {:noreply,
-     socket
-     |> period(query)
-     |> aggregates(query)
-     |> patch(query)}
+    {:noreply, patch(socket, query)}
   end
 
   @impl true
@@ -103,7 +93,6 @@ defmodule Dashboard.StatsLive do
 
     case Query.validate(existing_query, params) do
       {:ok, query} ->
-        # TODO: patch if existiing query != new query
         socket |> period(query) |> aggregates(query)
 
       _ ->
