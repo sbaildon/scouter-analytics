@@ -1,9 +1,7 @@
-<form class="hidden" method="GET" action="/" phx-change="filter" id="query"></form>
-
 <div class="grid grid-cols-1 w-screen sm:grid-cols-[1fr_3.326fr]">
   <nav class="flex flex-col mx-[1ch] gap-y-[1lh]">
     <.sites domains={@domains} />
-    <.period />
+    <.period query={@query} />
     <.scale query={@query} />
   </nav>
   <div class="grid grid-cols-1 gap-20 sm:grid-cols-4">

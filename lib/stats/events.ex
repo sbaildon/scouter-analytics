@@ -11,9 +11,10 @@ defmodule Stats.Events do
     Agent.start_link(fn -> nil end, name: __MODULE__)
   end
 
-  def scale(scale) do
+  def scale(scale, filters \\ []) do
     Event.query()
     |> Event.scale(scale)
+    |> filter(filters)
     |> EventsRepo.all()
   end
 
@@ -32,6 +33,47 @@ defmodule Stats.Events do
 
   defp filter(query, [{_, []} | rest]) do
     filter(query, rest)
+  end
+
+  defp filter(query, [{:interval, "year_to_date"} | rest]) do
+    filter(Event.from_truncated_date(query, "year"), rest)
+  end
+
+  defp filter(query, [{:interval, "month_to_date"} | rest]) do
+    filter(Event.from_truncated_date(query, "month"), rest)
+  end
+
+  defp filter(query, [{:interval, "hour"} | rest]) do
+    filter(Event.from_truncated_date(query, "hour"), rest)
+  end
+
+  defp filter(query, [{:interval, "today"} | rest]) do
+    filter(Event.from_truncated_date(query, "day"), rest)
+  end
+
+  defp filter(query, [{:interval, "yesterday"} | rest]) do
+    filter(Event.last_calendar(query, "day"), rest)
+  end
+
+  defp filter(query, [{:interval, "last_year"} | rest]) do
+    filter(Event.last_calendar(query, "year"), rest)
+  end
+
+  defp filter(query, [{:interval, "last_month"} | rest]) do
+    filter(Event.last_calendar(query, "month"), rest)
+  end
+
+  defp filter(query, [{:interval, "all_time"} | rest]) do
+    filter(query, rest)
+  end
+
+  defp filter(query, [{:interval, interval} | rest]) do
+    {count, range} = count_and_range(interval)
+    filter(Event.range(query, count, range), rest)
+  end
+
+  defp filter(query, [{:referrers, values} | rest]) do
+    filter(Event.where_in(query, :referrer, values), rest)
   end
 
   defp filter(query, [{:sites, values} | rest]) do
@@ -70,7 +112,7 @@ defmodule Stats.Events do
     now = NaiveDateTime.utc_now()
 
     events =
-      for _i <- 1..100 do
+      for _i <- 1..Enum.random(51..200) do
         ua = random_ua()
 
         event
@@ -79,13 +121,19 @@ defmodule Stats.Events do
         |> Map.replace(:browser, ua.browser_family)
         |> Map.replace(:browser_version, ua.client.version)
         |> Map.replace(:site_id, TypeID.new("site"))
-        |> Map.replace(:timestamp, now)
+        |> Map.put_new(:timestamp, now)
         |> Map.from_struct()
         |> Map.delete(:__meta__)
       end
 
     EventsRepo.insert_all(Event, events)
   end
+
+  def count_and_range("past_hour"), do: {1, "hour"}
+  def count_and_range("past_7_days"), do: {7, "day"}
+  def count_and_range("past_14_days"), do: {14, "day"}
+  def count_and_range("past_30_days"), do: {30, "day"}
+  def count_and_range(_), do: {1, "year"}
 
   def load(event) when is_list(event) do
     fields = Event.__schema__(:fields)

@@ -6,14 +6,17 @@ defmodule Dashboard.StatsLive do
   alias Stats.Domains
   alias Stats.Events
 
-  defp period(socket, query) do
-    scaled_events = Events.scale(query.scale)
+  require Logger
 
+  defp period(socket, query) do
+    filters = Query.to_filters(query)
+
+    scaled_events = Events.scale(query.scale, filters)
     assign(socket, :events, scaled_events)
   end
 
   defp aggregates(socket, query) do
-    filters = Enum.to_list(Map.from_struct(query))
+    filters = Query.to_filters(query)
 
     path_aggregate = Events.retrieve(:path, filters)
     browser_aggregate = Events.retrieve(:browser, filters)
@@ -32,9 +35,8 @@ defmodule Dashboard.StatsLive do
 
   @impl true
   def mount(params, _, socket) do
-    params |> Plug.Conn.Query.encode() |> IO.inspect()
-
-    {:ok, query} = params |> Query.validate() |> IO.inspect()
+    Plug.Conn.Query.encode(params)
+    {:ok, query} = Query.validate(params)
 
     {:ok,
      socket
@@ -52,6 +54,18 @@ defmodule Dashboard.StatsLive do
     {:noreply, socket |> period(query) |> patch(query)}
   end
 
+  def handle_event("limit", params, socket) do
+    %{query: existing_query} = socket.assigns
+
+    case Query.validate(existing_query, params) do
+      {:ok, query} ->
+        {:noreply, socket |> period(query) |> aggregates(query) |> patch(query)}
+
+      _ ->
+        {:noreply, socket}
+    end
+  end
+
   @impl true
   def handle_event("filter", %{"_target" => [target | []]} = params, socket) do
     %{query: existing_query} = socket.assigns
@@ -61,6 +75,7 @@ defmodule Dashboard.StatsLive do
 
     {:noreply,
      socket
+     |> period(query)
      |> aggregates(query)
      |> patch(query)}
   end

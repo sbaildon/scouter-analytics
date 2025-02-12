@@ -73,6 +73,27 @@ defmodule Stats.Event do
     )
   end
 
+  def range(query, count, interval) do
+    from([{^named_binding(), event}] in query,
+      where: event.timestamp > ago(^count, ^interval)
+    )
+  end
+
+  def last_calendar(query, field) do
+    from([{^named_binding(), event}] in query,
+      where: fragment("date_trunc(?, ?)", ^field, event.timestamp) < fragment("date_trunc(?, 'NOW'::timestamp)", ^field),
+      where:
+        fragment("date_trunc(?, ?)", ^field, event.timestamp) >=
+          fragment("date_trunc(?, 'NOW'::timestamp) - ('1 ' || ?)::interval", ^field, ^field)
+    )
+  end
+
+  def from_truncated_date(query, field) do
+    from([{^named_binding(), event}] in query,
+      where: fragment("date_trunc(?, ?) >= date_trunc(?, 'NOW'::timestamp)", ^field, event.timestamp, ^field)
+    )
+  end
+
   def where_in(query, field, values) do
     from([{^named_binding(), event}] in query,
       where: field(event, ^field) in ^values
@@ -86,4 +107,11 @@ defmodule Stats.Event do
       order_by: [desc: count(field(event, ^field))]
     )
   end
+
+  # keep in mind
+  # Note that that query will be pretty slow.
+  # A better idea would be to do
+  #
+  # mydate >= date_trunc('year',current_date) AND
+  # mydate < date_trunc(~c"year", current_date + interval(~c"1 year"))
 end

@@ -3,6 +3,8 @@ defmodule Dashboard.StatComponents do
   use Phoenix.Component
   use Gettext, backend: Dashboard.Gettext
 
+  alias Dashboard.StatsLive.Query
+
   attr :title, :string, required: true
   attr :events, :list, required: true
 
@@ -75,88 +77,23 @@ defmodule Dashboard.StatComponents do
   def is_aggregate_checked(_, nil), do: false
   def is_aggregate_checked(value, filtered), do: value in filtered
 
+  attr :query, Query, required: true
+
   def period(assigns) do
     ~H"""
-    <fieldset class="border border-zinc-600 pb-1 px-2">
-      <legend class="px-1">Period</legend>
-      <fieldset class="flex flex-col">
-        <label>
-          <input type="radio" name="period" value="7" />
-          <span>{"Live"}</span>
-        </label>
-        <label>
-          <input type="radio" name="period" value="7" />
-          <span>{gettext("Past Hour")}</span>
-        </label>
-        <label>
-          <input type="radio" name="period" value="7" />
-          <span>{gettext("Today")}</span>
-        </label>
-        <label>
-          <input type="radio" name="period" value="14" />
-          <span>{gettext("Yesterday")}</span>
-        </label>
+    <form method="GET" action="/" phx-change="limit">
+      <fieldset class="border border-zinc-600 pb-1 px-2">
+        <legend class="px-1">Period</legend>
+        <fieldset :for={group <- Dashboard.StatsLive.Query.periods()} class="flex flex-col">
+          <label :for={{label, value} <- group}>
+            <input checked={value == @query.interval} type="radio" name="interval" value={value} />
+            <span>{label}</span>
+          </label>
+          <.hr />
+        </fieldset>
+        
       </fieldset>
-
-      <.hr />
-
-      <fieldset class="flex flex-col">
-        <label>
-          <input type="radio" name="period" value="7" />
-          <span>{gettext("Month to Date")}</span>
-        </label>
-        <label>
-          <input type="radio" name="period" value="14" />
-          <span>{gettext("Last Month")}</span>
-        </label>
-      </fieldset>
-
-      <.hr />
-
-      <fieldset class="flex flex-col">
-        <label>
-          <input type="radio" name="period" value="7" />
-          <span>{gettext("Year to Date")}</span>
-        </label>
-        <label>
-          <input type="radio" name="period" value="14" />
-          <span>{gettext("Last Year")}</span>
-        </label>
-      </fieldset>
-      <.hr />
-
-      <fieldset class="flex flex-col">
-        <label>
-          <input type="radio" name="period" value="7" />
-          <span>{gettext("Past 7 days")}</span>
-        </label>
-        <label>
-          <input type="radio" name="period" value="14" />
-          <span>{gettext("Past 14 days")}</span>
-        </label>
-        <label>
-          <input type="radio" name="period" value="30" />
-          <span>{gettext("Past 30 days")}</span>
-        </label>
-      </fieldset>
-
-      <.hr />
-
-      <fieldset class="flex flex-col">
-        <label>
-          <input type="radio" name="period" value="7" />
-          <span>All Time</span>
-        </label>
-      </fieldset>
-
-      <.hr />
-
-      <fieldset class="flex flex-row gap-x-2">
-        <input form="query" name="from" type="date" />
-        <span>{gettext("until")}</span>
-        <input form="query" name="from" type="date" />
-      </fieldset>
-    </fieldset>
+    </form>
     """
   end
 
@@ -180,7 +117,7 @@ defmodule Dashboard.StatComponents do
     """
   end
 
-  attr :query, Dashboard.StatsLive.Query, required: true
+  attr :query, Query, required: true
 
   def scale(assigns) do
     ~H"""
@@ -200,5 +137,5 @@ defmodule Dashboard.StatComponents do
 
   def hr(assigns), do: ~H|<hr class="h-px my-[0.25lh] border-0 bg-zinc-500" />|
 
-  defp strftime(timestamp, :hh_mm), do: Calendar.strftime(timestamp, "%H:%M")
+  defp strftime(timestamp, :hh_mm), do: Calendar.strftime(timestamp, "%Y-%m-%d %H:%M")
 end
