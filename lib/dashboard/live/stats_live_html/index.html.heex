@@ -44,5 +44,13 @@
         query={@query.paths}
       />
     </.tabbed_chart>
+    <.tabbed_chart>
+      <:tab
+        label={gettext("Referrer")}
+        field="referrers"
+        aggregates={@aggregates.referrers}
+        query={@query.referrers}
+      />
+    </.tabbed_chart>
   </div>
 </div>

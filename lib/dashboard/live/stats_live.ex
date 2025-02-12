@@ -12,6 +12,7 @@ defmodule Dashboard.StatsLive do
     filters = Query.to_filters(query)
 
     scaled_events = Events.scale(query.scale, filters)
+
     assign(socket, :events, scaled_events)
   end
 
@@ -23,13 +24,15 @@ defmodule Dashboard.StatsLive do
     browser_version_aggregate = Events.retrieve(:browser_version, filters)
     operating_system_aggregate = Events.retrieve(:operating_system, filters)
     operating_system_version_aggregate = Events.retrieve(:operating_system_version, filters)
+    referrer_aggregate = Events.retrieve(:referrer, filters)
 
     assign(socket, :aggregates, %{
       paths: path_aggregate,
       browsers: browser_aggregate,
       browser_versions: browser_version_aggregate,
       operating_systems: operating_system_aggregate,
-      operating_system_versions: operating_system_version_aggregate
+      operating_system_versions: operating_system_version_aggregate,
+      referrers: referrer_aggregate
     })
   end
 

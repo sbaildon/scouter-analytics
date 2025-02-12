@@ -13,6 +13,7 @@ defmodule Dashboard.StatsLive.Query do
     field :hosts, {:array, :string}
     field :operating_systems, {:array, :string}
     field :operating_system_versions, {:array, :string}
+    field :referrers, {:array, :string}
     field :scale, :string, default: "day"
     field :interval, :string
     field :from, :string
