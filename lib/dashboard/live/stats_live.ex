@@ -25,6 +25,11 @@ defmodule Dashboard.StatsLive do
     operating_system_aggregate = Events.retrieve(:operating_system, filters)
     operating_system_version_aggregate = Events.retrieve(:operating_system_version, filters)
     referrer_aggregate = Events.retrieve(:referrer, filters)
+    utm_source_aggregate = Events.retrieve(:utm_source, filters)
+    utm_campaign_aggregate = Events.retrieve(:utm_campaign, filters)
+    utm_medium_aggregate = Events.retrieve(:utm_medium, filters)
+    utm_content_aggregate = Events.retrieve(:utm_content, filters)
+    utm_term_aggregate = Events.retrieve(:utm_term, filters)
 
     assign(socket, :aggregates, %{
       paths: path_aggregate,
@@ -32,7 +37,12 @@ defmodule Dashboard.StatsLive do
       browser_versions: browser_version_aggregate,
       operating_systems: operating_system_aggregate,
       operating_system_versions: operating_system_version_aggregate,
-      referrers: referrer_aggregate
+      referrers: referrer_aggregate,
+      utm_sources: utm_source_aggregate,
+      utm_campaigns: utm_campaign_aggregate,
+      utm_mediums: utm_medium_aggregate,
+      utm_contents: utm_content_aggregate,
+      utm_terms: utm_term_aggregate
     })
   end
 
@@ -88,8 +98,17 @@ defmodule Dashboard.StatsLive do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
 
-  defp apply_action(socket, _, _params) do
-    socket
+  defp apply_action(socket, _, params) do
+    %{query: existing_query} = socket.assigns
+
+    case Query.validate(existing_query, params) do
+      {:ok, query} ->
+        # TODO: patch if existiing query != new query
+        socket |> period(query) |> aggregates(query)
+
+      _ ->
+        socket
+    end
   end
 
   embed_templates "stats_live_html/*", suffix: "_html"

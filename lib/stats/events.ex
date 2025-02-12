@@ -72,6 +72,26 @@ defmodule Stats.Events do
     filter(Event.range(query, count, range), rest)
   end
 
+  defp filter(query, [{:utm_sources, values} | rest]) do
+    filter(Event.where_in(query, :utm_source, values), rest)
+  end
+
+  defp filter(query, [{:utm_campaigns, values} | rest]) do
+    filter(Event.where_in(query, :utm_campaign, values), rest)
+  end
+
+  defp filter(query, [{:utm_mediums, values} | rest]) do
+    filter(Event.where_in(query, :utm_medium, values), rest)
+  end
+
+  defp filter(query, [{:utm_contents, values} | rest]) do
+    filter(Event.where_in(query, :utm_content, values), rest)
+  end
+
+  defp filter(query, [{:utm_terms, values} | rest]) do
+    filter(Event.where_in(query, :utm_term, values), rest)
+  end
+
   defp filter(query, [{:referrers, values} | rest]) do
     filter(Event.where_in(query, :referrer, values), rest)
   end

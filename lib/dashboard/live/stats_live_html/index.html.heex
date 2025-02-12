@@ -52,5 +52,37 @@
         query={@query.referrers}
       />
     </.tabbed_chart>
+    <.tabbed_chart>
+      <:tab
+        label={gettext("Source")}
+        field="utm_sources"
+        aggregates={@aggregates.utm_sources}
+        query={@query.utm_sources}
+      />
+      <:tab
+        label={gettext("Campaign")}
+        field="utm_campaigns"
+        aggregates={@aggregates.utm_campaigns}
+        query={@query.utm_campaigns}
+      />
+      <:tab
+        label={gettext("Medium")}
+        field="utm_mediums"
+        aggregates={@aggregates.utm_mediums}
+        query={@query.utm_mediums}
+      />
+      <:tab
+        label={gettext("Content")}
+        field="utm_contents"
+        aggregates={@aggregates.utm_contents}
+        query={@query.utm_contents}
+      />
+      <:tab
+        label={gettext("Term")}
+        field="utm_terms"
+        aggregates={@aggregates.utm_terms}
+        query={@query.utm_terms}
+      />
+    </.tabbed_chart>
   </div>
 </div>
