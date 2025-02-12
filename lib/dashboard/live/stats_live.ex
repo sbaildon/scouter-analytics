@@ -2,26 +2,56 @@ defmodule Dashboard.StatsLive do
   @moduledoc false
   use Dashboard, :live_view
 
+  alias Dashboard.StatsLive.Query
   alias Stats.Domains
   alias Stats.Events
 
-  @impl true
-  def mount(_, _, socket) do
-    hourly = IO.inspect(Events.hourly())
+  defp do_work(socket, query) do
+    filters = Enum.to_list(Map.from_struct(query))
+    path_aggregate = Events.retrieve(:path, filters)
+    browser_aggregate = Events.retrieve(:browser, filters)
+    browser_version_aggregate = Events.retrieve(:browser_version, filters)
+    operating_system_aggregate = Events.retrieve(:operating_system, filters)
+    operating_system_version_aggregate = Events.retrieve(:operating_system_version, filters)
 
-    events = IO.inspect(Events.retrieve())
+    socket
+    |> assign(:query, query)
+    |> assign(:aggregates, %{
+      paths: path_aggregate,
+      browsers: browser_aggregate,
+      browser_versions: browser_version_aggregate,
+      operating_systems: operating_system_aggregate,
+      operating_system_versions: operating_system_version_aggregate
+    })
+  end
+
+  @impl true
+  def mount(params, _, socket) do
+    hourly = Events.hourly()
+
+    params |> Plug.Conn.Query.encode() |> IO.inspect()
+
+    {:ok, query} = params |> Query.validate() |> IO.inspect()
 
     {:ok,
      socket
      |> assign(:domains, Domains.list())
-     |> assign(:events, events)
-     |> assign(:hourly, hourly), temporary_assigns: [hourly: [], events: []]}
+     |> do_work(query)
+     |> assign(:hourly, hourly), temporary_assigns: [hourly: [], aggregate: []]}
   end
 
   @impl true
-  def handle_event("filter", params, socket) do
-    {:ok, query} = Dashboard.StatsLive.Query.validate(params)
-    {:noreply, push_patch(socket, to: ~p"/?#{query}")}
+  def handle_event("filter", %{"_target" => [target | []]} = params, socket) do
+    %{query: existing_query} = socket.assigns
+    proposed_query = Map.put_new(params, target, [])
+
+    {:ok, query} = Query.validate(existing_query, proposed_query)
+
+    {:noreply,
+     socket
+     |> do_work(query)
+     |> assign(:query, query)
+     |> patch(query)}
   end
 
   @impl true
@@ -40,7 +70,17 @@ defmodule Dashboard.StatsLive do
     index_html(assigns)
   end
 
-  defmodule Query do
+  defp patch(socket, query) do
+    query_params =
+      query
+      |> Map.from_struct()
+      |> Map.reject(fn {_k, v} -> is_nil(v) end)
+      |> Enum.to_list()
+
+    push_patch(socket, to: ~p"/?#{query_params}")
+  end
+
+  defmodule Period do
     @moduledoc false
     use Ecto.Schema
 
@@ -48,26 +88,12 @@ defmodule Dashboard.StatsLive do
 
     @primary_key false
     embedded_schema do
-      field :sites, {:array, :string}
+      field :from, :date
+      field :to, :date
     end
 
-    def validate(params) when is_map(params) do
-      validate(%__MODULE__{}, params)
-    end
-
-    def validate(query, params) do
-      query
-      |> cast(params, [:sites])
-      |> apply_action(:validate)
-    end
-
-    defimpl Phoenix.Param do
-      def to_param(query) do
-        query
-        |> Map.from_struct()
-        |> Map.reject(fn {_k, v} -> is_nil(v) end)
-        |> Plug.Conn.Query.encode()
-      end
+    def changeset(period, params) do
+      cast(period, params, [:from, :to])
     end
   end
 end

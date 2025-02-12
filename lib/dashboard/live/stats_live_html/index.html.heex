@@ -1,23 +1,50 @@
-<nav>
-  <form method="GET" action="/">
-    <ul class="flex flex-row gap-x-2 py-0.5 px-1 bg-zinc-200">
-      <li class="px-2 bg-zinc-100">
-        <label>
-          <input phx-change="filter" type="checkbox" />
-          <span>all</span>
-        </label>
-      </li>
-      <li :for={domain <- @domains} class="px-2 bg-zinc-100">
-        <label>
-          <input value={domain.host} phx-change="filter" name="sites[]" type="checkbox" />
-          <span>{domain.host}</span>
-        </label>
-      </li>
-    </ul>
-  </form>
-</nav>
+<form class="hidden" method="GET" action="/" phx-change="filter" id="query"></form>
 
-<div class="grid grid-cols-8">
-  <.timeline title="Hourly" events={@hourly} />
-  <.bar_chart title="Paths" events={@events} />
+<div class="grid grid-cols-1 w-screen sm:grid-cols-[1fr_3.326fr]">
+  <nav class="flex flex-col mx-[1ch] gap-y-[1lh]">
+    <.sites domains={@domains} />
+    <.period />
+    <.scale />
+  </nav>
+  <div class="grid grid-cols-1 gap-20 sm:grid-cols-4">
+    <div class="col-span-full">
+      <.timeline title="Hourly" events={@hourly} />
+    </div>
+    <.tabbed_chart>
+      <:tab
+        label={gettext("Browsers")}
+        field="browsers"
+        aggregates={@aggregates.browsers}
+        query={@query.browsers}
+      />
+      <:tab
+        label={gettext("Vers.")}
+        field="browser_versions"
+        aggregates={@aggregates.browser_versions}
+        query={@query.browser_versions}
+      />
+    </.tabbed_chart>
+    <.tabbed_chart>
+      <:tab
+        label={gettext("OS")}
+        field="operating_systems"
+        aggregates={@aggregates.operating_systems}
+        query={@query.operating_systems}
+      />
+      <:tab
+        label={gettext("Vers.")}
+        field="operating_system_versions"
+        aggregates={@aggregates.operating_system_versions}
+        query={@query.operating_system_versions}
+      />
+    </.tabbed_chart>
+    <.tabbed_chart>
+      <:tab
+        label={gettext("Path")}
+        field="paths"
+        aggregates={@aggregates.paths}
+        query={@query.paths}
+      />
+    </.tabbed_chart>
+  </div>
 </div>

@@ -5,6 +5,8 @@ defmodule Stats.Events do
   alias Stats.Event
   alias Stats.EventsRepo
 
+  require Logger
+
   def start_link(_) do
     Agent.start_link(fn -> nil end, name: __MODULE__)
   end
@@ -15,10 +17,45 @@ defmodule Stats.Events do
     |> EventsRepo.all()
   end
 
-  def retrieve do
+  def retrieve(count_by, filters \\ []) do
     Event.query()
-    |> Event.count_by_path()
+    |> Event.count_by(count_by)
+    |> filter(filters)
     |> EventsRepo.all()
+  end
+
+  defp filter(query, []), do: query
+
+  defp filter(query, [{_, nil} | rest]) do
+    filter(query, rest)
+  end
+
+  defp filter(query, [{_, []} | rest]) do
+    filter(query, rest)
+  end
+
+  defp filter(query, [{:operating_systems, values} | rest]) do
+    filter(Event.where_in(query, :operating_system, values), rest)
+  end
+
+  defp filter(query, [{:operating_system_versions, values} | rest]) do
+    filter(Event.where_in(query, :operating_system_version, values), rest)
+  end
+
+  defp filter(query, [{:browsers, values} | rest]) do
+    filter(Event.where_in(query, :browser, values), rest)
+  end
+
+  defp filter(query, [{:browser_versions, values} | rest]) do
+    filter(Event.where_in(query, :browser_version, values), rest)
+  end
+
+  defp filter(query, [{:paths, values} | rest]) do
+    filter(Event.where_in(query, :path, values), rest)
+  end
+
+  defp filter(query, [_ | rest]) do
+    filter(query, rest)
   end
 
   def record(event) do

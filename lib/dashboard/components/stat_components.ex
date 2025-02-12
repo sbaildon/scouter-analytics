@@ -1,6 +1,7 @@
 defmodule Dashboard.StatComponents do
   @moduledoc false
   use Phoenix.Component
+  use Gettext, backend: Dashboard.Gettext
 
   attr :title, :string, required: true
   attr :events, :list, required: true
@@ -12,8 +13,8 @@ defmodule Dashboard.StatComponents do
         <caption class="col-span-full">{@title}</caption>
         <thead class="contents">
           <tr class="contents uppercase">
-            <th>Time</th>
-            <th>Count</th>
+            <th>{gettext("Time")}</th>
+            <th>{gettext("Count")}</th>
           </tr>
         </thead>
         <tbody class="contents">
@@ -27,30 +28,183 @@ defmodule Dashboard.StatComponents do
     """
   end
 
-  attr :title, :string, required: true
-  attr :events, :list, required: true
+  slot :tab, doc: "Tabs" do
+    attr :label, :string, required: true
+    attr :field, :string, required: true
+    attr :aggregates, :list, required: true, doc: "List of Stats.Aggregate"
+    attr :query, :list, required: true
+  end
 
-  def bar_chart(assigns) do
+  def tabbed_chart(assigns) do
     ~H"""
-    <section>
-      <table class="grid grid-cols-[max-content_max-content] gap-x-4">
-        <caption class="col-span-full">{@title}</caption>
-        <thead class="contents">
-          <tr class="contents uppercase">
-            <th>Path</th>
-            <th>Count</th>
-          </tr>
-        </thead>
-        <tbody class="contents">
-          <tr :for={{count, path} <- @events} class="contents">
-            <td>{path}</td>
-            <td>{count}</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+    <form method="GET" action="/" phx-change="filter">
+      <fieldset data-tabs class="grid grid-cols-1 grid-rows-[max-content_max-content]">
+        <input
+          :for={{tab, index} <- Enum.with_index(@tab)}
+          type="radio"
+          name="tab"
+          id={tab.field}
+          value={tab.field}
+          checked={index == 0}
+          phx-update="ignore"
+          class="hidden"
+        />
+        <legend class="flex flex-row gap-x-4">
+          <label :for={tab <- @tab} for={tab.field}>{tab.label}</label>
+        </legend>
+        <fieldset :for={tab <- @tab} class="hidden bg-white col-span-full row-start-2">
+          <ol>
+            <li :for={aggregate <- tab.aggregates}>
+              <label>
+                <input
+                  checked={is_aggregate_checked(aggregate.value, tab.query)}
+                  type="checkbox"
+                  name={"#{tab.field}[]"}
+                  value={aggregate.value}
+                />
+                <span>{aggregate.value} ({aggregate.count})</span>
+              </label>
+            </li>
+          </ol>
+        </fieldset>
+      </fieldset>
+    </form>
     """
   end
+
+  def is_aggregate_checked(_, nil), do: false
+  def is_aggregate_checked(value, filtered), do: value in filtered
+
+  def period(assigns) do
+    ~H"""
+    <fieldset class="border border-zinc-600 pb-1 px-2">
+      <legend class="px-1">Period</legend>
+      <fieldset class="flex flex-col">
+        <label>
+          <input type="radio" name="period" value="7" />
+          <span>{"Live"}</span>
+        </label>
+        <label>
+          <input type="radio" name="period" value="7" />
+          <span>{gettext("Past Hour")}</span>
+        </label>
+        <label>
+          <input type="radio" name="period" value="7" />
+          <span>{gettext("Today")}</span>
+        </label>
+        <label>
+          <input type="radio" name="period" value="14" />
+          <span>{gettext("Yesterday")}</span>
+        </label>
+      </fieldset>
+
+      <.hr />
+
+      <fieldset class="flex flex-col">
+        <label>
+          <input type="radio" name="period" value="7" />
+          <span>{gettext("Month to Date")}</span>
+        </label>
+        <label>
+          <input type="radio" name="period" value="14" />
+          <span>{gettext("Last Month")}</span>
+        </label>
+      </fieldset>
+
+      <.hr />
+
+      <fieldset class="flex flex-col">
+        <label>
+          <input type="radio" name="period" value="7" />
+          <span>{gettext("Year to Date")}</span>
+        </label>
+        <label>
+          <input type="radio" name="period" value="14" />
+          <span>{gettext("Last Year")}</span>
+        </label>
+      </fieldset>
+      <.hr />
+
+      <fieldset class="flex flex-col">
+        <label>
+          <input type="radio" name="period" value="7" />
+          <span>{gettext("Past 7 days")}</span>
+        </label>
+        <label>
+          <input type="radio" name="period" value="14" />
+          <span>{gettext("Past 14 days")}</span>
+        </label>
+        <label>
+          <input type="radio" name="period" value="30" />
+          <span>{gettext("Past 30 days")}</span>
+        </label>
+      </fieldset>
+
+      <.hr />
+
+      <fieldset class="flex flex-col">
+        <label>
+          <input type="radio" name="period" value="7" />
+          <span>All Time</span>
+        </label>
+      </fieldset>
+
+      <.hr />
+
+      <fieldset class="flex flex-row gap-x-2">
+        <input form="query" name="from" type="date" />
+        <span>{gettext("until")}</span>
+        <input form="query" name="from" type="date" />
+      </fieldset>
+    </fieldset>
+    """
+  end
+
+  attr :domains, :list
+
+  def sites(assigns) do
+    ~H"""
+    <fieldset class="border border-zinc-600 pb-1 px-2">
+      <legend class="px-1">{gettext("Sites")}</legend>
+      <ul class="flex flex-col">
+        <li :for={domain <- @domains}>
+          <label>
+            <input value={domain.host} form="query" name="sites[]" type="checkbox" />
+            <span>{domain.host}</span>
+          </label>
+        </li>
+      </ul>
+    </fieldset>
+    """
+  end
+
+  def scale(assigns) do
+    ~H"""
+    <fieldset class="border border-zinc-600 pb-1 px-2">
+      <legend class="px-1">Scale</legend>
+      <fieldset class="flex flex-col">
+        <label>
+          <input form="query" type="radio" name="scale" value="day" />
+          <span>{gettext("Day")}</span>
+        </label>
+        <label>
+          <input form="query" type="radio" name="scale" value="week" />
+          <span>{gettext("Week")}</span>
+        </label>
+        <label>
+          <input form="query" type="radio" name="scale" value="month" />
+          <span>{gettext("Month")}</span>
+        </label>
+        <label>
+          <input form="query" type="radio" name="scale" value="year" />
+          <span>{gettext("Year")}</span>
+        </label>
+      </fieldset>
+    </fieldset>
+    """
+  end
+
+  def hr(assigns), do: ~H|<hr class="h-px my-[0.25lh] border-0 bg-zinc-500" />|
 
   defp strftime(timestamp, :hh_mm), do: Calendar.strftime(timestamp, "%H:%M")
 end

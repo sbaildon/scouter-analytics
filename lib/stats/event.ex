@@ -32,7 +32,8 @@ defmodule Stats.Event do
   end
 
   def changeset(event, params) do
-    cast(event, params, [
+    event
+    |> cast(params, [
       :site_id,
       :timestamp,
       :host,
@@ -52,6 +53,7 @@ defmodule Stats.Event do
       :browser,
       :browser_version
     ])
+    |> validate_format(:path, ~r/^\/.*$/)
   end
 
   defp named_binding, do: :event
@@ -68,11 +70,17 @@ defmodule Stats.Event do
     )
   end
 
-  def count_by_path(query) do
+  def where_in(query, field, values) do
     from([{^named_binding(), event}] in query,
-      group_by: event.path,
-      select: {count(event.path), event.path},
-      order_by: [desc: count(event.path)]
+      where: field(event, ^field) in ^values
+    )
+  end
+
+  def count_by(query, field) do
+    from([{^named_binding(), event}] in query,
+      group_by: field(event, ^field),
+      select: %Stats.Aggregate{count: count(field(event, ^field)), value: field(event, ^field)},
+      order_by: [desc: count(field(event, ^field))]
     )
   end
 end
