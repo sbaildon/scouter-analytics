@@ -56,6 +56,10 @@ config :stats, Stats.EventsRepo,
   socket: Path.join([env!.("XDG_RUNTIME_DIR"), "scouter", ".s.PGSQL.5432"]),
   pool_size: env_as.("POOL_SIZE", "10", :integer)
 
+config :stats, Stats.Geo,
+  database: {:maxmind, "GeoLite2-City"},
+  license_key: env!.("API_KEY_MAXMIND")
+
 config :stats, Stats.Repo,
   database: env!.("DATABASE_PATH"),
   pool_size: env_as.("POOL_SIZE", "10", :integer)
