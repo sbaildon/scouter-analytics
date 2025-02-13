@@ -37,9 +37,11 @@ defmodule Dashboard.StatComponents do
     attr :query, :list, required: true
   end
 
+  attr :class, :string, default: ""
+
   def tabbed_chart(assigns) do
     ~H"""
-    <form method="GET" action="/" phx-change="filter">
+    <form class={@class} method="GET" action="/" phx-change="filter">
       <fieldset data-tabs class="grid grid-cols-1 grid-rows-[max-content_max-content]">
         <input
           :for={{tab, index} <- Enum.with_index(@tab)}
