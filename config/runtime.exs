@@ -65,5 +65,5 @@ config :stats, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 if config_env() == :prod do
   config :stats, Stats.Mailer,
     adapter: Swoosh.Adapters.Postmark,
-    api_key: env!.("POSTMARK_API_TOKEN")
+    api_key: env!.("API_KEY_POSTMARK")
 end
