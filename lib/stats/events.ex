@@ -124,8 +124,29 @@ defmodule Stats.Events do
     filter(query, rest)
   end
 
-  def record(event) do
-    Agent.get(__MODULE__, &record(&1, event))
+  def record(event_or_events) do
+    Agent.get(__MODULE__, &record(&1, event_or_events))
+  end
+
+  def record(_context, events) when is_list(events) do
+    now = NaiveDateTime.utc_now()
+
+    events
+    |> Enum.map(fn event ->
+      ua = random_ua()
+
+      event
+      |> Map.replace(:operating_system, ua.os.name)
+      |> Map.replace(:operating_system_version, ua.os.version)
+      |> Map.replace(:browser, ua.browser_family)
+      |> Map.replace(:browser_version, ua.client.version)
+      |> Map.from_struct()
+      |> Map.delete(:__meta__)
+      |> Map.reject(fn {_k, v} -> is_nil(v) end)
+      |> Map.put_new(:site_id, TypeID.new("site"))
+      |> Map.put_new(:timestamp, now)
+    end)
+    |> then(&EventsRepo.insert_all(Event, &1))
   end
 
   def record(_context, %Event{} = event) do
