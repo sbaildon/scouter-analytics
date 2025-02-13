@@ -21,6 +21,19 @@ defmodule Stats.Geo do
   end
 
   def lookup(ip) do
-    :locus.lookup(:ipdb, ip)
+    case :locus.lookup(:ipdb, ip) do
+      {:ok, result} ->
+        result
+
+      :not_found ->
+        nil
+
+      {:error, {:invalid_address, _address}} ->
+        nil
+
+      {:error, reason} ->
+        Logger.warning(reason)
+        nil
+    end
   end
 end
