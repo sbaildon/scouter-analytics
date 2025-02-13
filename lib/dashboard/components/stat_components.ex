@@ -76,8 +76,8 @@ defmodule Dashboard.StatComponents do
     """
   end
 
-  def is_aggregate_checked(_, nil), do: false
-  def is_aggregate_checked(value, filtered), do: value in filtered
+  defp is_aggregate_checked(_, nil), do: false
+  defp is_aggregate_checked(value, filtered), do: value in filtered
 
   attr :query, Query, required: true
 
@@ -137,7 +137,7 @@ defmodule Dashboard.StatComponents do
     """
   end
 
-  def hr(assigns), do: ~H|<hr class="h-px my-[0.25lh] border-0 bg-zinc-500" />|
+  defp hr(assigns), do: ~H|<hr class="h-px my-[0.25lh] border-0 bg-zinc-500" />|
 
   defp strftime(timestamp, :hh_mm), do: Calendar.strftime(timestamp, "%Y-%m-%d %H:%M")
 end
