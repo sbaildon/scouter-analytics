@@ -30,6 +30,7 @@ defmodule Dashboard.StatsLive do
     utm_medium_aggregate = Events.retrieve(:utm_medium, filters)
     utm_content_aggregate = Events.retrieve(:utm_content, filters)
     utm_term_aggregate = Events.retrieve(:utm_term, filters)
+    country_code_aggregate = Events.retrieve(:country_code, filters)
 
     assign(socket, :aggregates, %{
       paths: path_aggregate,
@@ -42,7 +43,8 @@ defmodule Dashboard.StatsLive do
       utm_campaigns: utm_campaign_aggregate,
       utm_mediums: utm_medium_aggregate,
       utm_contents: utm_content_aggregate,
-      utm_terms: utm_term_aggregate
+      utm_terms: utm_term_aggregate,
+      country_codes: country_code_aggregate
     })
   end
 

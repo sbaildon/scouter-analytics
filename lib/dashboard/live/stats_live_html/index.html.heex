@@ -84,5 +84,13 @@
         query={@query.utm_terms}
       />
     </.tabbed_chart>
+    <.tabbed_chart>
+      <:tab
+        label={gettext("Country")}
+        field="country_codes"
+        aggregates={@aggregates.country_codes}
+        query={@query.country_codes}
+      />
+    </.tabbed_chart>
   </div>
 </div>
