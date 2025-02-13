@@ -4,6 +4,7 @@ defmodule Stats.Events do
 
   alias Stats.Event
   alias Stats.EventsRepo
+  alias Stats.Geo
 
   require Logger
 
@@ -92,6 +93,10 @@ defmodule Stats.Events do
     filter(Event.where_in(query, :utm_term, values), rest)
   end
 
+  defp filter(query, [{:country_codes, values} | rest]) do
+    filter(Event.where_in(query, :country_code, values), rest)
+  end
+
   defp filter(query, [{:referrers, values} | rest]) do
     filter(Event.where_in(query, :referrer, values), rest)
   end
@@ -133,13 +138,7 @@ defmodule Stats.Events do
 
     events
     |> Enum.map(fn event ->
-      ua = random_ua()
-
       event
-      |> Map.replace(:operating_system, ua.os.name)
-      |> Map.replace(:operating_system_version, ua.os.version)
-      |> Map.replace(:browser, ua.browser_family)
-      |> Map.replace(:browser_version, ua.client.version)
       |> Map.from_struct()
       |> Map.delete(:__meta__)
       |> Map.reject(fn {_k, v} -> is_nil(v) end)
@@ -154,13 +153,7 @@ defmodule Stats.Events do
 
     events =
       for _i <- 1..Enum.random(51..200) do
-        ua = random_ua()
-
         event
-        |> Map.replace(:operating_system, ua.os.name)
-        |> Map.replace(:operating_system_version, ua.os.version)
-        |> Map.replace(:browser, ua.browser_family)
-        |> Map.replace(:browser_version, ua.client.version)
         |> Map.replace(:site_id, TypeID.new("site"))
         |> Map.put_new(:timestamp, now)
         |> Map.from_struct()
@@ -176,21 +169,48 @@ defmodule Stats.Events do
   def count_and_range("past_30_days"), do: {30, "day"}
   def count_and_range(_), do: {1, "year"}
 
-  defp random_ua, do: user_agents() |> Enum.random() |> UAInspector.parse()
+  def country_details(event, ip) do
+    geo_params =
+      case Geo.lookup(ip) do
+        %{} = entry ->
+          country_code =
+            entry
+            |> get_in(["country", "iso_code"])
+            |> ignore_unknown_country()
 
-  defp user_agents do
-    [
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3",
-      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1.1 Safari/605.1.1",
-      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.1",
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 Edg/128.0.0.",
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.",
-      "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Mobile Safari/537.3",
-      "Mozilla/5.0 (iPhone; CPU iPhone OS 18_1_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1.1 Mobile/15E148 Safari/604.",
-      "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/27.0 Chrome/125.0.0.0 Mobile Safari/537.3",
-      "Mozilla/5.0 (iPhone; CPU iPhone OS 18_2_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/132.0.6834.100 Mobile/15E148 Safari/604.",
-      "Mozilla/5.0 (iPhone; CPU iPhone OS 18_2_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Mobile/15E148 Safari/604.",
-      "Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604."
-    ]
+          city_geoname_id = country_code && get_in(entry, ["city", "geoname_id"])
+
+          %{
+            country_code: country_code,
+            subdivision1_code: subdivision1_code(country_code, entry),
+            subdivision2_code: subdivision2_code(country_code, entry),
+            city_geoname_id: city_geoname_id
+          }
+
+        nil ->
+          %{}
+      end
+
+    Map.merge(event, geo_params)
   end
+
+  defp subdivision1_code(country_code, %{"subdivisions" => [%{"iso_code" => iso_code} | _rest]})
+       when not is_nil(country_code) do
+    country_code <> "-" <> iso_code
+  end
+
+  defp subdivision1_code(_, _), do: nil
+
+  defp subdivision2_code(country_code, %{"subdivisions" => [_first, %{"iso_code" => iso_code} | _rest]})
+       when not is_nil(country_code) do
+    country_code <> "-" <> iso_code
+  end
+
+  defp subdivision2_code(_, _), do: nil
+
+  # Ignore worldwide (ZZ), disputed terrories (XX), and Tor (T1)
+  defp ignore_unknown_country("ZZ"), do: nil
+  defp ignore_unknown_country("XX"), do: nil
+  defp ignore_unknown_country("T1"), do: nil
+  defp ignore_unknown_country(country), do: country
 end

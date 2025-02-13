@@ -18,7 +18,8 @@ defmodule Stats.Application do
       {Phoenix.PubSub, name: Stats.PubSub},
       Dashboard.Endpoint,
       Stats.Events,
-      {Objex, Application.fetch_env!(:stats, Objex)}
+      {Objex, Application.fetch_env!(:stats, Objex)},
+      Stats.Generator
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
