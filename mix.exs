@@ -61,7 +61,8 @@ defmodule Stats.MixProject do
       {:objex, git: "https://git.sr.ht/~sbaildon/objex", ref: "8fad06bad1b5684b9919ceccc020662f8ea3e4b4"},
       {:typeid_elixir, "~> 1.1"},
       {:ua_inspector, "~> 3.0"},
-      {:locus, "~> 2.3"}
+      {:locus, "~> 2.3"},
+      {:remote_ip, "~> 1.2"}
     ]
   end
 
