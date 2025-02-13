@@ -155,19 +155,6 @@ defmodule Stats.Events do
   def count_and_range("past_30_days"), do: {30, "day"}
   def count_and_range(_), do: {1, "year"}
 
-  def load(event) when is_list(event) do
-    fields = Event.__schema__(:fields)
-
-    fields
-    |> Enum.zip(event)
-    |> Map.new()
-    |> Map.replace_lazy(:timestamp, fn {d, {h, m, s, us}} ->
-      NaiveDateTime.from_erl!({d, {h, m, s}}, us)
-    end)
-    |> Event.changeset()
-    |> Ecto.Changeset.apply_action!(:validate)
-  end
-
   defp random_ua, do: user_agents() |> Enum.random() |> UAInspector.parse()
 
   defp user_agents do
