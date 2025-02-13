@@ -17,7 +17,7 @@ defmodule Stats.EventsRepo.Migrations.CreateEvents do
       add :country_code, :"varchar(2)"
       add :subdivision1_code, :text
       add :subdivision2_code, :text
-      add :city_geoname_id, :text
+      add :city_geoname_id, :integer
       add :operating_system, :text
       add :operating_system_version, :text
       add :browser, :text
