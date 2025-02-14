@@ -30,7 +30,14 @@ defmodule Stats.Events do
     Event.query()
     |> Event.super_aggregate()
     |> filter(filters)
-    |> EventsRepo.stream()
+    |> EventsRepo.stream(max_rows: 2000)
+  end
+
+  def super_aggregate(filters \\ []) do
+    Event.query()
+    |> Event.super_aggregate()
+    |> filter(filters)
+    |> EventsRepo.all()
   end
 
   # maybe take inspiration from the reduce statement here
