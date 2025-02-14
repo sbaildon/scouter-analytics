@@ -57,8 +57,10 @@ config :stats, Stats.EventsRepo,
   pool_size: env_as.("POOL_SIZE", "10", :integer)
 
 config :stats, Stats.Geo,
-  database: {:maxmind, "GeoLite2-City"},
-  license_key: env!.("API_KEY_MAXMIND")
+  database: Path.join([".", "/"] ++ Path.wildcard("./priv/mmdb/*.mmdb")),
+  maxmind_opts: [
+    license_key: env.("API_KEY_MAXMIND", nil)
+  ]
 
 config :stats, Stats.Repo,
   database: env!.("DATABASE_PATH"),
