@@ -1,4 +1,4 @@
-defmodule Stats.SuperAggregate do
+defmodule Stats.Aggregate do
   @moduledoc false
   use Ecto.Schema
 

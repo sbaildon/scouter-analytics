@@ -3,11 +3,11 @@ defmodule Dashboard.StatsLive do
   use Dashboard, :live_view
 
   alias Dashboard.StatsLive.Query
+  alias Stats.Aggregate
   alias Stats.Domains
   alias Stats.Event
   alias Stats.Events
   alias Stats.EventsRepo
-  alias Stats.SuperAggregate
 
   require Logger
 
@@ -58,7 +58,7 @@ defmodule Dashboard.StatsLive do
         stream
         |> Stream.chunk_by(& &1.grouping_id)
         |> Enum.reduce(socket, fn [aggregate | _] = aggregates, socket ->
-          stream(socket, SuperAggregate.field(aggregate), aggregates, reset: true)
+          stream(socket, Aggregate.field(aggregate), aggregates, reset: true)
         end)
       end)
 
@@ -129,7 +129,7 @@ defmodule Dashboard.StatsLive do
     |> push_patch(to: ~p"/?#{query_params}")
   end
 
-  defp dom_id(%SuperAggregate{} = super_aggregate), do: "super-aggregate-#{SuperAggregate.hash(super_aggregate)}"
+  defp dom_id(%Aggregate{} = super_aggregate), do: "super-aggregate-#{Aggregate.hash(super_aggregate)}"
 
   defmodule Period do
     @moduledoc false

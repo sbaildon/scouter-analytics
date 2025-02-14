@@ -5,7 +5,7 @@ defmodule Stats.Event do
   import Ecto.Changeset
   import Ecto.Query
 
-  alias Stats.SuperAggregate
+  alias Stats.Aggregate
 
   @primary_key false
   schema "events" do
@@ -114,7 +114,7 @@ defmodule Stats.Event do
     query
     |> then(fn query ->
       from([{^named_binding(), e}] in query,
-        select: %SuperAggregate{
+        select: %Aggregate{
           grouping_id:
             selected_as(
               fragment(
