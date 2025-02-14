@@ -52,7 +52,7 @@ defmodule Dashboard.StatsLive do
   end
 
   @impl true
-  def handle_async(:fetch_super_aggregates, {:ok, stream}, socket) do
+  def handle_async(:fetch_super_aggregates, {:ok, %Stream{} = stream}, socket) do
     {:ok, socket} =
       EventsRepo.transaction(fn ->
         stream
