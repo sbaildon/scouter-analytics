@@ -10,14 +10,22 @@ defmodule Stats.Geo do
 
   @impl true
   def init(opts) do
-    database = opts[:database]
-    license_key = opts[:license_key]
-
     children = [
-      :locus.loader_child_spec(:ipdb, database, license_key: license_key)
+      loader_child_spec(opts)
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
+  end
+
+  defp loader_child_spec(opts) do
+    case Keyword.fetch!(opts, :database) do
+      {:maxmind, _} = db ->
+        maxmind_opts = Keyword.fetch!(opts, :maxmind_opts)
+        :locus.loader_child_spec(:ipdb, db, maxmind_opts)
+
+      path ->
+        :locus.loader_child_spec(:ipdb, path)
+    end
   end
 
   def lookup(ip) do

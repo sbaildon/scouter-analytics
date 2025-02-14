@@ -4,7 +4,6 @@ defmodule Stats.Generator do
 
   alias Stats.Event
   alias Stats.Events
-  alias Stats.Geo
 
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
@@ -38,11 +37,13 @@ defmodule Stats.Generator do
         %Event{}
         |> Map.merge(%{
           timestamp: now,
-          path: "/"
         })
+        |> Events.Mock.add_site_and_host()
         |> Events.Mock.add_country_details()
         |> Events.Mock.add_utm_parameters()
         |> Events.Mock.add_os_and_browser_details()
+        |> Events.Mock.add_path()
+        |> Events.Mock.add_referrer()
       end
 
     Events.record(events)

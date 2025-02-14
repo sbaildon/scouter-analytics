@@ -26,6 +26,15 @@ defmodule Stats.Events do
     |> EventsRepo.all()
   end
 
+  def stream_super_aggregate(filters \\ []) do
+    Event.query()
+    |> Event.super_aggregate()
+    |> filter(filters)
+    |> EventsRepo.stream()
+  end
+
+  # maybe take inspiration from the reduce statement here
+  # https://hexdocs.pm/ecto/dynamic-queries.html#building-dynamic-queries
   defp filter(query, []), do: query
 
   defp filter(query, [{_, nil} | rest]) do

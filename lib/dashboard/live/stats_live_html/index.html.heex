@@ -8,17 +8,20 @@
     <div class="col-span-full">
       <.timeline title="Events" events={@events} />
     </div>
+
     <.tabbed_chart>
       <:tab
         label={gettext("Browsers")}
         field="browsers"
-        aggregates={@aggregates.browsers}
+        aggregates={@streams.browser}
+        value={:browser}
         query={@query.browsers}
       />
       <:tab
         label={gettext("Vers.")}
         field="browser_versions"
-        aggregates={@aggregates.browser_versions}
+        aggregates={@streams.browser_version}
+        value={:browser_version}
         query={@query.browser_versions}
       />
     </.tabbed_chart>
@@ -26,13 +29,15 @@
       <:tab
         label={gettext("OS")}
         field="operating_systems"
-        aggregates={@aggregates.operating_systems}
+        aggregates={@streams.operating_system}
+        value={:operating_system}
         query={@query.operating_systems}
       />
       <:tab
         label={gettext("Vers.")}
         field="operating_system_versions"
-        aggregates={@aggregates.operating_system_versions}
+        aggregates={@streams.operating_system_version}
+        value={:operating_system_version}
         query={@query.operating_system_versions}
       />
     </.tabbed_chart>
@@ -40,7 +45,8 @@
       <:tab
         label={gettext("Path")}
         field="paths"
-        aggregates={@aggregates.paths}
+        aggregates={@streams.path}
+        value={:path}
         query={@query.paths}
       />
     </.tabbed_chart>
@@ -48,7 +54,8 @@
       <:tab
         label={gettext("Referrer")}
         field="referrers"
-        aggregates={@aggregates.referrers}
+        aggregates={@streams.referrer}
+        value={:referrer}
         query={@query.referrers}
       />
     </.tabbed_chart>
@@ -56,31 +63,36 @@
       <:tab
         label={gettext("Source")}
         field="utm_sources"
-        aggregates={@aggregates.utm_sources}
+        aggregates={@streams.utm_source}
+        value={:utm_source}
         query={@query.utm_sources}
       />
       <:tab
         label={gettext("Campaign")}
         field="utm_campaigns"
-        aggregates={@aggregates.utm_campaigns}
+        aggregates={@streams.utm_campaign}
+        value={:utm_campaign}
         query={@query.utm_campaigns}
       />
       <:tab
         label={gettext("Medium")}
         field="utm_mediums"
-        aggregates={@aggregates.utm_mediums}
+        aggregates={@streams.utm_medium}
+        value={:utm_medium}
         query={@query.utm_mediums}
       />
       <:tab
         label={gettext("Content")}
         field="utm_contents"
-        aggregates={@aggregates.utm_contents}
+        aggregates={@streams.utm_content}
+        value={:utm_content}
         query={@query.utm_contents}
       />
       <:tab
         label={gettext("Term")}
         field="utm_terms"
-        aggregates={@aggregates.utm_terms}
+        aggregates={@streams.utm_term}
+        value={:utm_term}
         query={@query.utm_terms}
       />
     </.tabbed_chart>
@@ -88,7 +100,8 @@
       <:tab
         label={gettext("Country")}
         field="country_codes"
-        aggregates={@aggregates.country_codes}
+        aggregates={@streams.country_code}
+        value={:country_code}
         query={@query.country_codes}
       />
     </.tabbed_chart>

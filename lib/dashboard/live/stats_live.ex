@@ -4,7 +4,10 @@ defmodule Dashboard.StatsLive do
 
   alias Dashboard.StatsLive.Query
   alias Stats.Domains
+  alias Stats.Event
   alias Stats.Events
+  alias Stats.EventsRepo
+  alias Stats.SuperAggregate
 
   require Logger
 
@@ -16,36 +19,13 @@ defmodule Dashboard.StatsLive do
     assign(socket, :events, scaled_events)
   end
 
-  defp aggregates(socket, query) do
+  defp super_aggregate(socket, query) do
     filters = Query.to_filters(query)
 
-    path_aggregate = Events.retrieve(:path, filters)
-    browser_aggregate = Events.retrieve(:browser, filters)
-    browser_version_aggregate = Events.retrieve(:browser_version, filters)
-    operating_system_aggregate = Events.retrieve(:operating_system, filters)
-    operating_system_version_aggregate = Events.retrieve(:operating_system_version, filters)
-    referrer_aggregate = Events.retrieve(:referrer, filters)
-    utm_source_aggregate = Events.retrieve(:utm_source, filters)
-    utm_campaign_aggregate = Events.retrieve(:utm_campaign, filters)
-    utm_medium_aggregate = Events.retrieve(:utm_medium, filters)
-    utm_content_aggregate = Events.retrieve(:utm_content, filters)
-    utm_term_aggregate = Events.retrieve(:utm_term, filters)
-    country_code_aggregate = Events.retrieve(:country_code, filters)
-
-    assign(socket, :aggregates, %{
-      paths: path_aggregate,
-      browsers: browser_aggregate,
-      browser_versions: browser_version_aggregate,
-      operating_systems: operating_system_aggregate,
-      operating_system_versions: operating_system_version_aggregate,
-      referrers: referrer_aggregate,
-      utm_sources: utm_source_aggregate,
-      utm_campaigns: utm_campaign_aggregate,
-      utm_mediums: utm_medium_aggregate,
-      utm_contents: utm_content_aggregate,
-      utm_terms: utm_term_aggregate,
-      country_codes: country_code_aggregate
-    })
+    start_async(socket, :fetch_super_aggregates, fn ->
+      stream = Events.stream_super_aggregate(filters)
+      stream
+    end)
   end
 
   @impl true
@@ -55,8 +35,34 @@ defmodule Dashboard.StatsLive do
 
     {:ok,
      socket
+     |> then(fn socket ->
+       Enum.reduce(Event.__schema__(:fields), socket, fn field, socket ->
+         configure_aggregate_stream(socket, field)
+       end)
+     end)
+     |> super_aggregate(query)
      |> assign(:query, query)
-     |> assign(:domains, Domains.list()), temporary_assigns: [hourly: [], aggregate: []]}
+     |> assign(:domains, Domains.list()), temporary_assigns: [aggregates: []]}
+  end
+
+  defp configure_aggregate_stream(socket, key) do
+    socket
+    |> stream_configure(key, dom_id: &dom_id/1)
+    |> stream(key, [], reset: true)
+  end
+
+  @impl true
+  def handle_async(:fetch_super_aggregates, {:ok, stream}, socket) do
+    {:ok, socket} =
+      EventsRepo.transaction(fn ->
+        stream
+        |> Stream.chunk_by(& &1.grouping_id)
+        |> Enum.reduce(socket, fn [aggregate | _] = aggregates, socket ->
+          stream(socket, SuperAggregate.field(aggregate), aggregates, reset: true)
+        end)
+      end)
+
+    {:noreply, socket}
   end
 
   def handle_event("scale", params, socket) do
@@ -95,7 +101,9 @@ defmodule Dashboard.StatsLive do
 
     case Query.validate(existing_query, params) do
       {:ok, query} ->
-        socket |> period(query) |> aggregates(query)
+        socket
+        |> super_aggregate(query)
+        |> period(query)
 
       _ ->
         socket
@@ -120,6 +128,8 @@ defmodule Dashboard.StatsLive do
     |> assign(:query, query)
     |> push_patch(to: ~p"/?#{query_params}")
   end
+
+  defp dom_id(%SuperAggregate{} = super_aggregate), do: "super-aggregate-#{SuperAggregate.hash(super_aggregate)}"
 
   defmodule Period do
     @moduledoc false

@@ -5,6 +5,8 @@ defmodule Stats.Event do
   import Ecto.Changeset
   import Ecto.Query
 
+  alias Stats.SuperAggregate
+
   @primary_key false
   schema "events" do
     field :site_id, TypeID, prefix: "site", type: :uuid
@@ -106,6 +108,91 @@ defmodule Stats.Event do
       select: %Stats.Aggregate{count: count(field(event, ^field)), value: field(event, ^field)},
       order_by: [desc: count(field(event, ^field))]
     )
+  end
+
+  def super_aggregate(query) do
+    query
+    |> then(fn query ->
+      from([{^named_binding(), e}] in query,
+        select: %SuperAggregate{
+          grouping_id:
+            selected_as(
+              fragment(
+                "GROUPING (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                e.site_id,
+                e.timestamp,
+                e.host,
+                e.path,
+                e.referrer,
+                e.utm_medium,
+                e.utm_source,
+                e.utm_campaign,
+                e.utm_content,
+                e.utm_term,
+                e.country_code,
+                e.subdivision1_code,
+                e.subdivision2_code,
+                e.city_geoname_id,
+                e.operating_system,
+                e.operating_system_version,
+                e.browser,
+                e.browser_version
+              ),
+              :grouping_id
+            ),
+          count: count(),
+          site_id: e.site_id,
+          timestamp: e.timestamp,
+          host: e.host,
+          path: e.path,
+          referrer: e.referrer,
+          utm_medium: e.utm_medium,
+          utm_source: e.utm_source,
+          utm_campaign: e.utm_campaign,
+          utm_content: e.utm_content,
+          utm_term: e.utm_term,
+          country_code: e.country_code,
+          subdivision1_code: e.subdivision1_code,
+          subdivision2_code: e.subdivision2_code,
+          city_geoname_id: e.city_geoname_id,
+          operating_system: e.operating_system,
+          operating_system_version: e.operating_system_version,
+          browser: e.browser,
+          browser_version: e.browser_version
+        }
+      )
+    end)
+    |> then(fn query ->
+      from([{^named_binding(), e}] in query,
+        group_by:
+          fragment(
+            "GROUPING SETS((?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?))",
+            e.site_id,
+            e.timestamp,
+            e.host,
+            e.path,
+            e.referrer,
+            e.utm_medium,
+            e.utm_source,
+            e.utm_campaign,
+            e.utm_content,
+            e.utm_term,
+            e.country_code,
+            e.subdivision1_code,
+            e.subdivision2_code,
+            e.city_geoname_id,
+            e.operating_system,
+            e.operating_system_version,
+            e.browser,
+            e.browser_version
+          )
+      )
+    end)
+    |> then(fn query ->
+      from([{^named_binding(), event}] in query,
+        order_by: [asc: selected_as(:grouping_id), desc: :count]
+      )
+    end)
   end
 
   # keep in mind

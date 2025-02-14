@@ -35,6 +35,8 @@ defmodule Dashboard.StatComponents do
     attr :field, :string, required: true
     attr :aggregates, :list, required: true, doc: "List of Stats.Aggregate"
     attr :query, :list, required: true
+    attr :id, :string, required: false
+    attr :value, :atom, required: false
   end
 
   attr :class, :string, default: ""
@@ -57,16 +59,16 @@ defmodule Dashboard.StatComponents do
           <label :for={tab <- @tab} for={tab.field}>{tab.label}</label>
         </legend>
         <fieldset :for={tab <- @tab} class="hidden bg-white col-span-full row-start-2">
-          <ol>
-            <li :for={aggregate <- tab.aggregates}>
+          <ol id={"#{tab.field}-stream"} phx-update="stream">
+            <li :for={{dom_id, aggregate} <- tab.aggregates} id={dom_id}>
               <label>
                 <input
-                  checked={is_aggregate_checked(aggregate.value, tab.query)}
                   type="checkbox"
+                  checked={is_aggregate_checked(aggregate, tab.value, tab.query)}
                   name={"#{tab.field}[]"}
-                  value={aggregate.value}
+                  value={Map.fetch!(aggregate, tab.value)}
                 />
-                <span>{aggregate.value} ({aggregate.count})</span>
+                <span>{Map.fetch!(aggregate, tab.value)}</span>
               </label>
             </li>
           </ol>
@@ -76,8 +78,8 @@ defmodule Dashboard.StatComponents do
     """
   end
 
-  defp is_aggregate_checked(_, nil), do: false
-  defp is_aggregate_checked(value, filtered), do: value in filtered
+  defp is_aggregate_checked(_, _, nil), do: false
+  defp is_aggregate_checked(aggregate, field, filtered), do: Map.fetch!(aggregate, field) in filtered
 
   attr :query, Query, required: true
 
