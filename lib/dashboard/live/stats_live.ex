@@ -7,6 +7,7 @@ defmodule Dashboard.StatsLive do
   alias Stats.Domains
   alias Stats.Events
   alias Stats.EventsRepo
+  alias Stats.TypedAggregate
 
   require Logger
 
@@ -147,7 +148,7 @@ defmodule Dashboard.StatsLive do
     |> push_patch(to: ~p"/?#{query_params}")
   end
 
-  defp dom_id(%Aggregate{} = super_aggregate), do: "aggregate-#{Aggregate.hash(super_aggregate)}"
+  defp dom_id(%TypedAggregate{} = aggregate), do: "aggregate-#{TypedAggregate.hash(aggregate)}"
 
   defmodule Period do
     @moduledoc false

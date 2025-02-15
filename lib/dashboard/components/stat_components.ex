@@ -34,7 +34,7 @@ defmodule Dashboard.StatComponents do
     attr :title, :string, required: true
     attr :field, :string, required: true
     attr :aggregates, :list, required: true, doc: "List of Stats.Aggregate"
-    attr :query, :list, required: true
+    attr :filtered, :list, required: true
   end
 
   attr :class, :string, default: ""
@@ -63,7 +63,7 @@ defmodule Dashboard.StatComponents do
                 <input
                   type="checkbox"
                   class="hidden"
-                  checked={is_aggregate_checked(aggregate.value, tab.query)}
+                  checked={is_aggregate_checked(aggregate.value, tab.filtered)}
                   name={"#{tab.field}[]"}
                   value={aggregate.value}
                 />
