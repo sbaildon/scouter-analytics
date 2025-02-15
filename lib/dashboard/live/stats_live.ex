@@ -129,7 +129,7 @@ defmodule Dashboard.StatsLive do
     |> push_patch(to: ~p"/?#{query_params}")
   end
 
-  defp dom_id(%Aggregate{} = super_aggregate), do: "super-aggregate-#{Aggregate.hash(super_aggregate)}"
+  defp dom_id(%Aggregate{} = super_aggregate), do: "aggregate-#{Aggregate.hash(super_aggregate)}"
 
   defmodule Period do
     @moduledoc false
