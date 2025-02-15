@@ -59,7 +59,7 @@ defmodule Dashboard.StatComponents do
         <fieldset :for={tab <- @tab} class="hidden col-span-full row-start-2">
           <ol id={"#{tab.field}-stream"} phx-update="stream">
             <li :for={{dom_id, aggregate} <- tab.aggregates} id={dom_id}>
-              <label>
+              <label class="flex flex-row items-center hover:bg-zinc-100">
                 <input
                   type="checkbox"
                   class="hidden"
