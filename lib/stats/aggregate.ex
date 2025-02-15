@@ -43,20 +43,20 @@ defmodule Stats.Aggregate do
 
   defp do_hash(term), do: :erlang.phash2(term)
 
-  def field(%{grouping_id: 0b0111111111111111}), do: :host
-  def field(%{grouping_id: 0b1011111111111111}), do: :path
-  def field(%{grouping_id: 0b1101111111111111}), do: :referrer
-  def field(%{grouping_id: 0b1110111111111111}), do: :utm_medium
-  def field(%{grouping_id: 0b1111011111111111}), do: :utm_source
-  def field(%{grouping_id: 0b1111101111111111}), do: :utm_campaign
-  def field(%{grouping_id: 0b1111110111111111}), do: :utm_content
-  def field(%{grouping_id: 0b1111111011111111}), do: :utm_term
-  def field(%{grouping_id: 0b1111111101111111}), do: :country_code
-  def field(%{grouping_id: 0b1111111110111111}), do: :subdivision1_code
-  def field(%{grouping_id: 0b1111111111011111}), do: :subdivision2_code
-  def field(%{grouping_id: 0b1111111111101111}), do: :subdivision2_code
-  def field(%{grouping_id: 0b1111111111110111}), do: :operating_system
-  def field(%{grouping_id: 0b1111111111111011}), do: :operating_system_version
-  def field(%{grouping_id: 0b1111111111111101}), do: :browser
-  def field(%{grouping_id: 0b1111111111111110}), do: :browser_version
+  def group(%{grouping_id: 0b0111111111111111}), do: :host
+  def group(%{grouping_id: 0b1011111111111111}), do: :path
+  def group(%{grouping_id: 0b1101111111111111}), do: :referrer
+  def group(%{grouping_id: 0b1110111111111111}), do: :utm_medium
+  def group(%{grouping_id: 0b1111011111111111}), do: :utm_source
+  def group(%{grouping_id: 0b1111101111111111}), do: :utm_campaign
+  def group(%{grouping_id: 0b1111110111111111}), do: :utm_content
+  def group(%{grouping_id: 0b1111111011111111}), do: :utm_term
+  def group(%{grouping_id: 0b1111111101111111}), do: :country_code
+  def group(%{grouping_id: 0b1111111110111111}), do: :subdivision1_code
+  def group(%{grouping_id: 0b1111111111011111}), do: :subdivision2_code
+  def group(%{grouping_id: 0b1111111111101111}), do: :subdivision2_code
+  def group(%{grouping_id: 0b1111111111110111}), do: :operating_system
+  def group(%{grouping_id: 0b1111111111111011}), do: :operating_system_version
+  def group(%{grouping_id: 0b1111111111111101}), do: :browser
+  def group(%{grouping_id: 0b1111111111111110}), do: :browser_version
 end
