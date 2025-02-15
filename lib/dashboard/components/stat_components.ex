@@ -58,7 +58,7 @@ defmodule Dashboard.StatComponents do
         <legend class="flex flex-row gap-x-4">
           <label :for={tab <- @tab} for={tab.field}>{tab.label}</label>
         </legend>
-        <fieldset :for={tab <- @tab} class="hidden bg-white col-span-full row-start-2">
+        <fieldset :for={tab <- @tab} class="hidden col-span-full row-start-2">
           <ol id={"#{tab.field}-stream"} phx-update="stream">
             <li :for={{dom_id, aggregate} <- tab.aggregates} id={dom_id}>
               <label>
@@ -95,7 +95,6 @@ defmodule Dashboard.StatComponents do
           </label>
           <.hr />
         </fieldset>
-        
       </fieldset>
     </form>
     """
