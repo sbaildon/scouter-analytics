@@ -34,20 +34,18 @@ defmodule Dashboard.StatsLive do
 
     {:ok,
      socket
-     |> then(fn socket ->
-       Enum.reduce(Aggregate.__schema__(:fields), socket, fn field, socket ->
-         configure_aggregate_stream(socket, field)
-       end)
-     end)
+     |> configure_stream_for_aggregate_fields()
      |> fetch_aggregates(query)
      |> assign(:query, query)
-     |> assign(:domains, Domains.list()), temporary_assigns: [aggregates: []]}
+     |> assign(:domains, Domains.list())}
   end
 
-  defp configure_aggregate_stream(socket, key) do
-    socket
-    |> stream_configure(key, dom_id: &dom_id/1)
-    |> stream(key, [], reset: true)
+  defp configure_stream_for_aggregate_fields(socket) do
+    Enum.reduce(Aggregate.__schema__(:fields), socket, fn field, socket ->
+      socket
+      |> stream_configure(field, dom_id: &dom_id/1)
+      |> stream(field, [])
+    end)
   end
 
   @impl true
