@@ -35,7 +35,6 @@ defmodule Dashboard.StatComponents do
     attr :field, :string, required: true
     attr :aggregates, :list, required: true, doc: "List of Stats.Aggregate"
     attr :query, :list, required: true
-    attr :id, :string, required: false
     attr :value, :atom, required: false
   end
 
