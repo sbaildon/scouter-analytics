@@ -31,7 +31,7 @@ defmodule Dashboard.StatComponents do
   end
 
   slot :tab, doc: "Tabs" do
-    attr :label, :string, required: true
+    attr :title, :string, required: true
     attr :field, :string, required: true
     attr :aggregates, :list, required: true, doc: "List of Stats.Aggregate"
     attr :query, :list, required: true
@@ -56,7 +56,7 @@ defmodule Dashboard.StatComponents do
           class="hidden"
         />
         <legend class="flex flex-row gap-x-4">
-          <label :for={tab <- @tab} for={tab.field}>{tab.label}</label>
+          <label :for={tab <- @tab} for={tab.field}>{tab.title}</label>
         </legend>
         <fieldset :for={tab <- @tab} class="hidden col-span-full row-start-2">
           <ol id={"#{tab.field}-stream"} phx-update="stream">
