@@ -26,16 +26,16 @@ defmodule Stats.Events do
     |> EventsRepo.all()
   end
 
-  def stream_super_aggregate(filters \\ []) do
+  def stream_aggregates(filters \\ []) do
     Event.query()
-    |> Event.super_aggregate()
+    |> Event.aggregate_query()
     |> filter(filters)
     |> EventsRepo.stream(max_rows: 2000)
   end
 
-  def super_aggregate(filters \\ []) do
+  def list_aggregates(filters \\ []) do
     Event.query()
-    |> Event.super_aggregate()
+    |> Event.aggregate_query()
     |> filter(filters)
     |> EventsRepo.all()
   end

@@ -110,7 +110,7 @@ defmodule Stats.Event do
     )
   end
 
-  def super_aggregate(query) do
+  def aggregate_query(query) do
     query
     |> then(fn query ->
       from([{^named_binding(), e}] in query,

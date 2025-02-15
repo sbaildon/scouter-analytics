@@ -19,11 +19,11 @@ defmodule Dashboard.StatsLive do
     assign(socket, :events, scaled_events)
   end
 
-  defp super_aggregate(socket, query) do
+  defp fetch_aggregates(socket, query) do
     filters = Query.to_filters(query)
 
-    start_async(socket, :fetch_super_aggregates, fn ->
-      stream = Events.stream_super_aggregate(filters)
+    start_async(socket, :fetch_aggregates, fn ->
+      stream = Events.stream_aggregates(filters)
       stream
     end)
   end
@@ -40,7 +40,7 @@ defmodule Dashboard.StatsLive do
          configure_aggregate_stream(socket, field)
        end)
      end)
-     |> super_aggregate(query)
+     |> fetch_aggregates(query)
      |> assign(:query, query)
      |> assign(:domains, Domains.list()), temporary_assigns: [aggregates: []]}
   end
@@ -52,7 +52,7 @@ defmodule Dashboard.StatsLive do
   end
 
   @impl true
-  def handle_async(:fetch_super_aggregates, {:ok, %Stream{} = stream}, socket) do
+  def handle_async(:fetch_aggregates, {:ok, %Stream{} = stream}, socket) do
     {:ok, socket} =
       EventsRepo.transaction(fn ->
         stream
@@ -102,7 +102,7 @@ defmodule Dashboard.StatsLive do
     case Query.validate(existing_query, params) do
       {:ok, query} ->
         socket
-        |> super_aggregate(query)
+        |> fetch_aggregates(query)
         |> period(query)
 
       _ ->
