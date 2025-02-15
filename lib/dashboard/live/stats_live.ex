@@ -5,7 +5,6 @@ defmodule Dashboard.StatsLive do
   alias Dashboard.StatsLive.Query
   alias Stats.Aggregate
   alias Stats.Domains
-  alias Stats.Event
   alias Stats.Events
   alias Stats.EventsRepo
 
