@@ -48,16 +48,33 @@ defmodule Dashboard.StatsLive do
     end)
   end
 
-  @impl true
-  def handle_async(:fetch_aggregates, {:ok, %Stream{} = stream}, socket) do
+  defp update_aggregate_streams(stream) do
     EventsRepo.transaction(fn ->
       stream
       |> Stream.chunk_by(& &1.grouping_id)
-      |> Enum.each(fn [aggregate | _] = aggregates ->
-        send(self(), {:aggregates, Aggregate.field(aggregate), aggregates})
+      |> Enum.map(fn [aggregate | _] = aggregates ->
+        field = Aggregate.group(aggregate)
+        send(self(), {:aggregates, field, aggregates})
+        :field
       end)
     end)
+  end
 
+  @impl true
+  def handle_async(:fetch_aggregates, {:ok, %Stream{} = stream}, socket) do
+    stream |> update_aggregate_streams() |> post_async(socket)
+  end
+
+  defp post_async({:ok, []}, socket) do
+    socket =
+      Enum.reduce(Aggregate.__schema__(:fields), socket, fn field, socket ->
+        stream(socket, field, [], reset: true)
+      end)
+
+    {:noreply, socket}
+  end
+
+  defp post_async({:ok, _}, socket) do
     {:noreply, socket}
   end
 
