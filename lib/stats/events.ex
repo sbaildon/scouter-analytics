@@ -28,7 +28,7 @@ defmodule Stats.Events do
 
   def stream_aggregates(filters \\ []) do
     Event.query()
-    |> Event.aggregate_query()
+    |> Event.typed_aggregate_query()
     |> filter(filters)
     |> EventsRepo.stream(max_rows: 2000)
   end

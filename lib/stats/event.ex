@@ -110,6 +110,124 @@ defmodule Stats.Event do
     )
   end
 
+  def typed_aggregate_query(query) do
+    query
+    |> then(fn query ->
+      from([{^named_binding(), e}] in query,
+        select: %Stats.TypedAggregate{
+          count: count(),
+          grouping_id:
+            selected_as(
+              fragment(
+                "GROUPING (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                e.host,
+                e.path,
+                e.referrer,
+                e.utm_medium,
+                e.utm_source,
+                e.utm_campaign,
+                e.utm_content,
+                e.utm_term,
+                e.country_code,
+                e.subdivision1_code,
+                e.subdivision2_code,
+                e.city_geoname_id,
+                e.operating_system,
+                e.operating_system_version,
+                e.browser,
+                e.browser_version
+              ),
+              :grouping_id
+            ),
+          value:
+            selected_as(
+              fragment(
+                "CASE GROUPING(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)::bit(16)
+                WHEN B'0111111111111111' THEN ?
+		WHEN B'1011111111111111' THEN ?
+		WHEN B'1101111111111111' THEN ?
+		WHEN B'1110111111111111' THEN ?
+		WHEN B'1111011111111111' THEN ?
+		WHEN B'1111101111111111' THEN ?
+		WHEN B'1111110111111111' THEN ?
+		WHEN B'1111111011111111' THEN ?
+		WHEN B'1111111101111111' THEN ?
+		WHEN B'1111111110111111' THEN ?
+		WHEN B'1111111111011111' THEN ?
+		WHEN B'1111111111101111' THEN ?::text
+		WHEN B'1111111111110111' THEN ?
+		WHEN B'1111111111111011' THEN ?
+		WHEN B'1111111111111101' THEN ?
+		WHEN B'1111111111111110' THEN ? END",
+                e.host,
+                e.path,
+                e.referrer,
+                e.utm_medium,
+                e.utm_source,
+                e.utm_campaign,
+                e.utm_content,
+                e.utm_term,
+                e.country_code,
+                e.subdivision1_code,
+                e.subdivision2_code,
+                e.city_geoname_id,
+                e.operating_system,
+                e.operating_system_version,
+                e.browser,
+                e.browser_version,
+                e.host,
+                e.path,
+                e.referrer,
+                e.utm_medium,
+                e.utm_source,
+                e.utm_campaign,
+                e.utm_content,
+                e.utm_term,
+                e.country_code,
+                e.subdivision1_code,
+                e.subdivision2_code,
+                e.city_geoname_id,
+                e.operating_system,
+                e.operating_system_version,
+                e.browser,
+                e.browser_version
+              ),
+              :value
+            )
+        }
+      )
+    end)
+    |> then(fn query ->
+      from([{^named_binding(), e}] in query,
+        group_by:
+          fragment(
+            "GROUPING SETS((?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?))",
+            e.host,
+            e.path,
+            e.referrer,
+            e.utm_medium,
+            e.utm_source,
+            e.utm_campaign,
+            e.utm_content,
+            e.utm_term,
+            e.country_code,
+            e.subdivision1_code,
+            e.subdivision2_code,
+            e.city_geoname_id,
+            e.operating_system,
+            e.operating_system_version,
+            e.browser,
+            e.browser_version
+          )
+      )
+    end)
+    |> then(fn query ->
+      from([{^named_binding(), event}] in query,
+        order_by: [asc: selected_as(:grouping_id), desc: :count]
+      )
+    end)
+  end
+
   def aggregate_query(query) do
     query
     |> then(fn query ->

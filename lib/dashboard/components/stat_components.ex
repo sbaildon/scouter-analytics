@@ -35,7 +35,6 @@ defmodule Dashboard.StatComponents do
     attr :field, :string, required: true
     attr :aggregates, :list, required: true, doc: "List of Stats.Aggregate"
     attr :query, :list, required: true
-    attr :value, :atom, required: true
   end
 
   attr :class, :string, default: ""
@@ -63,11 +62,18 @@ defmodule Dashboard.StatComponents do
               <label>
                 <input
                   type="checkbox"
-                  checked={is_aggregate_checked(aggregate, tab.value, tab.query)}
+                  class="hidden"
+                  checked={is_aggregate_checked(aggregate.value, tab.query)}
                   name={"#{tab.field}[]"}
-                  value={Map.fetch!(aggregate, tab.value)}
+                  value={aggregate.value}
                 />
-                <span>{Map.fetch!(aggregate, tab.value)}</span>
+                <div class="relative w-full">
+                  <span class="flex flex-row justify-between w-full">
+                    <span>{aggregate.value}</span>
+                    <span>{aggregate.count}</span>
+                  </span>
+                  <span class="absolute top-0 left-0">░</span>
+                </div>
               </label>
             </li>
           </ol>
@@ -77,8 +83,8 @@ defmodule Dashboard.StatComponents do
     """
   end
 
-  defp is_aggregate_checked(_, _, nil), do: false
-  defp is_aggregate_checked(aggregate, field, filtered), do: Map.fetch!(aggregate, field) in filtered
+  defp is_aggregate_checked(_, nil), do: false
+  defp is_aggregate_checked(value, filtered), do: value in filtered
 
   attr :query, Query, required: true
 
