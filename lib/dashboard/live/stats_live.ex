@@ -36,7 +36,7 @@ defmodule Dashboard.StatsLive do
     {:ok,
      socket
      |> then(fn socket ->
-       Enum.reduce(Event.__schema__(:fields), socket, fn field, socket ->
+       Enum.reduce(Aggregate.__schema__(:fields), socket, fn field, socket ->
          configure_aggregate_stream(socket, field)
        end)
      end)
