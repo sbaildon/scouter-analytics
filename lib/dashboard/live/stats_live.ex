@@ -50,16 +50,20 @@ defmodule Dashboard.StatsLive do
 
   @impl true
   def handle_async(:fetch_aggregates, {:ok, %Stream{} = stream}, socket) do
-    {:ok, socket} =
-      EventsRepo.transaction(fn ->
-        stream
-        |> Stream.chunk_by(& &1.grouping_id)
-        |> Enum.reduce(socket, fn [aggregate | _] = aggregates, socket ->
-          stream(socket, Aggregate.field(aggregate), aggregates, reset: true)
-        end)
+    EventsRepo.transaction(fn ->
+      stream
+      |> Stream.chunk_by(& &1.grouping_id)
+      |> Enum.each(fn [aggregate | _] = aggregates ->
+        send(self(), {:aggregates, Aggregate.field(aggregate), aggregates})
       end)
+    end)
 
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:aggregates, field, aggregates}, socket) do
+    {:noreply, stream(socket, field, aggregates, reset: true)}
   end
 
   def handle_event("scale", params, socket) do
