@@ -118,9 +118,7 @@ defmodule Stats.Event do
           grouping_id:
             selected_as(
               fragment(
-                "GROUPING (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                e.site_id,
-                e.timestamp,
+                "GROUPING (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 e.host,
                 e.path,
                 e.referrer,
@@ -141,8 +139,6 @@ defmodule Stats.Event do
               :grouping_id
             ),
           count: count(),
-          site_id: e.site_id,
-          timestamp: e.timestamp,
           host: e.host,
           path: e.path,
           referrer: e.referrer,
@@ -166,9 +162,7 @@ defmodule Stats.Event do
       from([{^named_binding(), e}] in query,
         group_by:
           fragment(
-            "GROUPING SETS((?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?))",
-            e.site_id,
-            e.timestamp,
+            "GROUPING SETS((?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?))",
             e.host,
             e.path,
             e.referrer,
