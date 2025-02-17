@@ -14,6 +14,11 @@ config :esbuild,
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
 
+config :ex_cldr,
+  default_locale: "en",
+  default_backend: Stats.Cldr,
+  json_library: JSON
+
 config :logger, :default_formatter,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
