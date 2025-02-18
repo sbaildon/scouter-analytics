@@ -2,6 +2,8 @@ defmodule Stats.Aggregate do
   @moduledoc false
   use Ecto.Schema
 
+  import Stats.Aggregates.GroupingId
+
   @primary_key false
   embedded_schema do
     field :grouping_id, :binary
@@ -24,15 +26,15 @@ defmodule Stats.Aggregate do
     field :browser_version, :string
   end
 
-  def hash(%{grouping_id: 0b0111111111111111, host: field}), do: do_hash(field)
+  def hash(%{grouping_id: host(), host: field}), do: do_hash(field)
   def hash(%{grouping_id: 0b1011111111111111, path: field}), do: do_hash(field)
-  def hash(%{grouping_id: 0b1101111111111111, referrer: field}), do: do_hash(field)
+  def hash(%{grouping_id: referrer(), referrer: field}), do: do_hash(field)
   def hash(%{grouping_id: 0b1110111111111111, utm_medium: field}), do: do_hash(field)
   def hash(%{grouping_id: 0b1111011111111111, utm_source: field}), do: do_hash(field)
   def hash(%{grouping_id: 0b1111101111111111, utm_campaign: field}), do: do_hash(field)
   def hash(%{grouping_id: 0b1111110111111111, utm_content: field}), do: do_hash(field)
   def hash(%{grouping_id: 0b1111111011111111, utm_term: field}), do: do_hash(field)
-  def hash(%{grouping_id: 0b1111111101111111, country_code: field}), do: do_hash(field)
+  def hash(%{grouping_id: country_code(), country_code: field}), do: do_hash(field)
   def hash(%{grouping_id: 0b1111111110111111, subdivision1_code: field}), do: do_hash(field)
   def hash(%{grouping_id: 0b1111111111011111, subdivision2_code: field}), do: do_hash(field)
   def hash(%{grouping_id: 0b1111111111101111, city_geoname_id: field}), do: do_hash(field)
