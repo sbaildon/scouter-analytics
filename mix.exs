@@ -62,7 +62,6 @@ defmodule Stats.MixProject do
       {:typeid_elixir, "~> 1.1"},
       {:ua_inspector, "~> 3.0"},
       {:locus, "~> 2.3"},
-      {:remote_ip, "~> 1.2"},
       {:ref_inspector, "~> 2.0"},
       {:ex_cldr, "~> 2.37"},
       {:ex_cldr_territories, "~> 2.9.0"}
