@@ -19,6 +19,7 @@
         buildInputs = with pkgs.darwin.apple_sdk.frameworks; [
           beamPkgs.elixir_1_18
           pkgs.sqlite
+          pkgs.duckdb
           pkgs.caddy
           pkgs.minio
           pkgs.imgproxy
@@ -58,6 +59,11 @@
       apps.aarch64-darwin.imgproxy = {
         type = "app";
         program = "${pkgs.imgproxy}/bin/imgproxy";
+      };
+
+      apps.aarch64-darwin.duckdb = {
+        type = "app";
+        program = "${pkgs.duckdb}/bin/duckdb";
       };
 
       packages.aarch64-darwin.default = beamPkgs.elixir_1_18;
