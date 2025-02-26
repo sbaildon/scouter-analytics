@@ -115,31 +115,28 @@ defmodule Stats.Event do
     query
     |> then(fn query ->
       from([{^named_binding(), e}] in query,
-        select: %TypedAggregate{
+        select: %{
           count: selected_as(count(), :count),
           grouping_id:
             selected_as(
-              type(
-                fragment(
-                  "GROUPING (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) :: USMALLINT",
-                  e.host,
-                  e.path,
-                  e.referrer,
-                  e.utm_medium,
-                  e.utm_source,
-                  e.utm_campaign,
-                  e.utm_content,
-                  e.utm_term,
-                  e.country_code,
-                  e.subdivision1_code,
-                  e.subdivision2_code,
-                  e.city_geoname_id,
-                  e.operating_system,
-                  e.operating_system_version,
-                  e.browser,
-                  e.browser_version
-                ),
-                ^TypedAggregate.__schema__(:type, :grouping_id)
+              fragment(
+                "GROUPING (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) :: USMALLINT",
+                e.host,
+                e.path,
+                e.referrer,
+                e.utm_medium,
+                e.utm_source,
+                e.utm_campaign,
+                e.utm_content,
+                e.utm_term,
+                e.country_code,
+                e.subdivision1_code,
+                e.subdivision2_code,
+                e.city_geoname_id,
+                e.operating_system,
+                e.operating_system_version,
+                e.browser,
+                e.browser_version
               ),
               :grouping_id
             ),
