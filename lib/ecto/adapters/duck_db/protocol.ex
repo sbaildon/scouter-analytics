@@ -101,8 +101,8 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
       {:ok, result} ->
         {:ok, query, result, state}
 
-      _ ->
-        raise "query failed"
+      {:error, reason} ->
+        {:error, error_to_exception(reason)}
     end
   end
 
