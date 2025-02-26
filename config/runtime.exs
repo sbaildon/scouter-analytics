@@ -52,8 +52,7 @@ config :stats, Objex,
   http_client: {Finch, name: Stats.Finch}
 
 config :stats, Stats.EventsRepo,
-  database: "events",
-  socket: Path.join([env!.("XDG_RUNTIME_DIR"), "scouter", ".s.PGSQL.5432"]),
+  database: env!.("EVENT_DATABASE_PATH"),
   pool_size: 1
 
 config :stats, Stats.Geo,
