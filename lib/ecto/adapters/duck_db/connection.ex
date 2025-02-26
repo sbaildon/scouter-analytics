@@ -2,7 +2,6 @@ defmodule Ecto.Adapters.DuckDB.Connection do
   @moduledoc false
 
   alias Ecto.Adapters.DuckDB.Query
-  alias Ecto.Adapters.Postgres.Connection, as: Postgres
   alias Ecto.Adapters.SQLite3.Connection, as: SQLite3
 
   require Logger
@@ -46,11 +45,11 @@ defmodule Ecto.Adapters.DuckDB.Connection do
     DBConnection.prepare_execute(conn, query, params, opts)
   end
 
-  defdelegate insert(prefix, table, header, rows, on_conflict, returning, placeholders), to: Postgres
+  defdelegate insert(prefix, table, header, rows, on_conflict, returning, placeholders), to: SQLite3
 
   defdelegate all(query), to: SQLite3
   defdelegate all(query, as_prefix), to: SQLite3
 
-  defdelegate execute_ddl(command), to: Postgres
+  defdelegate execute_ddl(command), to: SQLite3
   def ddl_logs(_), do: []
 end
