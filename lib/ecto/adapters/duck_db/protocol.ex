@@ -103,7 +103,7 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
         {:ok, query, result, state}
 
       {:error, reason} ->
-        {:error, error_to_exception(reason)}
+        {:error, error_to_exception(reason), state}
     end
   end
 
