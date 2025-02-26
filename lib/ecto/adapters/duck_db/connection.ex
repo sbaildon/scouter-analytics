@@ -3,6 +3,7 @@ defmodule Ecto.Adapters.DuckDB.Connection do
 
   alias Ecto.Adapters.DuckDB.Query
   alias Ecto.Adapters.SQLite3.Connection, as: SQLite3
+  alias Ecto.Adapters.Postgres.Connection, as: Postgres
 
   require Logger
 
@@ -50,6 +51,6 @@ defmodule Ecto.Adapters.DuckDB.Connection do
   defdelegate all(query), to: SQLite3
   defdelegate all(query, as_prefix), to: SQLite3
 
-  defdelegate execute_ddl(command), to: SQLite3
   def ddl_logs(_), do: []
+  defdelegate execute_ddl(command), to: Postgres
 end
