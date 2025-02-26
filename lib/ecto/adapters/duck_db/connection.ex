@@ -25,8 +25,11 @@ defmodule Ecto.Adapters.DuckDB.Connection do
     name = Keyword.get(options, :cache_statement)
     statement = IO.iodata_to_binary(sql)
     query = %Query{name: name, statement: statement}
-    {:ok, _query, result} = DBConnection.prepare_execute(conn, query, params, options)
-    {:ok, result}
+
+    case DBConnection.prepare_execute(conn, query, params, options) do
+      {:ok, _query, result} -> {:ok, result}
+      {:error, _} = error -> error
+    end
   end
 
   def prepare_execute(conn, name, statement, params, opts) do
