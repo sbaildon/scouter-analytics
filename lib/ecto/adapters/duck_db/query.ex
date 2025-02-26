@@ -24,7 +24,7 @@ defmodule Ecto.Adapters.DuckDB.Query do
 
     def encode(param), do: param
 
-    def decode(query, %Adbc.Result{} = result, opts) do
+    def decode(_query, %Adbc.Result{} = result, _opts) do
       {num_rows, materialized_rows} =
         result
         |> Adbc.Result.materialize()
