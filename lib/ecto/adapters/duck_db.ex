@@ -4,7 +4,6 @@ defmodule Ecto.Adapters.DuckDB do
     driver: :adbc
 
   alias Ecto.Adapter.Migration
-  alias Ecto.Adapter.Queryable
 
   def arrow_stream(adapter_meta, query_meta, prepared, params, opts) do
     do_stream(adapter_meta, prepared, params, put_source(opts, query_meta))
