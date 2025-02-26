@@ -6,6 +6,7 @@ defmodule Stats.Event do
   import Ecto.Query
 
   alias Stats.Aggregate
+  alias Stats.TypedAggregate
 
   @primary_key false
   schema "events" do
@@ -114,51 +115,54 @@ defmodule Stats.Event do
     query
     |> then(fn query ->
       from([{^named_binding(), e}] in query,
-        select: %Stats.TypedAggregate{
-          count: count(),
+        select: %TypedAggregate{
+          count: selected_as(count(), :count),
           grouping_id:
             selected_as(
-              fragment(
-                "GROUPING (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                e.host,
-                e.path,
-                e.referrer,
-                e.utm_medium,
-                e.utm_source,
-                e.utm_campaign,
-                e.utm_content,
-                e.utm_term,
-                e.country_code,
-                e.subdivision1_code,
-                e.subdivision2_code,
-                e.city_geoname_id,
-                e.operating_system,
-                e.operating_system_version,
-                e.browser,
-                e.browser_version
+              type(
+                fragment(
+                  "GROUPING (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) :: USMALLINT",
+                  e.host,
+                  e.path,
+                  e.referrer,
+                  e.utm_medium,
+                  e.utm_source,
+                  e.utm_campaign,
+                  e.utm_content,
+                  e.utm_term,
+                  e.country_code,
+                  e.subdivision1_code,
+                  e.subdivision2_code,
+                  e.city_geoname_id,
+                  e.operating_system,
+                  e.operating_system_version,
+                  e.browser,
+                  e.browser_version
+                ),
+                ^TypedAggregate.__schema__(:type, :grouping_id)
               ),
               :grouping_id
             ),
           value:
             selected_as(
               fragment(
-                "CASE GROUPING(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)::bit(16)
-                WHEN B'0111111111111111' THEN ?
-		WHEN B'1011111111111111' THEN ?
-		WHEN B'1101111111111111' THEN ?
-		WHEN B'1110111111111111' THEN ?
-		WHEN B'1111011111111111' THEN ?
-		WHEN B'1111101111111111' THEN ?
-		WHEN B'1111110111111111' THEN ?
-		WHEN B'1111111011111111' THEN ?
-		WHEN B'1111111101111111' THEN ?
-		WHEN B'1111111110111111' THEN ?
-		WHEN B'1111111111011111' THEN ?
-		WHEN B'1111111111101111' THEN ?::text
-		WHEN B'1111111111110111' THEN ?
-		WHEN B'1111111111111011' THEN ?
-		WHEN B'1111111111111101' THEN ?
-		WHEN B'1111111111111110' THEN ? END",
+                "CASE GROUPING(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)::USMALLINT
+                WHEN '0111111111111111' :: BITSTRING THEN ?
+		WHEN '1011111111111111' :: BITSTRING THEN ?
+		WHEN '1101111111111111' :: BITSTRING THEN ?
+		WHEN '1110111111111111' :: BITSTRING THEN ?
+		WHEN '1111011111111111' :: BITSTRING THEN ?
+		WHEN '1111101111111111' :: BITSTRING THEN ?
+		WHEN '1111110111111111' :: BITSTRING THEN ?
+		WHEN '1111111011111111' :: BITSTRING THEN ?
+		WHEN '1111111101111111' :: BITSTRING THEN ?
+		WHEN '1111111110111111' :: BITSTRING THEN ?
+		WHEN '1111111111011111' :: BITSTRING THEN ?
+		WHEN '1111111111101111' :: BITSTRING THEN ?::text
+		WHEN '1111111111110111' :: BITSTRING THEN ?
+		WHEN '1111111111111011' :: BITSTRING THEN ?
+		WHEN '1111111111111101' :: BITSTRING THEN ?
+		WHEN '1111111111111110' :: BITSTRING THEN ? END",
                 e.host,
                 e.path,
                 e.referrer,
@@ -223,7 +227,7 @@ defmodule Stats.Event do
     end)
     |> then(fn query ->
       from([{^named_binding(), event}] in query,
-        order_by: [asc: selected_as(:grouping_id), desc: :count]
+        order_by: [asc: selected_as(:grouping_id), desc: selected_as(:count)]
       )
     end)
   end

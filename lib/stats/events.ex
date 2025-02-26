@@ -16,28 +16,28 @@ defmodule Stats.Events do
     Event.query()
     |> Event.scale(scale)
     |> filter(filters)
-    |> EventsRepo.all()
+    |> EventsRepo.arrow_query()
   end
 
   def retrieve(count_by, filters \\ []) do
     Event.query()
     |> Event.count_by(count_by)
     |> filter(filters)
-    |> EventsRepo.all()
+    |> EventsRepo.arrow_query()
   end
 
   def stream_aggregates(filters \\ []) do
     Event.query()
     |> Event.typed_aggregate_query()
     |> filter(filters)
-    |> EventsRepo.stream(max_rows: 2000)
+    |> EventsRepo.arrow_stream()
   end
 
   def list_aggregates(filters \\ []) do
     Event.query()
     |> Event.aggregate_query()
     |> filter(filters)
-    |> EventsRepo.all()
+    |> EventsRepo.to_statement()
   end
 
   # maybe take inspiration from the reduce statement here
@@ -179,11 +179,11 @@ defmodule Stats.Events do
     EventsRepo.insert_all(Event, events)
   end
 
-  def count_and_range("past_hour"), do: {1, "hour"}
-  def count_and_range("past_7_days"), do: {7, "day"}
-  def count_and_range("past_14_days"), do: {14, "day"}
-  def count_and_range("past_30_days"), do: {30, "day"}
-  def count_and_range(_), do: {1, "year"}
+  def count_and_range("past_hour"), do: {1, :hour}
+  def count_and_range("past_7_days"), do: {7, :day}
+  def count_and_range("past_14_days"), do: {14, :day}
+  def count_and_range("past_30_days"), do: {30, :day}
+  def count_and_range(_), do: {-1, :year}
 
   def country_details(event, ip) do
     geo_params =

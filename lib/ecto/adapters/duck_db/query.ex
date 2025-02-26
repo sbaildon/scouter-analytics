@@ -1,0 +1,54 @@
+defmodule Ecto.Adapters.DuckDB.Query do
+  @moduledoc false
+
+  defstruct [:statement, :name, :ref]
+
+  defimpl DBConnection.Query do
+    require Logger
+
+    def parse(query, _opts) do
+      query
+    end
+
+    def describe(query, _opts) do
+      query
+    end
+
+    def encode(_query, params, _opts) do
+      Enum.map(params, &encode/1)
+    end
+
+    def encode(%NaiveDateTime{} = param), do: NaiveDateTime.to_iso8601(param)
+    def encode(%DateTime{} = param), do: DateTime.to_iso8601(param)
+    def encode(%Decimal{} = param), do: Decimal.to_string(param)
+
+    def encode(param), do: param
+
+    def decode(query, %Adbc.Result{} = result, opts) do
+      {num_rows, materialized_rows} =
+        result
+        |> Adbc.Result.materialize()
+        |> columns_to_rows()
+
+      %{num_rows: num_rows, rows: materialized_rows}
+    end
+
+    def decode(_query, result, _opts) do
+      result
+    end
+
+    defp columns_to_rows(adbc_result) do
+      adbc_result.data
+      |> Enum.map(&Map.fetch!(&1, :data))
+      |> Enum.zip_reduce({0, []}, fn row, {count, rows} ->
+        {count + 1, [row | rows]}
+      end)
+    end
+  end
+
+  defimpl String.Chars do
+    def to_string(%{statement: statement}) do
+      IO.iodata_to_binary(statement)
+    end
+  end
+end

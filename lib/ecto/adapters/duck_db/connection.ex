@@ -1,42 +1,53 @@
 defmodule Ecto.Adapters.DuckDB.Connection do
   @moduledoc false
-  use Supervisor
 
+  alias Ecto.Adapters.DuckDB.Query
+  alias Ecto.Adapters.Postgres.Connection, as: Postgres
   alias Ecto.Adapters.SQLite3.Connection, as: SQLite3
 
-  @compile {:inline, db: 0, conn: 0}
-  defp db, do: Stats.RepoTwo
-  defp conn, do: Stats.RepoTwoConn
+  require Logger
 
-  def start_link(init_arg) do
-    Supervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
+  def start_link(opts) do
+    DBConnection.start_link(Ecto.Adapters.DuckDB.Protocol, opts)
   end
 
-  @impl true
-  def init(_opts) do
-    children = [
-      {Adbc.Database, driver: :duckdb, process_options: [name: db()]},
-      {Adbc.Connection, database: db(), process_options: [name: conn()]}
-    ]
-
-    Supervisor.init(children, strategy: :one_for_one)
+  def child_spec(options) do
+    {:ok, _} = Application.ensure_all_started(:db_connection)
+    DBConnection.child_spec(Ecto.Adapters.DuckDB.Protocol, options)
   end
 
-  defdelegate all(command), to: SQLite3
-  defdelegate execute_ddl(command), to: SQLite3
-
-  def query(conn, sql, _params, _options) do
-    IO.inspect(conn, label: "conn")
-    %Exqlite.Query{statement: statement} = Exqlite.Query.build(statement: IO.iodata_to_binary(sql))
-    Adbc.Connection.query(conn(), statement, [])
+  def stream(conn, statement, params, opts) do
+    query = %Query{name: "", statement: statement}
+    DBConnection.prepare_stream(conn, query, params, opts)
   end
 
-  def run(query) do
-    {:ok, query_ref} = Adbc.Connection.prepare(conn(), query)
-    {:ok, %Adbc.Result{num_rows: num, data: entries}} = Adbc.Connection.query(conn(), query_ref, [])
-
-    {num, entries}
+  def query(conn, sql, params, options) do
+    name = Keyword.get(options, :cache_statement, [?c])
+    statement = IO.iodata_to_binary(sql)
+    query = %Query{name: name, statement: statement}
+    {:ok, _query, result} = DBConnection.prepare_execute(conn, query, params, options)
+    {:ok, result}
   end
 
+  def prepare_execute(conn, name, statement, params, opts) do
+    query = %Query{name: name, statement: statement}
+    DBConnection.prepare_execute(conn, query, params, opts)
+  end
+
+  def execute(conn, %Query{} = query, params, opts) do
+    DBConnection.prepare_execute(conn, query, params, opts)
+  end
+
+  def execute(conn, sql, params, opts) do
+    query = %Query{name: "", statement: IO.iodata_to_binary(sql)}
+    DBConnection.prepare_execute(conn, query, params, opts)
+  end
+
+  defdelegate insert(prefix, table, header, rows, on_conflict, returning, placeholders), to: Postgres
+
+  defdelegate all(query), to: SQLite3
+  defdelegate all(query, as_prefix), to: SQLite3
+
+  defdelegate execute_ddl(command), to: Postgres
   def ddl_logs(_), do: []
 end

@@ -2,12 +2,14 @@ defmodule Dashboard.StatsLive do
   @moduledoc false
   use Dashboard, :live_view
 
+  import Stats.Event, only: [aggregate: 1, aggregate: 2]
+
   alias Dashboard.StatsLive.Query
   alias Stats.Aggregate
   alias Stats.Domains
   alias Stats.Events
   alias Stats.EventsRepo
-  alias Stats.TypedAggregate
+  alias Stats.Queryable
 
   require Logger
 
@@ -18,6 +20,7 @@ defmodule Dashboard.StatsLive do
 
     assign(socket, :events, scaled_events)
   end
+
 
   defp fetch_aggregates(socket, query) do
     filters = Query.to_filters(query)
@@ -30,7 +33,6 @@ defmodule Dashboard.StatsLive do
 
   @impl true
   def mount(params, _, socket) do
-    Plug.Conn.Query.encode(params)
     {:ok, query} = Query.validate(params)
 
     {:ok,
@@ -42,7 +44,7 @@ defmodule Dashboard.StatsLive do
   end
 
   defp configure_stream_for_aggregate_fields(socket) do
-    Enum.reduce(Aggregate.__schema__(:fields), socket, fn field, socket ->
+    Enum.reduce(aggregate_fields(), socket, fn field, socket ->
       socket
       |> stream_configure(field, dom_id: &dom_id/1)
       |> stream(field, [])
@@ -52,32 +54,47 @@ defmodule Dashboard.StatsLive do
   defp update_aggregate_streams(stream) do
     EventsRepo.transaction(fn ->
       stream
-      |> Stream.chunk_by(& &1.grouping_id)
-      |> Enum.map(fn [aggregate | _] = aggregates ->
-        field = Aggregate.group(aggregate)
-        send(self(), {:aggregates, field, aggregates})
-        :field
-      end)
+      |> EventsRepo.merge_columns()
+      |> Enum.to_list()
+      |> then_process()
     end)
+  end
+
+  defp then_process([]) do
+    []
+  end
+
+  defp then_process([%{data: counts}, %{data: grouping_ids}, %{data: values}]) do
+    [counts, grouping_ids, values]
+    |> Enum.zip_with(fn [count, grouping_id, value] ->
+      aggregate(count: count, grouping_id: grouping_id, value: value)
+    end)
+    |> Enum.chunk_by(fn aggregate -> aggregate(aggregate, :grouping_id) end)
+    |> Enum.map(fn [aggregate | _] = aggregates ->
+      send(self(), {:aggregates, to_atom(aggregate(aggregate, :grouping_id)), aggregates})
+      aggregate(aggregate, :grouping_id)
+    end)
+  end
+
+  def to_atom(grouping_id) do
+    {:parameterized, {_, %{on_load: on_load}}} = Stats.TypedAggregate.__schema__(:type, :grouping_id)
+    Map.fetch!(on_load, grouping_id)
   end
 
   @impl true
   def handle_async(:fetch_aggregates, {:ok, %Stream{} = stream}, socket) do
-    stream |> update_aggregate_streams() |> post_async(socket)
+    stream |> update_aggregate_streams() |> post_handle_async(socket)
   end
 
-  defp post_async({:ok, []}, socket) do
-    socket =
-      Enum.reduce(Aggregate.__schema__(:fields), socket, fn field, socket ->
-        stream(socket, field, [], reset: true)
-      end)
+  defp post_handle_async({:ok, []}, socket) do
+    {:noreply, stream_empty_aggregates(socket)}
+  end
 
+  defp post_handle_async({:ok, _}, socket) do
     {:noreply, socket}
   end
 
-  defp post_async({:ok, _}, socket) do
-    {:noreply, socket}
-  end
+  defp stream_empty_aggregates(socket), do: Enum.reduce(aggregate_fields(), socket, &stream(&2, &1, [], reset: true))
 
   @impl true
   def handle_info({:aggregates, field, aggregates}, socket) do
@@ -129,14 +146,7 @@ defmodule Dashboard.StatsLive do
     end
   end
 
-  embed_templates "stats_live_html/*", suffix: "_html"
-
-  @impl true
-  def render(assigns) do
-    index_html(assigns)
-  end
-
-  defp patch(socket, query) do
+  defp patch(socket, %Query{} = query) do
     query_params =
       query
       |> Map.from_struct()
@@ -148,22 +158,13 @@ defmodule Dashboard.StatsLive do
     |> push_patch(to: ~p"/?#{query_params}")
   end
 
-  defp dom_id(%TypedAggregate{} = aggregate), do: "aggregate-#{TypedAggregate.hash(aggregate)}"
+  defp dom_id(aggregate), do: "aggregate-#{Queryable.hash(aggregate)}"
+  defp aggregate_fields, do: Aggregate.__schema__(:fields)
 
-  defmodule Period do
-    @moduledoc false
-    use Ecto.Schema
+  embed_templates "stats_live_html/*", suffix: "_html"
 
-    import Ecto.Changeset
-
-    @primary_key false
-    embedded_schema do
-      field :from, :date
-      field :to, :date
-    end
-
-    def changeset(period, params) do
-      cast(period, params, [:from, :to])
-    end
+  @impl true
+  def render(assigns) do
+    index_html(assigns)
   end
 end

@@ -11,6 +11,7 @@ defmodule Stats.Application do
       Dashboard.Telemetry,
       Stats.Repo,
       Stats.EventsRepo,
+      Ecto.Adapters.DuckDB.Adbc,
       {Stats.Geo, Application.fetch_env!(:stats, Stats.Geo)},
       {Finch, Application.fetch_env!(:stats, Finch)},
       {Ecto.Migrator, repos: Application.fetch_env!(:stats, :ecto_repos), skip: skip_migrations?()},
