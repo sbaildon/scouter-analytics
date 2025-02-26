@@ -3,29 +3,32 @@ defmodule Stats.TypedAggregate do
   use Ecto.Schema
 
   import Ecto.Changeset
+  import Stats.Events.GroupingID
+
   alias Stats.Cldr.Territory
+
   @primary_key false
   embedded_schema do
     field :count, :integer
 
     field :grouping_id, Ecto.Enum,
       values: [
-        host: 0b0111111111111111,
-        path: 0b1011111111111111,
-        referrer: 0b1101111111111111,
-        utm_medium: 0b1110111111111111,
-        utm_source: 0b1111011111111111,
-        utm_campaign: 0b1111101111111111,
-        utm_content: 0b1111110111111111,
-        utm_term: 0b1111111011111111,
-        country_code: 0b1111111101111111,
-        subdivision1_code: 0b1111111110111111,
-        subdivision2_code: 0b1111111111011111,
-        city_geoname_id: 0b1111111111101111,
-        operating_system: 0b1111111111110111,
-        operating_system_version: 0b1111111111111011,
-        browser: 0b1111111111111101,
-        browser_version: 0b1111111111111110
+        host: group_id(:host),
+        path: group_id(:path),
+        referrer: group_id(:referrer),
+        utm_medium: group_id(:utm_medium),
+        utm_source: group_id(:utm_source),
+        utm_campaign: group_id(:utm_campaign),
+        utm_content: group_id(:utm_content),
+        utm_term: group_id(:utm_term),
+        country_code: group_id(:country_code),
+        subdivision1_code: group_id(:subdivision1_code),
+        subdivision2_code: group_id(:subdivision2_code),
+        city_geoname_id: group_id(:city_geoname_id),
+        operating_system: group_id(:operating_system),
+        operating_system_version: group_id(:operating_system_version),
+        browser: group_id(:browser),
+        browser_version: group_id(:browser_version)
       ]
 
     field :value, :string
@@ -36,8 +39,6 @@ defmodule Stats.TypedAggregate do
   end
 
   defimpl Stats.Queryable do
-    import Stats.Aggregates.GroupingId
-
     def present(%{grouping_id: :country_code, value: nil}), do: "Unknown"
     def present(%{grouping_id: :country_code, value: country_code}), do: Territory.from_territory_code!(country_code)
 
@@ -49,8 +50,11 @@ defmodule Stats.TypedAggregate do
 
     def present(%{value: value}), do: value
 
-    def hash(%{value: value}) do
-      :erlang.phash2(value)
+    def hash(%{grouping_id: grouping_id, value: value}) do
+      :erlang.phash2({grouping_id, value})
     end
+
+    def value(%{value: value}), do: value
+    def count(%{count: count}), do: count
   end
 end
