@@ -6,7 +6,10 @@ defmodule Stats.Event do
   import Ecto.Query
 
   alias Stats.Aggregate
-  alias Stats.TypedAggregate
+
+  require Record
+
+  Record.defrecord(:aggregate, [:count, :grouping_id, :value, :display])
 
   @primary_key false
   schema "events" do
