@@ -146,7 +146,7 @@ defmodule Stats.Event do
           value:
             selected_as(
               fragment(
-                "CASE GROUPING(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)::USMALLINT
+                "CASE ?
                 WHEN '0111111111111111' :: BITSTRING THEN ?
 		WHEN '1011111111111111' :: BITSTRING THEN ?
 		WHEN '1101111111111111' :: BITSTRING THEN ?
@@ -163,22 +163,7 @@ defmodule Stats.Event do
 		WHEN '1111111111111011' :: BITSTRING THEN ?
 		WHEN '1111111111111101' :: BITSTRING THEN ?
 		WHEN '1111111111111110' :: BITSTRING THEN ? END",
-                e.host,
-                e.path,
-                e.referrer,
-                e.utm_medium,
-                e.utm_source,
-                e.utm_campaign,
-                e.utm_content,
-                e.utm_term,
-                e.country_code,
-                e.subdivision1_code,
-                e.subdivision2_code,
-                e.city_geoname_id,
-                e.operating_system,
-                e.operating_system_version,
-                e.browser,
-                e.browser_version,
+                selected_as(:grouping_id),
                 e.host,
                 e.path,
                 e.referrer,
