@@ -54,7 +54,7 @@ config :stats, Objex,
 config :stats, Stats.EventsRepo,
   database: "events",
   socket: Path.join([env!.("XDG_RUNTIME_DIR"), "scouter", ".s.PGSQL.5432"]),
-  pool_size: env_as.("POOL_SIZE", "10", :integer)
+  pool_size: 1
 
 config :stats, Stats.Geo,
   database: Path.join([".", "/"] ++ Path.wildcard("./priv/mmdb/*.mmdb")),
