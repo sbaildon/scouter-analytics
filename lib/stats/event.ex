@@ -77,8 +77,11 @@ defmodule Stats.Event do
   end
 
   def range(query, count, interval) do
+    # not using the ago() Ecto macro because it doesn't work with DuckDB SQL
+    ago = DateTime.shift(DateTime.utc_now(), [{interval, -count}])
+
     from([{^named_binding(), event}] in query,
-      where: event.timestamp > ago(^count, ^interval)
+      where: event.timestamp > fragment("?::TIMESTAMP_S", ^ago)
     )
   end
 
