@@ -13,10 +13,11 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
   @dynamic_supervisor Ecto.Adapters.DuckDB.Adbc
 
   @impl DBConnection
-  def connect(_opts) do
+  def connect(opts) do
     {:ok, db} =
       DynamicSupervisor.start_child(
         @dynamic_supervisor,
+        {Adbc.Database, path: opts[:database], driver: :duckdb, process_options: [name: db()]}
       )
 
     {:ok, conn} =

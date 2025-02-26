@@ -7,12 +7,18 @@ defmodule Ecto.Adapters.DuckDB.Connection do
 
   require Logger
 
+  defp default_opts(opts) do
+    Keyword.put_new(opts, :database, ":memory:")
+  end
+
   def start_link(opts) do
+    opts = default_opts(opts)
     DBConnection.start_link(Ecto.Adapters.DuckDB.Protocol, opts)
   end
 
   def child_spec(options) do
     {:ok, _} = Application.ensure_all_started(:db_connection)
+    options = default_opts(options)
     DBConnection.child_spec(Ecto.Adapters.DuckDB.Protocol, options)
   end
 
