@@ -108,7 +108,6 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
 
   @impl true
   def handle_declare(query, params, _opts, state) do
-    Logger.warning(params: params)
     command = {:query, query.statement, params, []}
 
     case GenServer.call(state.conn, {:stream, command}, :infinity) do
