@@ -52,7 +52,7 @@ defmodule Ecto.Adapters.DuckDB.Connection do
     DBConnection.prepare_execute(conn, query, params, opts)
   end
 
-  defdelegate insert(prefix, table, header, rows, on_conflict, returning, placeholders), to: SQLite3
+  defdelegate insert(prefix, table, header, rows, on_conflict, returning, placeholders), to: Postgres
 
   defdelegate all(query), to: SQLite3
   defdelegate all(query, as_prefix), to: SQLite3
