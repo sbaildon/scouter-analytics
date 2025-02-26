@@ -33,13 +33,6 @@ defmodule Stats.Events do
     |> EventsRepo.arrow_stream()
   end
 
-  def list_aggregates(filters \\ []) do
-    Event.query()
-    |> Event.aggregate_query()
-    |> filter(filters)
-    |> EventsRepo.to_statement()
-  end
-
   # maybe take inspiration from the reduce statement here
   # https://hexdocs.pm/ecto/dynamic-queries.html#building-dynamic-queries
   defp filter(query, []), do: query
