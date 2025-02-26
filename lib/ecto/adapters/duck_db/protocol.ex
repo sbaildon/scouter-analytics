@@ -5,6 +5,7 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
   require Logger
 
   defstruct [:conn, :db, transaction_status: :idle]
+
   @compile {:inline, db: 0, conn: 0}
   defp db, do: __MODULE__.DB
   defp conn, do: __MODULE__.Conn
