@@ -38,7 +38,7 @@ defmodule Dashboard.StatsLive.Query do
 
   def validate(query, params) do
     query
-    |> cast(params, castable())
+    |> cast(params, castable(), empty_values: [nil])
     |> validate_inclusion(:scale, scale_values())
     |> apply_action(:validate)
   end
