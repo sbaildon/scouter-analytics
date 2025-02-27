@@ -104,9 +104,22 @@ defmodule Stats.Event do
   end
 
   def where_in(query, field, values) do
-    from([{^named_binding(), event}] in query,
-      where: field(event, ^field) in ^values
-    )
+    {found?, values} =
+      case Enum.find_index(values, &(&1 == "")) do
+        nil -> {false, values}
+        index -> {true, List.delete_at(values, index)}
+      end
+
+    if found? do
+      from([{^named_binding(), event}] in query,
+        where: field(event, ^field) in ^values,
+        or_where: is_nil(field(event, ^field))
+      )
+    else
+      from([{^named_binding(), event}] in query,
+        where: field(event, ^field) in ^values
+      )
+    end
   end
 
   def count_by(query, field) do

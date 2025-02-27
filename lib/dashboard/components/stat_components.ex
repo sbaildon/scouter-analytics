@@ -84,6 +84,7 @@ defmodule Dashboard.StatComponents do
   end
 
   defp is_aggregate_checked(_, nil), do: false
+  defp is_aggregate_checked(nil, filtered), do: "" in filtered
   defp is_aggregate_checked(value, filtered), do: value in filtered
 
   attr :query, Query, required: true
