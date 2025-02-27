@@ -46,7 +46,7 @@ config :stats, Stats.Repo,
   migration_timestamps: [type: :utc_datetime_usec]
 
 config :stats,
-  ecto_repos: [Stats.EventsRepo],
+  ecto_repos: [Stats.Repo, Stats.EventsRepo],
   app_name: "Stats",
   generators: [timestamp_type: :utc_datetime, binary_id: true]
 
