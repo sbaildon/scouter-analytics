@@ -56,7 +56,6 @@ defmodule Ecto.Adapters.DuckDB.Connection do
 
   defdelegate all(query), to: SQLite3
   defdelegate all(query, as_prefix), to: SQLite3
-
   defdelegate update_all(query), to: SQLite3
   defdelegate update_all(query, prefix), to: SQLite3
   defdelegate delete_all(query), to: SQLite3
