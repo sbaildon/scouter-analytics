@@ -15,14 +15,13 @@ defmodule Ecto.Adapters.DuckDB.Query do
     end
 
     def encode(_query, params, _opts) do
-      Enum.map(params, &encode/1)
+      Enum.map(params, &encode_param/1)
     end
 
-    def encode(%NaiveDateTime{} = param), do: NaiveDateTime.to_iso8601(param)
-    def encode(%DateTime{} = param), do: DateTime.to_iso8601(param)
-    def encode(%Decimal{} = param), do: Decimal.to_string(param)
-
-    def encode(param), do: param
+    defp encode_param(%NaiveDateTime{} = param), do: NaiveDateTime.to_iso8601(param)
+    defp encode_param(%DateTime{} = param), do: DateTime.to_iso8601(param)
+    defp encode_param(%Decimal{} = param), do: Decimal.to_string(param)
+    defp encode_param(param), do: param
 
     def decode(_query, %Adbc.Result{} = result, _opts) do
       {num_rows, materialized_rows} =
