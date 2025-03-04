@@ -28,12 +28,21 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
         {Adbc.Connection, database: db(), process_options: [name: conn()]}
       )
 
+    setup(conn)
+
     state = %__MODULE__{
       db: db,
       conn: conn
     }
 
     {:ok, state}
+  end
+
+  defp setup(conn) do
+    {:ok, _} = Adbc.Connection.query(conn, "PRAGMA enable_checkpoint_on_shutdown;")
+    {:ok, _} = Adbc.Connection.query(conn, "INSTALL httpfs;")
+    {:ok, _} = Adbc.Connection.query(conn, "LOAD httpfs;")
+    :ok
   end
 
   @impl DBConnection
