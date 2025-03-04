@@ -13,16 +13,21 @@ defmodule Dashboard.StatsLive do
 
   require Logger
 
-  defp period(socket, query) do
     filters = Query.to_filters(query)
+  defmacro is_connected(socket) do
+    quote do
+      unquote(socket).transport_pid != nil
+    end
+  end
 
     scaled_events = Events.scale(query.scale, filters)
+  defp period(socket, _query) do
 
     assign(socket, :events, scaled_events)
   end
 
 
-  defp fetch_aggregates(socket, query) do
+  defp fetch_aggregates(socket, query) when is_connected(socket) do
     filters = Query.to_filters(query)
 
     start_async(socket, :fetch_aggregates, fn ->
@@ -30,6 +35,8 @@ defmodule Dashboard.StatsLive do
       stream
     end)
   end
+
+  defp fetch_aggregates(socket, _query), do: socket
 
   @impl true
   def mount(params, _, socket) do
