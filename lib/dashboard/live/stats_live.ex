@@ -64,10 +64,10 @@ defmodule Dashboard.StatsLive do
     []
   end
 
-  defp then_process([%{data: counts}, %{data: grouping_ids}, %{data: values}]) do
-    [counts, grouping_ids, values]
-    |> Enum.zip_with(fn [count, grouping_id, value] ->
-      aggregate(count: count, grouping_id: grouping_id, value: value)
+  defp then_process([%{data: counts}, %{data: grouping_ids}, %{data: values}, %{data: maxes}]) do
+    [counts, grouping_ids, values, maxes]
+    |> Enum.zip_with(fn [count, grouping_id, value, max] ->
+      aggregate(count: count, grouping_id: grouping_id, value: value, max: max)
     end)
     |> Enum.chunk_by(fn aggregate -> aggregate(aggregate, :grouping_id) end)
     |> Enum.map(fn [aggregate | _] = aggregates ->

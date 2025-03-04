@@ -9,7 +9,7 @@ defmodule Stats.Event do
 
   require Record
 
-  Record.defrecord(:aggregate, [:count, :grouping_id, :value, :display])
+  Record.defrecord(:aggregate, [:count, :grouping_id, :value, :max, :display])
 
   @primary_key false
   schema "events" do
@@ -198,7 +198,8 @@ defmodule Stats.Event do
                 e.browser_version
               ),
               :value
-            )
+            ),
+          max: over(max(selected_as(:count)), partition_by: selected_as(:grouping_id)),
         }
       )
     end)
