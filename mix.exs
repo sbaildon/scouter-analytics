@@ -64,7 +64,8 @@ defmodule Stats.MixProject do
       {:ref_inspector, "~> 2.0"},
       {:ex_cldr, "~> 2.37"},
       {:ex_cldr_territories, "~> 2.9.0"},
-      {:adbc, "~> 0.7"}
+      {:adbc, "~> 0.7"},
+      {:oban, "~> 2.19"}
     ]
   end
 

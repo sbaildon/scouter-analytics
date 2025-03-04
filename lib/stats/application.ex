@@ -12,6 +12,7 @@ defmodule Stats.Application do
       Stats.Repo,
       Stats.EventsRepo,
       Ecto.Adapters.DuckDB.Adbc,
+      {Oban, Application.fetch_env!(:stats, Oban)},
       {Stats.Geo, Application.fetch_env!(:stats, Stats.Geo)},
       {Finch, Application.fetch_env!(:stats, Finch)},
       {Ecto.Migrator, repos: Application.fetch_env!(:stats, :ecto_repos), skip: skip_migrations?()},

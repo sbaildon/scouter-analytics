@@ -16,6 +16,13 @@ env! = fn var ->
   System.fetch_env!(var)
 end
 
+env_lazy! = fn var, fallback_var ->
+  case System.fetch_env(var) do
+    :error -> System.fetch_env!(fallback_var)
+    {:ok, value} -> value
+  end
+end
+
 env = fn var, default ->
   System.get_env(var, default)
 end
@@ -33,6 +40,23 @@ end
 s3_endpoint =
   Regex.named_captures(~r/^(?<proto>.+):\/\/(?<endpoint>.+):(?<port>\d+)$/, env!.("S3_ENDPOINT"))
 
+reject_unless_prefixed = fn enum ->
+  Enum.filter(enum, fn {k, _v} -> String.starts_with?(k, "HTTPFS_") end)
+end
+
+remove_prefix_and_group_by_name = fn enum ->
+  Enum.reduce(enum, %{}, fn {k, v}, acc ->
+    %{"name" => name, "rest" => rest} = Regex.named_captures(~r/^(?<prefix>HTTPFS)_(?<name>[A-Za-z0-9]+)_(?<rest>.+)$/, k)
+    Map.update(acc, name, [{rest, v}], fn existing -> [{rest, v} | existing] end)
+  end)
+end
+
+httpfs_credentials = fn ->
+  System.get_env()
+  |> reject_unless_prefixed.()
+  |> remove_prefix_and_group_by_name.()
+end
+
 config :stats, Dashboard.Endpoint,
   url: [host: env!.("DASHBOARD_HOST"), port: 443, scheme: "https"],
   http: [
@@ -41,6 +65,14 @@ config :stats, Dashboard.Endpoint,
   ],
   secret_key_base: env!.("DASHBOARD_SECRET_KEY_BASE"),
   live_view: [signing_salt: env!.("DASHBOARD_SIGNING_SALT")]
+
+config :stats, Oban,
+  plugins: [
+    {Oban.Plugins.Cron,
+     crontab: [
+       {env.("BACKUP_SCHEDULE", "05 4 * * 2"), Stats.EventsRepo.BackupWorker}
+     ]}
+  ]
 
 config :stats, Objex,
   access_key_id: env!.("AWS_ACCESS_KEY_ID"),
@@ -53,6 +85,7 @@ config :stats, Objex,
 
 config :stats, Stats.EventsRepo,
   database: env!.("EVENT_DATABASE_PATH"),
+  httpfs_credentials: httpfs_credentials.(),
   pool_size: 1
 
 config :stats, Stats.Geo,

@@ -37,6 +37,11 @@ config :stats, Dashboard.Endpoint,
 
 config :stats, Finch, name: Stats.Finch
 
+config :stats, Oban,
+  engine: Oban.Engines.Lite,
+  queues: [default: 10],
+  repo: Stats.Repo
+
 config :stats, Stats.EventsRepo,
   migration_primary_key: [name: :id, type: :uuid, null: false],
   migration_timestamps: [type: :utc_datetime_usec]
