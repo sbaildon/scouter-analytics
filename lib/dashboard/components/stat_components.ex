@@ -163,9 +163,22 @@ defmodule Dashboard.StatComponents do
       <fieldset class="border border-zinc-600 pb-1 px-2">
         <legend class="px-1">Scale</legend>
         <fieldset class="flex flex-col">
-          <label :for={{label, value} <- Dashboard.StatsLive.Query.scale()}>
-            <input checked={@query.scale == value} type="radio" name="scale" value={value} />
-            <span>{gettext("%{label}", label: label)}</span>
+          <label
+            :for={{label, value, hotkey} <- Dashboard.StatsLive.Query.scale()}
+            class="flex flex-row justify-between"
+          >
+            <div>
+              <input
+                data-controller="hotkey"
+                data-hotkey={hotkey}
+                checked={@query.scale == value}
+                type="radio"
+                name="scale"
+                value={value}
+              />
+              <span>{gettext("%{label}", label: label)}</span>
+            </div>
+            <.hotkey keybind={hotkey} />
           </label>
         </fieldset>
       </fieldset>

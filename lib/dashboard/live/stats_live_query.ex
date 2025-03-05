@@ -43,7 +43,15 @@ defmodule Dashboard.StatsLive.Query do
     |> apply_action(:validate)
   end
 
-  def scale, do: [{"Hour", "hour"}, {"Day", "day"}, {"Week", "week"}, {"Month", "month"}, {"Year", "year"}]
+  def scale,
+    do: [
+      {"Hour", "hour", "s h"},
+      {"Day", "day", "s d"},
+      {"Week", "week", "s w"},
+      {"Month", "month", "s m"},
+      {"Year", "year", "s y"}
+    ]
+
   defp scale_values, do: Enum.map(scale(), &elem(&1, 1))
 
   def periods do
