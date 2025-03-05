@@ -95,14 +95,34 @@ defmodule Dashboard.StatComponents do
       <fieldset class="border border-zinc-600 pb-1 px-2">
         <legend class="px-1">Period</legend>
         <fieldset :for={group <- Dashboard.StatsLive.Query.periods()} class="flex flex-col">
-          <label :for={{label, value} <- group}>
-            <input checked={value == @query.interval} type="radio" name="interval" value={value} />
-            <span>{label}</span>
+          <label :for={{label, value, hotkey} <- group} class="flex flex-row justify-between">
+            <div>
+              <input
+                data-controller="hotkey"
+                data-hotkey={hotkey}
+                checked={value == @query.interval}
+                type="radio"
+                name="interval"
+                value={value}
+              />
+              <span>{label}</span>
+            </div>
+            <.hotkey keybind={hotkey} />
           </label>
           <.hr />
         </fieldset>
       </fieldset>
     </form>
+    """
+  end
+
+  attr :keybind, :string, required: true
+
+  def hotkey(assigns) do
+    ~H"""
+    <span class="text-zinc-400">
+      {@keybind}
+    </span>
     """
   end
 
@@ -114,10 +134,19 @@ defmodule Dashboard.StatComponents do
       <fieldset class="border border-zinc-600 pb-1 px-2">
         <legend class="px-1">{gettext("Sites")}</legend>
         <ul class="flex flex-col">
-          <li :for={domain <- @domains}>
-            <label>
-              <input value={domain.host} name="sites[]" type="checkbox" />
-              <span>{domain.host}</span>
+          <li :for={{domain, i} <- Enum.with_index(@domains, 1)}>
+            <label class="flex flex-row justify-between">
+              <div>
+                <input
+                  data-controller="hotkey"
+                  data-hotkey={i}
+                  value={domain.host}
+                  name="sites[]"
+                  type="checkbox"
+                />
+                <span>{domain.host}</span>
+              </div>
+              <.hotkey keybind={i} />
             </label>
           </li>
         </ul>

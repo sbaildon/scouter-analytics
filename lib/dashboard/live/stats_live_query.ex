@@ -48,11 +48,15 @@ defmodule Dashboard.StatsLive.Query do
 
   def periods do
     [
-      [{"Live", "live"}, {"Past Hour", "past_hour"}, {"Today", "today"}, {"Yesterday", "yesterday"}],
-      [{"Month to Date", "month_to_date"}, {"Last Month", "last_month"}],
-      [{"Year to Date", "year_to_date"}, {"Last Year", "last_year"}],
-      [{"Past 7 Days", "past_7_days"}, {"Past 14 Days", "past_14_days"}, {"Past 30 Days", "past_30_days"}],
-      [{"All Time", "all_time"}]
+      [{"Live", "live", "l"}, {"Past Hour", "past_hour", "h"}, {"Today", "today", "t"}, {"Yesterday", "yesterday", "y"}],
+      [{"Month to Date", "month_to_date", "m"}, {"Last Month", "last_month", "L M"}],
+      [{"Year to Date", "year_to_date", "y d"}, {"Last Year", "last_year", "Shift+Y"}],
+      [
+        {"Past 7 Days", "past_7_days", "p w"},
+        {"Past 14 Days", "past_14_days", "p f"},
+        {"Past 30 Days", "past_30_days", "p m"}
+      ],
+      [{"All Time", "all_time", "A"}]
     ]
   end
 
