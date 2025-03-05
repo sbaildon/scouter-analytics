@@ -17,7 +17,7 @@ defmodule Dashboard do
   those modules here.
   """
 
-  def static_paths, do: ~w(assets images favicon.ico robots.txt)
+  def static_paths, do: ~w(assets js images favicon.ico robots.txt)
   def object_paths, do: ~w(fonts)
 
   def router do
