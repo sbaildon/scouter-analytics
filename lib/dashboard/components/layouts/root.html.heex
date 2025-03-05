@@ -10,6 +10,13 @@
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
+    <script type="importmap">
+      {
+        "imports": {
+          "stimulus": "/js/stimulus@3.2.2.js"
+        }
+      }
+    </script>
   </head>
   <body class="font-mono text-sm bg-white">
     {@inner_content}
