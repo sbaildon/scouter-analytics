@@ -57,7 +57,7 @@ defmodule Dashboard.StatComponents do
         <ol>
           <li
             :for={filter <- Map.get(@query, param) || []}
-            class="before:text-zinc-500/60 last-of-type:before:content-['└──'] before:content-['├──'] gap-x-[1ch] px-2 items-center hover:bg-zinc-200/70 flex flex-row justify-items-stretch hover:bg-zinc-200"
+            class="before:text-zinc-500/60 last-of-type:before:content-['└─'] before:content-['├─'] gap-x-[1ch] px-2 items-center hover:bg-zinc-200/70 flex flex-row justify-items-stretch hover:bg-zinc-200"
           >
             <span class="grow">
               {filter}
