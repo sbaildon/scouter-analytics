@@ -37,58 +37,42 @@ defmodule Dashboard.StatComponents do
     """
   end
 
+  defp filters do
+    [
+      {:browsers, "Browsers"},
+      {:browser_versions, "Browser Vers."},
+      {:operating_systems, "Operating Systems"},
+      {:operating_system_versions, "Operating System Vers."},
+      {:paths, "Paths"},
+      {:referrers, "Referrers"},
+      {:country_codes, "Countries"}
+    ]
+  end
+
   def query(assigns) do
     ~H"""
-    <.controls title="Scale" id="scale">
-      <section class="has-[li]:block hidden">
-        <h3>Operating Systems</h3>
+    <.controls title="Filters" id="filers" class="hidden has-[li]:block">
+      <section :for={{param, title} <- filters()} class="has-[li]:block hidden">
+        <h3 class="px-2">{title}</h3>
         <ol>
           <li
-            :for={filter <- Map.get(@query, :operating_systems) || []}
-            class="hover:bg-zinc-200/70 flex flex-row justify-between hover:bg-zinc-200 group"
+            :for={filter <- Map.get(@query, param) || []}
+            class="before:text-zinc-500/60 last-of-type:before:content-['└──'] before:content-['├──'] gap-x-[1ch] px-2 items-center hover:bg-zinc-200/70 flex flex-row justify-items-stretch hover:bg-zinc-200"
           >
-            <span>{filter}</span>
+            <span class="grow">
+              {filter}
+            </span>
             <label
-              class="group-hover:bg-zinc-300 bg-zinc-200"
+              class="justify-self-end group py-1"
               for={input_id(group_id(:operating_system), filter)}
             >
-              ╳
+              <span class="group-hover:border-black group-hover:bg-black group-hover:text-white border border-zinc-300 shadow-[2px_2px_0px_0px] shadow-zinc-400/40 bg-zinc-50 uppercase px-1.5">
+                remove
+              </span>
             </label>
           </li>
         </ol>
       </section>
-      <section class="has-[li]:block hidden">
-        <h3>Browsers</h3>
-        <ol>
-          <li :for={filter <- Map.get(@query, :browsers) || []}>
-            <span>{filter}</span>
-            <label for={input_id(group_id(:browser), filter)}>remove</label>
-          </li>
-        </ol>
-      </section>
-
-      <ol>
-        <li :for={filter <- Map.get(@query, :operating_system_versions) || []}>
-          <span>{gettext("OS ver. is %{value}", value: filter)}</span>
-          <label for={input_id(group_id(:operating_system_version), filter)}>remove</label>
-        </li>
-        <li :for={filter <- Map.get(@query, :browser_versions) || []}>
-          <span>{gettext("Browser ver. is %{value}", value: filter)}</span>
-          <label for={input_id(group_id(:browser_version), filter)}>remove</label>
-        </li>
-        <li :for={filter <- Map.get(@query, :paths) || []}>
-          <span>{gettext("Path is %{value}", value: filter)}</span>
-          <label for={input_id(group_id(:path), filter)}>remove</label>
-        </li>
-        <li :for={filter <- Map.get(@query, :country_codes) || []}>
-          <span>{gettext("Country is %{value}", value: filter)}</span>
-          <label for={input_id(group_id(:country_code), filter)}>remove</label>
-        </li>
-        <li :for={filter <- Map.get(@query, :referrers) || []}>
-          <span>{gettext("Referrer is %{value}", value: filter)}</span>
-          <label for={input_id(group_id(:referrer), filter)}>remove</label>
-        </li>
-      </ol>
     </.controls>
     """
   end
