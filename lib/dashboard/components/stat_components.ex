@@ -3,7 +3,14 @@ defmodule Dashboard.StatComponents do
   use Phoenix.Component
   use Gettext, backend: Dashboard.Gettext
 
+  import Stats.Event, only: [aggregate: 2]
+  import Stats.Events.GroupingID
+
   alias Dashboard.StatsLive.Query
+  alias Stats.Queryable
+  alias Stats.TypedAggregate
+
+  require Logger
 
   attr :title, :string, required: true
   attr :events, :list, required: true
@@ -30,6 +37,65 @@ defmodule Dashboard.StatComponents do
     """
   end
 
+  def query(assigns) do
+    ~H"""
+    <.controls title="Scale" id="scale">
+      <section class="has-[li]:block hidden">
+        <h3>Operating Systems</h3>
+        <ol>
+          <li
+            :for={filter <- Map.get(@query, :operating_systems) || []}
+            class="hover:bg-zinc-200/70 flex flex-row justify-between hover:bg-zinc-200 group"
+          >
+            <span>{filter}</span>
+            <label
+              class="group-hover:bg-zinc-300 bg-zinc-200"
+              for={input_id(group_id(:operating_system), filter)}
+            >
+              ╳
+            </label>
+          </li>
+        </ol>
+      </section>
+      <section class="has-[li]:block hidden">
+        <h3>Browsers</h3>
+        <ol>
+          <li :for={filter <- Map.get(@query, :browsers) || []}>
+            <span>{filter}</span>
+            <label for={input_id(group_id(:browser), filter)}>remove</label>
+          </li>
+        </ol>
+      </section>
+
+      <ol>
+        <li :for={filter <- Map.get(@query, :operating_system_versions) || []}>
+          <span>{gettext("OS ver. is %{value}", value: filter)}</span>
+          <label for={input_id(group_id(:operating_system_version), filter)}>remove</label>
+        </li>
+        <li :for={filter <- Map.get(@query, :browser_versions) || []}>
+          <span>{gettext("Browser ver. is %{value}", value: filter)}</span>
+          <label for={input_id(group_id(:browser_version), filter)}>remove</label>
+        </li>
+        <li :for={filter <- Map.get(@query, :paths) || []}>
+          <span>{gettext("Path is %{value}", value: filter)}</span>
+          <label for={input_id(group_id(:path), filter)}>remove</label>
+        </li>
+        <li :for={filter <- Map.get(@query, :country_codes) || []}>
+          <span>{gettext("Country is %{value}", value: filter)}</span>
+          <label for={input_id(group_id(:country_code), filter)}>remove</label>
+        </li>
+        <li :for={filter <- Map.get(@query, :referrers) || []}>
+          <span>{gettext("Referrer is %{value}", value: filter)}</span>
+          <label for={input_id(group_id(:referrer), filter)}>remove</label>
+        </li>
+      </ol>
+    </.controls>
+    """
+  end
+
+  defp input_id(field, %TypedAggregate{} = typed_aggregate), do: "#{field}-#{Stats.Queryable.hash(typed_aggregate)}"
+  defp input_id(group_id, value), do: Queryable.hash({group_id, value})
+
   slot :tab, doc: "Tabs" do
     attr :title, :string, required: true
     attr :field, :string, required: true
@@ -41,8 +107,8 @@ defmodule Dashboard.StatComponents do
 
   def tabbed_chart(assigns) do
     ~H"""
-    <form class={@class} method="GET" action="/" phx-change="filter">
-      <fieldset data-tabs class="grid grid-cols-1 grid-rows-[max-content_max-content]">
+    <section class={@class} data-tabs class="grid grid-cols-1 grid-rows-[max-content_max-content]">
+      <form>
         <input
           :for={{tab, index} <- Enum.with_index(@tab)}
           type="radio"
@@ -53,33 +119,41 @@ defmodule Dashboard.StatComponents do
           phx-update="ignore"
           class="hidden"
         />
-        <legend class="flex flex-row gap-x-4">
-          <label :for={tab <- @tab} for={tab.field}>{tab.title}</label>
-        </legend>
-        <fieldset :for={tab <- @tab} class="hidden col-span-full row-start-2">
-          <ol id={"#{tab.field}-stream"} phx-update="stream">
+      </form>
+      <header class="flex flex-row gap-x-4">
+        <h2 :for={tab <- @tab}><label for={tab.field}>{tab.title}</label></h2>
+      </header>
+      <section :for={tab <- @tab} data-tab class="hidden col-span-full row-start-2">
+        <form method="GET" action="/" phx-change="filter">
+          <ol id={"#{tab.field}-stream"} phx-update="stream" class="overflow-y-scroll h-[10lh]">
             <li :for={{dom_id, aggregate} <- tab.aggregates} id={dom_id}>
               <label class="flex flex-row items-center hover:bg-zinc-100">
                 <input
                   type="checkbox"
                   class="hidden"
-                  checked={is_aggregate_checked(aggregate.value, tab.filtered)}
+                  id={"#{Queryable.hash(aggregate)}"}
+                  checked={is_aggregate_checked(Queryable.value(aggregate), tab.filtered)}
                   name={"#{tab.field}[]"}
-                  value={aggregate.value}
+                  value={Queryable.value(aggregate) || ""}
                 />
-                <div class="relative w-full">
-                  <span class="flex flex-row justify-between w-full">
-                    <span>{aggregate.value}</span>
-                    <span>{aggregate.count}</span>
+                <span class="relative w-full">
+                  <meter
+                    min="0"
+                    class="h-full w-full absolute inset-0 opacity-40 appearance-none"
+                    value={Queryable.count(aggregate)}
+                    max={aggregate(aggregate, :max)}
+                  />
+                  <span class="flex flex-row justify-between w-full pl-[1ch]">
+                    <span>{Queryable.present(aggregate)}</span>
+                    <span>{Queryable.count(aggregate)}</span>
                   </span>
-                  <span class="absolute top-0 left-0">░</span>
-                </div>
+                </span>
               </label>
             </li>
           </ol>
-        </fieldset>
-      </fieldset>
-    </form>
+        </form>
+      </section>
+    </section>
     """
   end
 
@@ -91,11 +165,13 @@ defmodule Dashboard.StatComponents do
 
   def period(assigns) do
     ~H"""
-    <form method="GET" action="/" phx-change="limit">
-      <fieldset class="border border-zinc-600 pb-1 px-2">
-        <legend class="px-1">Period</legend>
+    <.controls id="period" title="Period">
+      <form method="GET" action="/" phx-change="limit">
         <fieldset :for={group <- Dashboard.StatsLive.Query.periods()} class="flex flex-col">
-          <label :for={{label, value, hotkey} <- group} class="flex flex-row justify-between">
+          <label
+            :for={{label, value, hotkey} <- group}
+            class="hover:bg-zinc-200/70 px-2 flex flex-row justify-between"
+          >
             <div>
               <input
                 data-controller="hotkey"
@@ -111,8 +187,8 @@ defmodule Dashboard.StatComponents do
           </label>
           <.hr />
         </fieldset>
-      </fieldset>
-    </form>
+      </form>
+    </.controls>
     """
   end
 
@@ -130,11 +206,10 @@ defmodule Dashboard.StatComponents do
 
   def sites(assigns) do
     ~H"""
-    <form method="GET" action="/" phx-change="filter">
-      <fieldset class="border border-zinc-600 pb-1 px-2">
-        <legend class="px-1">{gettext("Sites")}</legend>
+    <.controls id="sites" title="Sites">
+      <form phx-change="filter" action="/" method="GET">
         <ul class="flex flex-col">
-          <li :for={{domain, i} <- Enum.with_index(@domains, 1)}>
+          <li :for={{domain, i} <- Enum.with_index(@domains, 1)} class="px-2 hover:bg-zinc-200/70">
             <label class="flex flex-row justify-between">
               <div>
                 <input
@@ -150,8 +225,23 @@ defmodule Dashboard.StatComponents do
             </label>
           </li>
         </ul>
-      </fieldset>
-    </form>
+      </form>
+    </.controls>
+    """
+  end
+
+  attr :action, :string, required: false
+  attr :title, :string, required: true
+  attr :id, :string, required: true
+
+  slot :inner_block, required: true
+
+  def controls(assigns) do
+    ~H"""
+    <fieldset id={@id} class="bg-zinc-100 shadow-[4px_5px_0px_0px_#] shadow-zinc-200">
+      <legend class="bg-zinc-200 px-2 ml-2 mb-0.5">{@title}</legend>
+      {render_slot(@inner_block)}
+    </fieldset>
     """
   end
 
@@ -159,34 +249,31 @@ defmodule Dashboard.StatComponents do
 
   def scale(assigns) do
     ~H"""
-    <form id="scale" phx-update="ignore" method="GET" action="/" phx-change="scale">
-      <fieldset class="border border-zinc-600 pb-1 px-2">
-        <legend class="px-1">Scale</legend>
-        <fieldset class="flex flex-col">
-          <label
-            :for={{label, value, hotkey} <- Dashboard.StatsLive.Query.scale()}
-            class="flex flex-row justify-between"
-          >
-            <div>
-              <input
-                data-controller="hotkey"
-                data-hotkey={hotkey}
-                checked={@query.scale == value}
-                type="radio"
-                name="scale"
-                value={value}
-              />
-              <span>{gettext("%{label}", label: label)}</span>
-            </div>
-            <.hotkey keybind={hotkey} />
-          </label>
-        </fieldset>
-      </fieldset>
-    </form>
+    <.controls id="scale" title="Scale">
+      <form action="/" method="GET" phx-change="scale">
+        <label
+          :for={{label, value, hotkey} <- Dashboard.StatsLive.Query.scale()}
+          class="px-2 hover:bg-zinc-200/70 flex flex-row justify-between"
+        >
+          <div>
+            <input
+              data-controller="hotkey"
+              data-hotkey={hotkey}
+              checked={@query.scale == value}
+              type="radio"
+              name="scale"
+              value={value}
+            />
+            <span>{gettext("%{label}", label: label)}</span>
+          </div>
+          <.hotkey keybind={hotkey} />
+        </label>
+      </form>
+    </.controls>
     """
   end
 
-  defp hr(assigns), do: ~H|<hr class="h-px my-[0.25lh] border-0 bg-zinc-500" />|
+  defp hr(assigns), do: ~H|<hr class="h-px my-[0.25lh] mx-2 border-0 bg-zinc-500/60" />|
 
   defp strftime(timestamp, :hh_mm), do: Calendar.strftime(timestamp, "%Y-%m-%d %H:%M")
 end

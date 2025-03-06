@@ -1,11 +1,25 @@
-<div class="grid grid-cols-1 w-screen sm:grid-cols-[1fr_3.326fr]">
+<div class="grid grid-cols-1 w-screen gap-x-[2ch] pt-[1ch] sm:grid-cols-[1fr_3.326fr]">
   <nav class="flex flex-col mx-[1ch] gap-y-[1lh]">
     <.sites domains={@domains} />
     <.period query={@query} />
     <.scale query={@query} />
     <.query query={@query} />
   </nav>
-  <div class="grid grid-cols-1 gap-10 sm:grid-cols-3">
+  <div class="grid grid-cols-1 col-start-2 sm:grid-cols-3 gap-[4ch]">
+    <header class="col-span-full h-full">
+      <.controls id="system_inforamtion" title="System Inforamtion">
+        <dl class="flex flex-row gap-x-4 items-center py-0.5 px-1 w-max">
+          <div class="flex flex-row gap-x-1">
+            <dt>Client IP</dt>
+            <dd class="px-0.5 bg-zinc-100">127.0.0.1</dd>
+          </div>
+          <div class="flex flex-row gap-x-1">
+            <dt>Version</dt>
+            <dd class="px-0.5 bg-zinc-100">NIGHTLY</dd>
+          </div>
+        </dl>
+      </.controls>
+    </header>
     <div class="col-span-full">
       <.timeline title="Events" events={@events} />
     </div>
