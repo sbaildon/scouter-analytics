@@ -62,11 +62,8 @@ defmodule Dashboard.StatComponents do
             <span class="grow">
               {filter}
             </span>
-            <label
-              class="justify-self-end group py-1"
-              for={input_id(group_id(:operating_system), filter)}
-            >
-              <span class="group-hover:border-black group-hover:bg-black group-hover:text-white border border-zinc-300 shadow-[2px_2px_0px_0px] shadow-zinc-400/40 bg-zinc-50 uppercase px-1.5">
+            <label class="justify-self-end group" for={input_id(group_id(:operating_system), filter)}>
+              <span class="text-xs group-hover:border-black group-hover:bg-black group-hover:text-white border border-zinc-300 shadow-[2px_2px_0px_0px] shadow-zinc-400/40 bg-zinc-50 uppercase px-1.5">
                 remove
               </span>
             </label>
