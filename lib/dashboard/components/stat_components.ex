@@ -217,12 +217,13 @@ defmodule Dashboard.StatComponents do
   attr :action, :string, required: false
   attr :title, :string, required: true
   attr :id, :string, required: true
+  attr :class, :string, default: nil
 
   slot :inner_block, required: true
 
   def controls(assigns) do
     ~H"""
-    <fieldset id={@id} class="bg-zinc-100 shadow-[4px_5px_0px_0px_#] shadow-zinc-200">
+    <fieldset id={@id} class={["bg-zinc-100 shadow-[4px_5px_0px_0px_#] shadow-zinc-200", @class]}>
       <legend class="bg-zinc-200 px-2 ml-2 mb-0.5">{@title}</legend>
       {render_slot(@inner_block)}
     </fieldset>
@@ -234,7 +235,12 @@ defmodule Dashboard.StatComponents do
   def scale(assigns) do
     ~H"""
     <.controls id="scale" title="Scale">
-      <form action="/" method="GET" phx-change="scale">
+      <form
+        action="/"
+        method="GET"
+        phx-change="scale"
+        class="grid grid-cols-2 gap-x-[0.5ch] grid-flow-col grid-rows-3"
+      >
         <label
           :for={{label, value, hotkey} <- Dashboard.StatsLive.Query.scale()}
           class="px-2 hover:bg-zinc-200/70 flex flex-row justify-between"
