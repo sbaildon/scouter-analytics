@@ -148,26 +148,30 @@ defmodule Dashboard.StatComponents do
     ~H"""
     <.controls id="period" title="Period">
       <form method="GET" action="/" phx-change="limit">
-        <fieldset :for={group <- Dashboard.StatsLive.Query.periods()} class="flex flex-col">
-          <label
-            :for={{label, value, hotkey} <- group}
-            class="hover:bg-zinc-200/70 px-2 flex flex-row justify-between"
-          >
-            <div>
-              <input
-                data-controller="hotkey"
-                data-hotkey={hotkey}
-                checked={value == @query.interval}
-                type="radio"
-                name="interval"
-                value={value}
-              />
-              <span>{label}</span>
-            </div>
-            <.hotkey keybind={hotkey} />
-          </label>
-          <.hr />
-        </fieldset>
+        <.intersperse :let={group} enum={Dashboard.StatsLive.Query.periods()}>
+          <:separator>
+            <.hr />
+          </:separator>
+          <fieldset class="last:pb-0.5 flex flex-col">
+            <label
+              :for={{label, value, hotkey} <- group}
+              class="hover:bg-zinc-200/70 px-2 flex flex-row justify-between"
+            >
+              <div>
+                <input
+                  data-controller="hotkey"
+                  data-hotkey={hotkey}
+                  checked={value == @query.interval}
+                  type="radio"
+                  name="interval"
+                  value={value}
+                />
+                <span>{label}</span>
+              </div>
+              <.hotkey keybind={hotkey} />
+            </label>
+          </fieldset>
+        </.intersperse>
       </form>
     </.controls>
     """
