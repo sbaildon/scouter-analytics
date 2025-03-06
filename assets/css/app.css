@@ -60,3 +60,66 @@ section[data-tabs] {
 		}
 	}
 }
+meter {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+
+	margin: 0 auto 1em;
+
+	/* Applicable only to Firefox */
+	background: none;
+	background-color: transparent;
+}
+
+meter::-webkit-meter-optimum-value {
+	background: var(--color-lime-500);
+}
+
+meter::-webkit-meter-bar {
+	/* background: none; */
+fieldset {
+	& > legend {
+		text-transform: uppercase;
+	}
+	& dt {
+		text-transform: uppercase;
+	}
+}
+
+input:where([type="checkbox"], [type="radio"]) {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 0.75lh;
+	height: 0.75lh;
+	margin: 0 auto;
+	color: var(--color-zinc-300);
+	border-style: solid;
+	border-width: 1.2px;
+
+	box-shadow: 1px 1px 0px 0px var(--color-zinc-300);
+	vertical-align: text-top;
+	background: var(--color-zinc-50) no-repeat center center;
+}
+
+input[type="radio"] {
+	border-radius: 50%;
+}
+
+input:where([type="checkbox"], [type="radio"]):where(
+		:active:not(:disabled),
+		:focus
+	) {
+	border-color: var(--color-zinc-400);
+	outline: none;
+}
+
+input:where([type="checkbox"], [type="radio"]):disabled {
+	background: #eee;
+}
+
+input:where([type="checkbox"], [type="radio"]):checked {
+	color: var(--color-lime-600);
+	background-color: var(--color-lime-400);
+	/* border-color: var(--color-lime-600); */
+}
