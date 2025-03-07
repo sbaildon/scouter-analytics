@@ -268,7 +268,7 @@ defmodule Dashboard.StatComponents do
     """
   end
 
-  defp hr(assigns), do: ~H|<hr class="h-px my-[0.25lh] mx-2 border-0 bg-zinc-500/60" />|
+  defp hr(assigns), do: ~H|<hr class="h-px my-[calc(0.5em-0.5px)] mx-2 border-0 bg-zinc-500/60" />|
 
   defp strftime(timestamp, :hh_mm), do: Calendar.strftime(timestamp, "%Y-%m-%d %H:%M")
 end
