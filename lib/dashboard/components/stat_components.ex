@@ -52,7 +52,11 @@ defmodule Dashboard.StatComponents do
   def query(assigns) do
     ~H"""
     <.controls title="Filters" id="filers" class="hidden has-[li]:block">
-      <section :for={{param, title} <- filters()} class="has-[li]:block hidden">
+      <section
+        :for={{param, title} <- filters()}
+        :if={Map.get(@query, param)}
+        class="has-[li]:block hidden last:pb-1.25"
+      >
         <h3 class="px-2">{title}</h3>
         <ol>
           <li
@@ -62,8 +66,8 @@ defmodule Dashboard.StatComponents do
             <span class="grow">
               {filter}
             </span>
-            <label class="justify-self-end group" for={input_id(group_id(:operating_system), filter)}>
-              <span class="text-xs group-hover:border-black group-hover:bg-black group-hover:text-white border border-zinc-300 shadow-[2px_2px_0px_0px] shadow-zinc-400/40 bg-zinc-50 uppercase px-1.5">
+            <label class="justify-self-end group" for={input_id(group_id(:browser), filter)}>
+              <span class="tracking-[0.2ch] text-xs group-hover:border-black group-hover:bg-black group-hover:text-white border border-zinc-300 shadow-[2px_2px_0px_0px] shadow-zinc-400/40 bg-zinc-50 uppercase px-1.5">
                 remove
               </span>
             </label>
@@ -152,7 +156,7 @@ defmodule Dashboard.StatComponents do
           <:separator>
             <.hr />
           </:separator>
-          <fieldset class="last:pb-0.5 flex flex-col">
+          <fieldset class="last:pb-1.25 flex flex-col">
             <label
               :for={{label, value, hotkey} <- group}
               class="hover:bg-zinc-200/70 px-2 flex flex-row justify-between"
@@ -193,7 +197,7 @@ defmodule Dashboard.StatComponents do
     ~H"""
     <.controls id="sites" title="Sites">
       <form phx-change="filter" action="/" method="GET">
-        <ul class="flex flex-col">
+        <ul class="flex flex-col pb-1.25">
           <li :for={{domain, i} <- Enum.with_index(@domains, 1)} class="px-2 hover:bg-zinc-200/70">
             <label class="flex flex-row justify-between">
               <div>
