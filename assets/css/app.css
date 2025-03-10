@@ -16,46 +16,40 @@
 }
 
 section[data-tabs] {
-	&:has(> form > input[type="radio"]:nth-of-type(1):checked) {
-		& > header > h2:nth-of-type(1) {
-			font-weight: bold;
-		}
+	& > form > header > h2:has(input:checked) {
+		background-color: var(--color-zinc-100);
+	}
 
+	& section[data-tab] {
+		background-color: var(--color-zinc-100);
+		box-shadow: 4px 5px 0px 0px var(--color-zinc-200);
+	}
+
+	&:has(> form > header > h2:nth-of-type(1) > label > input:checked) {
 		& > section:nth-of-type(1) {
 			display: block;
 		}
 	}
 
-	&:has(> form > input[type="radio"]:nth-of-type(2):checked) {
-		& > header > h2:nth-of-type(2) {
-			font-weight: bold;
-		}
+	&:has(> form > header > h2:nth-of-type(2) > label > input:checked) {
 		& > section:nth-of-type(2) {
 			display: block;
 		}
 	}
 
-	&:has(> form > input[type="radio"]:nth-of-type(3):checked) {
-		& > header > h2:nth-of-type(3) {
-			font-weight: bold;
-		}
+	&:has(> form > header > h2:nth-of-type(3) > label > input:checked) {
 		& > section:nth-of-type(3) {
 			display: block;
 		}
 	}
-	&:has(> form > input[type="radio"]:nth-of-type(4):checked) {
-		& > header > h2:nth-of-type(4) {
-			font-weight: bold;
-		}
+
+	&:has(> form > header > h2:nth-of-type(4) > label > input:checked) {
 		& > section:nth-of-type(4) {
 			display: block;
 		}
 	}
 
-	&:has(> form > input[type="radio"]:nth-of-type(5):checked) {
-		& > header > h2:nth-of-type(5) {
-			font-weight: bold;
-		}
+	&:has(> form > header > h2:nth-of-type(5) > label > input:checked) {
 		& > section:nth-of-type(5) {
 			display: block;
 		}
@@ -80,9 +74,13 @@ meter::-webkit-meter-optimum-value {
 
 meter::-webkit-meter-bar {
 	/* background: none; */
+}
+
 fieldset {
 	& > legend {
+		letter-spacing: 0.125ch;
 		text-transform: uppercase;
+		text-rendering: optimizelegibility;
 	}
 	& dt {
 		text-transform: uppercase;
