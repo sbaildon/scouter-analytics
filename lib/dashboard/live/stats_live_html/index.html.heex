@@ -27,6 +27,7 @@
     <.tabbed_chart>
       <:tab
         title={gettext("Browsers")}
+        hotkey="b n"
         field="browsers"
         aggregates={@streams.browser}
         filtered={@query.browsers}
@@ -34,6 +35,7 @@
       <:tab
         title={gettext("Vers.")}
         field="browser_versions"
+        hotkey="b v"
         aggregates={@streams.browser_version}
         filtered={@query.browser_versions}
       />

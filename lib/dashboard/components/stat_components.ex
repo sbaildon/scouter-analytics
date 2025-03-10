@@ -3,7 +3,7 @@ defmodule Dashboard.StatComponents do
   use Phoenix.Component
   use Gettext, backend: Dashboard.Gettext
 
-  import Stats.Event, only: [aggregate: 2]
+  import Stats.Event, only: [aggregate: 1, aggregate: 2]
   import Stats.Events.GroupingID
 
   alias Dashboard.StatsLive.Query
@@ -39,34 +39,39 @@ defmodule Dashboard.StatComponents do
 
   defp filters do
     [
-      {:browsers, "Browsers"},
-      {:browser_versions, "Browser Vers."},
-      {:operating_systems, "Operating Systems"},
-      {:operating_system_versions, "Operating System Vers."},
-      {:paths, "Paths"},
-      {:referrers, "Referrers"},
-      {:country_codes, "Countries"}
+      {:browsers, group_id(:browser), "Browsers"},
+      {:browser_versions, group_id(:browser_version), "Browser Vers."},
+      {:operating_systems, group_id(:operating_system), "Operating Systems"},
+      {:operating_system_versions, group_id(:operating_system_version), "Operating System Vers."},
+      {:paths, group_id(:path), "Paths"},
+      {:referrers, group_id(:referrer), "Referrers"},
+      {:utm_mediums, group_id(:utm_medium), "UTM Mediums"},
+      {:utm_sources, group_id(:utm_source), "UTM Sources"},
+      {:utm_contents, group_id(:utm_content), "UTM Content"},
+      {:utm_campaigns, group_id(:utm_campaign), "UTM Campaigns"},
+      {:utm_terms, group_id(:utm_term), "UTM Terms"},
+      {:country_codes, group_id(:country_code), "Countries"}
     ]
   end
 
-  def query(assigns) do
+  def filters(assigns) do
     ~H"""
     <.controls title="Filters" id="filers" class="hidden has-[li]:block">
       <section
-        :for={{param, title} <- filters()}
+        :for={{param, group_id, title} <- filters()}
         :if={Map.get(@query, param)}
-        class="has-[li]:block hidden last:pb-1.25"
+        class="has-[li]:block hidden last-of-type:pb-1.25"
       >
         <h3 class="px-2">{title}</h3>
         <ol>
           <li
             :for={filter <- Map.get(@query, param) || []}
-            class="before:text-zinc-500/60 last-of-type:before:content-['└─'] before:content-['├─'] gap-x-[1ch] px-2 items-center hover:bg-zinc-200/70 flex flex-row justify-items-stretch hover:bg-zinc-200"
+            class="before:text-zinc-500/60 last-of-type:before:content-['└─'] before:content-['├─'] gap-x-[1ch] px-2 items-center hover:bg-zinc-200/70 flex flex-row hover:bg-zinc-200"
           >
             <span class="grow">
-              {filter}
+              {Queryable.present(aggregate(grouping_id: group_id, value: filter))}
             </span>
-            <label class="justify-self-end group" for={input_id(group_id(:browser), filter)}>
+            <label class="group" for={input_id(group_id, filter)}>
               <span class="tracking-[0.2ch] text-xs group-hover:border-black group-hover:bg-black group-hover:text-white border border-zinc-300 shadow-[2px_2px_0px_0px] shadow-zinc-400/40 bg-zinc-50 uppercase px-1.5">
                 remove
               </span>
@@ -86,6 +91,7 @@ defmodule Dashboard.StatComponents do
     attr :field, :string, required: true
     attr :aggregates, :list, required: true, doc: "List of Stats.Aggregate"
     attr :filtered, :list, required: true
+    attr :hotkey, :string, required: false
   end
 
   attr :class, :string, default: ""
@@ -94,24 +100,33 @@ defmodule Dashboard.StatComponents do
     ~H"""
     <section class={@class} data-tabs class="grid grid-cols-1 grid-rows-[max-content_max-content]">
       <form>
-        <input
-          :for={{tab, index} <- Enum.with_index(@tab)}
-          type="radio"
-          name="tab"
-          id={tab.field}
-          value={tab.field}
-          checked={index == 0}
-          phx-update="ignore"
-          class="hidden"
-        />
+        <header class="bg-transparent flex flex-row">
+          <h2 :for={{tab, index} <- Enum.with_index(@tab)} class="bg-zinc-200">
+            <label>
+              <span class="px-2 uppercase tracking-[0.075em]">{tab.title}</span>
+              <input
+                type="radio"
+                name="tab"
+                data-controller="hotkey"
+                data-hotkey={Map.get(tab, :hotkey)}
+                id={tab.field}
+                value={tab.field}
+                checked={index == 0}
+                phx-update="ignore"
+                class="hidden"
+              />
+            </label>
+          </h2>
+        </header>
       </form>
-      <header class="flex flex-row gap-x-4">
-        <h2 :for={tab <- @tab}><label for={tab.field}>{tab.title}</label></h2>
-      </header>
-      <section :for={tab <- @tab} data-tab class="hidden col-span-full row-start-2">
+      <section :for={tab <- @tab} data-tab class="pt-[1ch] hidden col-span-full row-start-2">
         <form method="GET" action="/" phx-change="filter">
-          <ol id={"#{tab.field}-stream"} phx-update="stream" class="overflow-y-scroll h-[10lh]">
-            <li :for={{dom_id, aggregate} <- tab.aggregates} id={dom_id}>
+          <ol
+            id={"#{tab.field}-stream"}
+            phx-update="stream"
+            class="overflow-y-scroll snap-y snap-mandatory h-[10lh]"
+          >
+            <li :for={{dom_id, aggregate} <- tab.aggregates} id={dom_id} class="snap-start">
               <label class="flex flex-row items-center hover:bg-zinc-100">
                 <input
                   type="checkbox"
@@ -128,7 +143,7 @@ defmodule Dashboard.StatComponents do
                     value={Queryable.count(aggregate)}
                     max={aggregate(aggregate, :max)}
                   />
-                  <span class="flex flex-row justify-between w-full pl-[1ch]">
+                  <span class="flex flex-row justify-between w-full px-[1ch]">
                     <span>{Queryable.present(aggregate)}</span>
                     <span>{Queryable.count(aggregate)}</span>
                   </span>
