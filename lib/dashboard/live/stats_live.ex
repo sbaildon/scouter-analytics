@@ -47,6 +47,11 @@ defmodule Dashboard.StatsLive do
      |> configure_stream_for_aggregate_fields()
      |> fetch_aggregates(query)
      |> assign(:query, query)
+     |> then(fn socket ->
+       headers = get_connect_info(socket, :x_headers) || []
+       ip = RemoteIp.from(headers, clients: clients())
+       assign(socket, :client_ip, :inet.ntoa(ip))
+     end)
      |> assign(:domains, Domains.list())}
   end
 
@@ -173,5 +178,11 @@ defmodule Dashboard.StatsLive do
   @impl true
   def render(assigns) do
     index_html(assigns)
+  end
+
+  if Application.compile_env(:stats, :dev_routes) do
+    defp clients, do: ["127.0.0.1"]
+  else
+    defp clients, do: []
   end
 end
