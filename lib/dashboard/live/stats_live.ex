@@ -205,4 +205,7 @@ defmodule Dashboard.StatsLive do
     defp clients, do: []
   end
 
+  defp version do
+    :stats |> Application.spec(:vsn) |> to_string()
+  end
 end
