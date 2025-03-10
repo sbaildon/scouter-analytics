@@ -13,11 +13,16 @@ defimpl Stats.Queryable, for: Tuple do
     :erlang.phash2({grouping_id, value})
   end
 
+  def hash({group_id, ""}) do
+    :erlang.phash2({group_id, nil})
+  end
+
   def hash({group_id, value}) do
     :erlang.phash2({group_id, value})
   end
 
   def present(aggregate(value: nil)), do: "<Unknown>"
+  def present(aggregate(value: "")), do: "<Unknown>"
 
   def present(aggregate(grouping_id: group_id(:referrer), value: value)),
     do: value |> URI.parse() |> Map.fetch!(:host) |> then(fn host -> Regex.replace(~r/(www\.)/, host, "") end)
