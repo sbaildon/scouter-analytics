@@ -10,4 +10,10 @@ defmodule Stats.Domains do
   def list do
     Repo.all(Domain)
   end
+
+  def list_published do
+    Domain.query()
+    |> Domain.where_published()
+    |> Repo.all()
+  end
 end

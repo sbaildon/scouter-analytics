@@ -4,6 +4,7 @@ defmodule Stats.Repo.Migrations.CreateDomains do
   def change do
     create table("domains", options: "STRICT") do
       add :host, :string, null: false
+      add :published, :boolean, null: false
       timestamps()
     end
 

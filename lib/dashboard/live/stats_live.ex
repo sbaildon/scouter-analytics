@@ -30,6 +30,24 @@ defmodule Dashboard.StatsLive do
   defp fetch_aggregates(socket, query) when is_connected(socket) do
     filters = Query.to_filters(query)
 
+    filters =
+      Keyword.update!(filters, :sites, fn
+        nil ->
+          Enum.map(socket.assigns.domains, & &1.host)
+
+        [] ->
+          Enum.map(socket.assigns.domains, & &1.host)
+
+        hosts ->
+          allowed_hosts = MapSet.new(socket.assigns.domains, & &1.host)
+
+          requested_hosts = MapSet.new(hosts)
+
+          intersection = MapSet.intersection(requested_hosts, allowed_hosts)
+
+          MapSet.to_list(intersection)
+      end)
+
     start_async(socket, :fetch_aggregates, fn ->
       stream = Events.stream_aggregates(filters)
       stream
@@ -44,6 +62,8 @@ defmodule Dashboard.StatsLive do
 
     {:ok,
      socket
+     |> assign(:domains, Domains.list_published())
+     |> assign(:version, version())
      |> configure_stream_for_aggregate_fields()
      |> fetch_aggregates(query)
      |> assign(:query, query)
@@ -51,8 +71,7 @@ defmodule Dashboard.StatsLive do
        headers = get_connect_info(socket, :x_headers) || []
        ip = RemoteIp.from(headers, clients: clients())
        assign(socket, :client_ip, :inet.ntoa(ip))
-     end)
-     |> assign(:domains, Domains.list())}
+     end)}
   end
 
   defp configure_stream_for_aggregate_fields(socket) do
@@ -185,4 +204,5 @@ defmodule Dashboard.StatsLive do
   else
     defp clients, do: []
   end
+
 end
