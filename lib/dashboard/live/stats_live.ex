@@ -13,40 +13,14 @@ defmodule Dashboard.StatsLive do
 
   require Logger
 
-    filters = Query.to_filters(query)
   defmacro is_connected(socket) do
     quote do
       unquote(socket).transport_pid != nil
     end
   end
 
-    scaled_events = Events.scale(query.scale, filters)
-  defp period(socket, _query) do
-
-    assign(socket, :events, scaled_events)
-  end
-
-
   defp fetch_aggregates(socket, query) when is_connected(socket) do
-    filters = Query.to_filters(query)
-
-    filters =
-      Keyword.update!(filters, :sites, fn
-        nil ->
-          Enum.map(socket.assigns.domains, & &1.host)
-
-        [] ->
-          Enum.map(socket.assigns.domains, & &1.host)
-
-        hosts ->
-          allowed_hosts = MapSet.new(socket.assigns.domains, & &1.host)
-
-          requested_hosts = MapSet.new(hosts)
-
-          intersection = MapSet.intersection(requested_hosts, allowed_hosts)
-
-          MapSet.to_list(intersection)
-      end)
+    filters = restricted_filters(query, socket.assigns.domains)
 
     start_async(socket, :fetch_aggregates, fn ->
       stream = Events.stream_aggregates(filters)
@@ -55,6 +29,27 @@ defmodule Dashboard.StatsLive do
   end
 
   defp fetch_aggregates(socket, _query), do: socket
+
+  defp restricted_filters(query, domains) do
+    filters = Query.to_filters(query)
+
+    Keyword.update!(filters, :sites, fn
+      nil ->
+        Enum.map(domains, & &1.host)
+
+      [] ->
+        Enum.map(domains, & &1.host)
+
+      hosts ->
+        allowed_hosts = MapSet.new(domains, & &1.host)
+
+        requested_hosts = MapSet.new(hosts)
+
+        intersection = MapSet.intersection(requested_hosts, allowed_hosts)
+
+        MapSet.to_list(intersection)
+    end)
+  end
 
   @impl true
   def mount(params, _, socket) do
@@ -168,9 +163,7 @@ defmodule Dashboard.StatsLive do
 
     case Query.validate(existing_query, params) do
       {:ok, query} ->
-        socket
-        |> fetch_aggregates(query)
-        |> period(query)
+        fetch_aggregates(socket, query)
 
       _ ->
         socket
