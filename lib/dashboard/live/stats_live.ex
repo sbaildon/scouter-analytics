@@ -13,10 +13,6 @@ defmodule Dashboard.StatsLive do
 
   require Logger
 
-  defmacro is_connected(socket) do
-    quote do
-      unquote(socket).transport_pid != nil
-    end
   end
 
   defp fetch_aggregates(socket, query) when is_connected(socket) do

@@ -57,6 +57,8 @@ defmodule Dashboard do
       use Phoenix.LiveView,
         layout: {Dashboard.Layouts, :app}
 
+      import LiveHelpers
+
       unquote(html_helpers())
     end
   end
