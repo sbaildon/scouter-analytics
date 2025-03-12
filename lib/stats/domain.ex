@@ -28,4 +28,10 @@ defmodule Stats.Domain do
       where: domain.published == true
     )
   end
+
+  def where_host(query, host) do
+    from([{^named_binding(), domain}] in query,
+      where: domain.host == ^host
+    )
+  end
 end
