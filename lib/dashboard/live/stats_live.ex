@@ -13,56 +13,39 @@ defmodule Dashboard.StatsLive do
 
   require Logger
 
-  end
-
-  defp fetch_aggregates(socket, query) when is_connected(socket) do
-    filters = restricted_filters(query, socket.assigns.domains)
-
-    start_async(socket, :fetch_aggregates, fn ->
-      stream = Events.stream_aggregates(filters)
-      stream
-    end)
-  end
-
-  defp fetch_aggregates(socket, _query), do: socket
-
-  defp restricted_filters(query, domains) do
-    filters = Query.to_filters(query)
-
-    Keyword.update!(filters, :sites, fn
-      nil ->
-        Enum.map(domains, & &1.host)
-
-      [] ->
-        Enum.map(domains, & &1.host)
-
-      hosts ->
-        allowed_hosts = MapSet.new(domains, & &1.host)
-
-        requested_hosts = MapSet.new(hosts)
-
-        intersection = MapSet.intersection(requested_hosts, allowed_hosts)
-
-        MapSet.to_list(intersection)
-    end)
-  end
-
   @impl true
-  def mount(params, _, socket) do
+  def mount(params, session, socket) do
+    {:ok, handle_mount(socket.assigns.live_action, params, session, socket)}
+  end
+
+  def handle_mount(_live_action, params, _session, socket) do
     {:ok, query} = Query.validate(params)
 
-    {:ok,
-     socket
-     |> assign(:domains, Domains.list_published())
-     |> assign(:version, version())
-     |> configure_stream_for_aggregate_fields()
-     |> fetch_aggregates(query)
-     |> assign(:query, query)
-     |> then(fn socket ->
-       headers = get_connect_info(socket, :x_headers) || []
-       ip = RemoteIp.from(headers, clients: clients())
-       assign(socket, :client_ip, :inet.ntoa(ip))
-     end)}
+    socket
+    |> authorized_domains(socket.assigns.live_action, query)
+    |> assign(:version, version())
+    |> assign(:edition, edition())
+    |> configure_stream_for_aggregate_fields()
+    |> fetch_aggregates(query)
+    |> assign(:query, query)
+    |> then(fn socket ->
+      headers = get_connect_info(socket, :x_headers) || []
+      ip = RemoteIp.from(headers, clients: clients())
+      assign(socket, :client_ip, :inet.ntoa(ip))
+    end)
+  end
+
+  defp authorized_domains(socket, :host, query) do
+    {:ok, host} = Map.fetch(query, :host)
+
+    case Domains.get_by_host(host) do
+      nil -> assign(socket, :domains, [])
+      {:ok, domain} -> assign(socket, :domains, List.wrap(domain))
+    end
+  end
+
+  defp authorized_domains(socket, :index, _query) do
+    assign(socket, :domains, Domains.list_published())
   end
 
   defp configure_stream_for_aggregate_fields(socket) do
@@ -170,12 +153,21 @@ defmodule Dashboard.StatsLive do
     query_params =
       query
       |> Map.from_struct()
-      |> Map.reject(fn {_k, v} -> is_nil(v) end)
-      |> Enum.to_list()
+      |> Enum.reduce([], fn
+        {:host, _}, params -> params
+        {_k, nil}, params -> params
+        kv, params -> [kv | params]
+      end)
+
+    request_uri =
+      case query do
+        %{host: nil} -> ~p"/?#{query_params}"
+        %{host: host} -> ~p"/#{host}?#{query_params}"
+      end
 
     socket
     |> assign(:query, query)
-    |> push_patch(to: ~p"/?#{query_params}")
+    |> push_patch(to: request_uri)
   end
 
   defp dom_id(aggregate), do: "aggregate-#{Queryable.hash(aggregate)}"
@@ -184,10 +176,16 @@ defmodule Dashboard.StatsLive do
   embed_templates "stats_live_html/*", suffix: "_html"
 
   @impl true
+  def render(%{domains: []} = assigns) do
+    four_oh_four_html(assigns)
+  end
+
+  @impl true
   def render(assigns) do
     index_html(assigns)
   end
 
+  # allow 127.0.0.1 as client_ip when in development
   if Application.compile_env(:stats, :dev_routes) do
     defp clients, do: ["127.0.0.1"]
   else
@@ -196,5 +194,46 @@ defmodule Dashboard.StatsLive do
 
   defp version do
     :stats |> Application.spec(:vsn) |> to_string()
+  end
+  defp fetch_aggregates(socket, query) when is_connected(socket) do
+    filters = authorized_filters(query, socket.assigns.domains)
+
+    start_async(socket, :fetch_aggregates, fn ->
+      Events.stream_aggregates(filters)
+    end)
+  end
+
+  defp fetch_aggregates(socket, _query), do: socket
+
+  # lists all authorized domains because nothing has been filtered
+  defp authorized_filters(%{sites: nil, host: nil} = query, authorized_domains) do
+    filters = Query.to_filters(query)
+
+    sites =
+      Enum.map(authorized_domains, fn domain ->
+        TypeID.uuid(domain.id)
+      end)
+
+    filters |> Keyword.replace(:sites, sites) |> IO.inspect(label: "cool")
+  end
+
+  # filter by sites because host is not present
+  defp authorized_filters(%{host: nil} = query, authorized_domains) do
+    filters = Query.to_filters(query)
+
+    sites =
+      Enum.reduce(authorized_domains, [], fn authorized_domain, acc ->
+        if authorized_domain.host in query.sites, do: [TypeID.uuid(authorized_domain.id) | acc], else: acc
+      end)
+
+    filters |> Keyword.replace(:sites, sites) |> IO.inspect(label: "cool")
+  end
+
+  # filter for the single /:host, ignoring query[:sites] because it has no effect when :host
+  # is provided
+  defp authorized_filters(%{host: host} = query, [authorized_domain | []]) when not is_nil(host) do
+    filters = Query.to_filters(query)
+
+    Keyword.replace(filters, :sites, [TypeID.uuid(authorized_domain.id)])
   end
 end
