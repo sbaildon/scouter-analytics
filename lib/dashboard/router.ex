@@ -18,6 +18,10 @@ defmodule Dashboard.Router do
     pipe_through :browser
 
     live "/", StatsLive, :index
+
+    if Application.compile_env(:stats, :edition) == :commercial do
+      live "/:host", StatsLive, :host
+    end
   end
 
   if Application.compile_env(:stats, :dev_routes) do
