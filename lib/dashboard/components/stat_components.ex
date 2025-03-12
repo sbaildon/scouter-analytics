@@ -208,9 +208,25 @@ defmodule Dashboard.StatComponents do
 
   attr :domains, :list
 
+  def sites(%{domains: [_ | []]} = assigns) do
+    ~H"""
+    <.controls id="sites" title={gettext("Site")}>
+      <form phx-change="filter" action="/" method="GET">
+        <ul class="flex flex-col pb-1.25">
+          <li :for={domain <- @domains} class="px-2">
+            <span class="flex flex-row justify-between">
+              <span>{domain.host}</span>
+            </span>
+          </li>
+        </ul>
+      </form>
+    </.controls>
+    """
+  end
+
   def sites(assigns) do
     ~H"""
-    <.controls id="sites" title="Sites">
+    <.controls id="sites" title={gettext("Sites")}>
       <form phx-change="filter" action="/" method="GET">
         <ul class="flex flex-col pb-1.25">
           <li :for={{domain, i} <- Enum.with_index(@domains, 1)} class="px-2 hover:bg-zinc-200/70">
