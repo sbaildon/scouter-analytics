@@ -195,6 +195,11 @@ defmodule Dashboard.StatsLive do
   defp version do
     :stats |> Application.spec(:vsn) |> to_string()
   end
+
+  defp edition do
+    Application.fetch_env!(:stats, :edition)
+  end
+
   defp fetch_aggregates(socket, query) when is_connected(socket) do
     filters = authorized_filters(query, socket.assigns.domains)
 
