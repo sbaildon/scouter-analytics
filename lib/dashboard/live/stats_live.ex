@@ -133,7 +133,13 @@ defmodule Dashboard.StatsLive do
 
   @impl true
   def handle_params(params, _url, socket) do
-    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+    case socket.assigns.domains do
+      [] ->
+        {:noreply, socket}
+
+      [_ | _] ->
+        {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+    end
   end
 
   defp apply_action(socket, _, params) do
@@ -240,4 +246,6 @@ defmodule Dashboard.StatsLive do
 
     Keyword.replace(filters, :sites, [TypeID.uuid(authorized_domain.id)])
   end
+
+  defp authorized_filters(_, _), do: []
 end
