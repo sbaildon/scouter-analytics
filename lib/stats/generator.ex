@@ -16,7 +16,7 @@ defmodule Stats.Generator do
 
   @impl GenServer
   def handle_continue(:init, state) do
-    Process.send_after(self(), :periodic, 5000)
+    Process.send_after(self(), :periodic, 1000)
 
     {:noreply, state}
   end
