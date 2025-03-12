@@ -199,7 +199,7 @@ defmodule Stats.Event do
               ),
               :value
             ),
-          max: over(max(selected_as(:count)), partition_by: selected_as(:grouping_id)),
+          max: over(max(selected_as(:count)), partition_by: selected_as(:grouping_id))
         }
       )
     end)
