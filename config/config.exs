@@ -53,6 +53,7 @@ config :stats, Stats.Repo,
 config :stats,
   ecto_repos: [Stats.Repo, Stats.EventsRepo],
   app_name: "Stats",
+  edition: :commercial,
   generators: [timestamp_type: :utc_datetime, binary_id: true]
 
 config :tailwind,
