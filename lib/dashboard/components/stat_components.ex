@@ -207,6 +207,7 @@ defmodule Dashboard.StatComponents do
   end
 
   attr :domains, :list
+  attr :query, Query
 
   def sites(%{domains: [_ | []]} = assigns) do
     ~H"""
@@ -238,6 +239,7 @@ defmodule Dashboard.StatComponents do
                   value={domain.host}
                   name="sites[]"
                   type="checkbox"
+                  checked={domain.host in @query.sites}
                 />
                 <span>{domain.host}</span>
               </div>
