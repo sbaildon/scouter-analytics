@@ -239,7 +239,7 @@ defmodule Dashboard.StatComponents do
                   value={domain.host}
                   name="sites[]"
                   type="checkbox"
-                  checked={domain.host in @query.sites}
+                  checked={domain.host in (@query.sites || [])}
                 />
                 <span>{domain.host}</span>
               </div>
