@@ -26,7 +26,6 @@ defmodule Dashboard.StatsLive do
     |> assign(:version, version())
     |> assign(:edition, edition())
     |> configure_stream_for_aggregate_fields()
-    |> fetch_aggregates(query)
     |> assign(:query, query)
     |> then(fn socket ->
       headers = get_connect_info(socket, :x_headers) || []
