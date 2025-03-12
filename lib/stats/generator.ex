@@ -34,10 +34,9 @@ defmodule Stats.Generator do
 
     events =
       for _i <- 1..Enum.random(20..200) do
-        %Event{}
-        |> Map.merge(%{
-          timestamp: now,
-        })
+        %Event{
+          timestamp: now
+        }
         |> Events.Mock.add_site_and_host()
         |> Events.Mock.add_country_details()
         |> Events.Mock.add_utm_parameters()

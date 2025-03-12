@@ -13,7 +13,7 @@ defmodule Stats.Event do
 
   @primary_key false
   schema "events" do
-    field :site_id, TypeID, prefix: "site", type: :uuid
+    field :site_id, :string
     field :timestamp, :naive_datetime_usec
     field :host, :string
     field :path, :string

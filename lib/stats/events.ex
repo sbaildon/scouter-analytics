@@ -111,7 +111,7 @@ defmodule Stats.Events do
   end
 
   defp filter(query, [{:sites, values} | rest]) do
-    filter(Event.where_in(query, :host, values), rest)
+    filter(Event.where_in(query, :site_id, values), rest)
   end
 
   defp filter(query, [{:operating_systems, values} | rest]) do
@@ -151,7 +151,6 @@ defmodule Stats.Events do
       |> Map.from_struct()
       |> Map.delete(:__meta__)
       |> Map.reject(fn {_k, v} -> is_nil(v) end)
-      |> Map.put_new(:site_id, TypeID.new("site"))
       |> Map.put_new(:timestamp, now)
     end)
     |> then(&EventsRepo.insert_all(Event, &1))
