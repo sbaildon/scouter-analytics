@@ -4,6 +4,7 @@ defmodule Dashboard.StatsLive do
 
   import Stats.Event, only: [aggregate: 1, aggregate: 2]
 
+  alias Dashboard.RateLimit
   alias Dashboard.StatsLive.Query
   alias Stats.Aggregate
   alias Stats.Domains
@@ -23,6 +24,7 @@ defmodule Dashboard.StatsLive do
 
     socket
     |> authorized_domains(socket.assigns.live_action, query)
+    |> available()
     |> assign(:version, version())
     |> assign(:edition, edition())
     |> configure_stream_for_aggregate_fields()
@@ -87,18 +89,38 @@ defmodule Dashboard.StatsLive do
 
   @impl true
   def handle_async(:fetch_aggregates, {:ok, %Stream{} = stream}, socket) do
-    stream |> update_aggregate_streams() |> post_handle_async(socket)
+    {:noreply,
+     stream
+     |> update_aggregate_streams()
+     |> post_handle_async(socket)
+     |> available()}
   end
 
   defp post_handle_async({:ok, []}, socket) do
-    {:noreply, stream_empty_aggregates(socket)}
+    stream_empty_aggregates(socket)
   end
 
   defp post_handle_async({:ok, _}, socket) do
-    {:noreply, socket}
+    socket
   end
 
   defp stream_empty_aggregates(socket), do: Enum.reduce(aggregate_fields(), socket, &stream(&2, &1, [], reset: true))
+
+  @impl true
+  def handle_info(:fetch_aggregates, socket) do
+    key = socket.id
+    scale = to_timeout(millisecond: 750)
+    limit = 1
+
+    case RateLimit.hit(key, scale, limit) do
+      {:allow, _current_count} ->
+        {:noreply, fetch_aggregates(socket)}
+
+      {:deny, ms_until_next_window} ->
+        Process.send_after(self(), :fetch_aggregates, ms_until_next_window)
+        {:noreply, socket}
+    end
+  end
 
   @impl true
   def handle_info({:aggregates, field, aggregates}, socket) do
@@ -134,35 +156,38 @@ defmodule Dashboard.StatsLive do
   @impl true
   def handle_params(params, _url, socket) do
     case socket.assigns.domains do
-      [] ->
-        {:noreply, socket}
-
       [_ | _] ->
         {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+
+      [] ->
+        {:noreply, socket}
     end
   end
 
-  defp apply_action(socket, _, params) do
-    %{query: existing_query} = socket.assigns
-
-    case Query.validate(existing_query, params) do
-      {:ok, query} ->
-        fetch_aggregates(socket, query)
-
-      _ ->
-        socket
+  defp apply_action(socket, _, _params) do
+    if available?(socket) do
+      send(self(), :fetch_aggregates)
+      unavailable(socket)
+    else
+      socket
     end
+  end
+
+  defp query_struct_to_query_params(%Query{} = query) do
+    query
+    |> Map.from_struct()
+    |> Enum.reduce([], fn
+      # reject host because it's a path param
+      {:host, _}, params -> params
+      # reject nils
+      {_k, nil}, params -> params
+      # everything else is okay
+      kv, params -> [kv | params]
+    end)
   end
 
   defp patch(socket, %Query{} = query) do
-    query_params =
-      query
-      |> Map.from_struct()
-      |> Enum.reduce([], fn
-        {:host, _}, params -> params
-        {_k, nil}, params -> params
-        kv, params -> [kv | params]
-      end)
+    query_params = query_struct_to_query_params(query)
 
     request_uri =
       case query do
@@ -205,7 +230,8 @@ defmodule Dashboard.StatsLive do
     Application.fetch_env!(:stats, :edition)
   end
 
-  defp fetch_aggregates(socket, query) when is_connected(socket) do
+  defp fetch_aggregates(socket) when is_connected(socket) do
+    query = socket.assigns.query
     filters = authorized_filters(query, socket.assigns.domains)
 
     start_async(socket, :fetch_aggregates, fn ->
@@ -213,7 +239,7 @@ defmodule Dashboard.StatsLive do
     end)
   end
 
-  defp fetch_aggregates(socket, _query), do: socket
+  defp fetch_aggregates(socket), do: socket
 
   # lists all authorized domains because nothing has been filtered
   defp authorized_filters(%{sites: nil, host: nil} = query, authorized_domains) do
@@ -248,4 +274,16 @@ defmodule Dashboard.StatsLive do
   end
 
   defp authorized_filters(_, _), do: []
+
+  defp available(socket) do
+    assign(socket, :available, true)
+  end
+
+  defp unavailable(socket) do
+    assign(socket, :available, false)
+  end
+
+  defp available?(socket) do
+    socket.assigns.available
+  end
 end

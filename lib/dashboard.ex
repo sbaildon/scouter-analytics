@@ -11,7 +11,8 @@ defmodule Dashboard do
   def init(_opts) do
     children = [
       Dashboard.Telemetry,
-      Dashboard.Endpoint
+      Dashboard.Endpoint,
+      {Dashboard.RateLimit, clean_period: to_timeout(minute: 10)}
     ]
 
     opts = [strategy: :one_for_one]
@@ -21,7 +22,6 @@ defmodule Dashboard do
   def changed(changed, _new, removed) do
     Dashboard.Endpoint.config_change(changed, removed)
   end
-
 
   def static_paths, do: ~w(assets js images favicon.ico robots.txt)
   def object_paths, do: ~w(fonts)
