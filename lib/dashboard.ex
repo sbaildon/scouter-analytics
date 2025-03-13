@@ -1,21 +1,27 @@
 defmodule Dashboard do
-  @moduledoc """
-  The entrypoint for defining your web interface, such
-  as controllers, components, channels, and so on.
+  @moduledoc false
 
-  This can be used in your application as:
+  use Supervisor
 
-      use Dashboard, :controller
-      use Dashboard, :html
+  def start_link(opts) do
+    Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
+  end
 
-  The definitions below will be executed for every controller,
-  component, etc, so keep them short and clean, focused
-  on imports, uses and aliases.
+  @impl true
+  def init(_opts) do
+    children = [
+      Dashboard.Telemetry,
+      Dashboard.Endpoint
+    ]
 
-  Do NOT define functions inside the quoted expressions
-  below. Instead, define additional modules and import
-  those modules here.
-  """
+    opts = [strategy: :one_for_one]
+    Supervisor.init(children, opts)
+  end
+
+  def changed(changed, _new, removed) do
+    Dashboard.Endpoint.config_change(changed, removed)
+  end
+
 
   def static_paths, do: ~w(assets js images favicon.ico robots.txt)
   def object_paths, do: ~w(fonts)

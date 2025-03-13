@@ -8,17 +8,16 @@ defmodule Stats.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      Dashboard.Telemetry,
       Stats.Repo,
       Stats.EventsRepo,
       Ecto.Adapters.DuckDB.Adbc,
+      Dashboard,
       {Oban, Application.fetch_env!(:stats, Oban)},
       {Stats.Geo, Application.fetch_env!(:stats, Stats.Geo)},
       {Finch, Application.fetch_env!(:stats, Finch)},
       {Ecto.Migrator, repos: Application.fetch_env!(:stats, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:stats, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Stats.PubSub},
-      Dashboard.Endpoint,
       Stats.Events,
       {Objex, Application.fetch_env!(:stats, Objex)},
       Stats.Generator
