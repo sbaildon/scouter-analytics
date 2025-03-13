@@ -21,7 +21,7 @@ defmodule Dashboard.StatsLive.Query do
     field :utm_terms, {:array, :string}
     field :country_codes, {:array, :string}
     field :scale, :string, default: "day"
-    field :interval, :string
+    field :interval, :string, default: "today"
     field :from, :string
     field :to, :string
     field :host, :string
