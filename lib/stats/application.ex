@@ -32,8 +32,8 @@ defmodule Stats.Application do
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.
   @impl true
-  def config_change(changed, _new, removed) do
-    Dashboard.Endpoint.config_change(changed, removed)
+  def config_change(changed, new, removed) do
+    Dashboard.changed(changed, new, removed)
     :ok
   end
 
