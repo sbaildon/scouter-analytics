@@ -4,5 +4,5 @@ defmodule Stats.Cldr do
     locales: [:en],
     gettext: Stats.Gettext,
     otp_app: :stats,
-    providers: [Cldr.Territory]
+    providers: [Cldr.Territory, Cldr.Number]
 end

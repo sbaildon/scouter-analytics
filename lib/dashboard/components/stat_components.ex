@@ -145,7 +145,7 @@ defmodule Dashboard.StatComponents do
                   />
                   <span class="flex flex-row justify-between w-full px-[1ch]">
                     <span>{Queryable.present(aggregate)}</span>
-                    <span>{Queryable.count(aggregate)}</span>
+                    <span>{display_aggregate_count(aggregate)}</span>
                   </span>
                 </span>
               </label>
@@ -155,6 +155,21 @@ defmodule Dashboard.StatComponents do
       </section>
     </section>
     """
+  end
+
+  defp display_aggregate_count(aggregate) do
+    {:ok, formatted} =
+      aggregate
+      |> Queryable.count()
+      |> then(fn count ->
+        if count >= 100_000 do
+          Stats.Cldr.Number.to_string(count, format: :short)
+        else
+          {:ok, count}
+        end
+      end)
+
+    formatted
   end
 
   defp is_aggregate_checked(_, nil), do: false

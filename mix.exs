@@ -67,6 +67,7 @@ defmodule Stats.MixProject do
       {:adbc, "~> 0.7"},
       {:oban, "~> 2.19"},
       {:remote_ip, "~> 1.2"},
+      {:ex_cldr_numbers, "~> 2.33"}
     ]
   end
 
