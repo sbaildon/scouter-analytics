@@ -56,7 +56,7 @@ defmodule Dashboard.StatComponents do
 
   def filters(assigns) do
     ~H"""
-    <.controls title="Filters" id="filers" class="hidden has-[li]:block">
+    <.controls title="Filters" id="filters" class="hidden has-[li]:block">
       <section
         :for={{param, group_id, title} <- filters()}
         :if={Map.get(@query, param)}
