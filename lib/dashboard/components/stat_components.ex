@@ -7,6 +7,7 @@ defmodule Dashboard.StatComponents do
   import Stats.Events.GroupingID
 
   alias Dashboard.StatsLive.Query
+  alias Stats.Cldr.Number
   alias Stats.Queryable
   alias Stats.TypedAggregate
 
@@ -163,9 +164,9 @@ defmodule Dashboard.StatComponents do
       |> Queryable.count()
       |> then(fn count ->
         if count >= 100_000 do
-          Stats.Cldr.Number.to_string(count, format: :short)
+          Number.to_string(count, format: :short)
         else
-          {:ok, count}
+          Number.to_string(count)
         end
       end)
 
