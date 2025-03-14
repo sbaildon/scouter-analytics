@@ -88,6 +88,30 @@ defmodule Stats.Event do
     )
   end
 
+  def starting(query, date) do
+    {:ok, normalized} = normalize_potential_iso_string(date, "00:00:00")
+
+    from([{^named_binding(), event}] in query,
+      where: event.timestamp >= fragment("?::TIMESTAMP_S", ^normalized)
+    )
+  end
+
+  def ending(query, date) do
+    {:ok, normalized} = normalize_potential_iso_string(date, "23:59:59")
+
+    from([{^named_binding(), event}] in query,
+      where: event.timestamp <= fragment("?::TIMESTAMP_S", ^normalized)
+    )
+  end
+
+  defp normalize_potential_iso_string(potential_iso_string, time) do
+    case NaiveDateTime.from_iso8601(potential_iso_string) do
+      {:ok, date_time} -> {:ok, date_time}
+      {:error, :invalid_format} -> NaiveDateTime.from_iso8601("#{potential_iso_string}T#{time}")
+      {:error, _} = other -> other
+    end
+  end
+
   def last_calendar(query, field) do
     from([{^named_binding(), event}] in query,
       where: fragment("date_trunc(?, ?)", ^field, event.timestamp) < fragment("date_trunc(?, current_timestamp)", ^field),

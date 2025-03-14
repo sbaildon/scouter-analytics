@@ -134,6 +134,14 @@ defmodule Stats.Events do
     filter(Event.where_in(query, :path, values), rest)
   end
 
+  defp filter(query, [{:from, value} | rest]) do
+    filter(Event.starting(query, value), rest)
+  end
+
+  defp filter(query, [{:to, value} | rest]) do
+    filter(Event.ending(query, value), rest)
+  end
+
   defp filter(query, [_ | rest]) do
     filter(query, rest)
   end

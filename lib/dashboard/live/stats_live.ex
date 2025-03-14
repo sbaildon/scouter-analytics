@@ -139,8 +139,23 @@ defmodule Dashboard.StatsLive do
     {:noreply, patch(socket, query)}
   end
 
-  def handle_event("limit", params, socket) do
+  def handle_event("limit", %{"_target" => [target]} = params, socket) when target in ["to", "from"] do
     %{query: existing_query} = socket.assigns
+
+    params = Map.put(params, "interval", nil)
+
+    {:ok, query} = Query.validate(existing_query, params)
+
+    {:noreply, patch(socket, query)}
+  end
+
+  def handle_event("limit", %{"_target" => ["interval"]} = params, socket) do
+    %{query: existing_query} = socket.assigns
+
+    params =
+      params
+      |> Map.put("from", nil)
+      |> Map.put("to", nil)
 
     {:ok, query} = Query.validate(existing_query, params)
 

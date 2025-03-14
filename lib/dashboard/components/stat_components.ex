@@ -183,30 +183,57 @@ defmodule Dashboard.StatComponents do
     ~H"""
     <.controls id="period" title="Period">
       <form method="GET" action="/" phx-change="limit">
-        <.intersperse :let={group} enum={Dashboard.StatsLive.Query.periods()}>
-          <:separator>
-            <.hr />
-          </:separator>
-          <fieldset class="last:pb-1.25 flex flex-col">
-            <label
-              :for={{label, value, hotkey} <- group}
-              class="hover:bg-zinc-200/70 px-2 flex flex-row justify-between"
-            >
-              <div>
-                <input
-                  data-controller="hotkey"
-                  data-hotkey={hotkey}
-                  checked={value == @query.interval}
-                  type="radio"
-                  name="interval"
-                  value={value}
-                />
-                <span>{label}</span>
-              </div>
-              <.hotkey keybind={hotkey} />
+        <fieldset
+          :for={group <- Dashboard.StatsLive.Query.periods()}
+          class="last:pb-1.25 flex flex-col"
+        >
+          <label
+            :for={{label, value, hotkey} <- group}
+            class="hover:bg-zinc-200/70 px-2 flex flex-row justify-between"
+          >
+            <div>
+              <input
+                data-controller="hotkey"
+                data-hotkey={hotkey}
+                checked={value == @query.interval}
+                type="radio"
+                name="interval"
+                value={value}
+              />
+              <span>{label}</span>
+            </div>
+            <.hotkey keybind={hotkey} />
+          </label>
+          <.hr />
+        </fieldset>
+        <fieldset id="custom-interval" class="last:pb-1.25 flex flex-col">
+          <div data-controller="date-range" class="flex flex-row justify-between px-2">
+            <label class="flex flex-col">
+              <div><span class="uppercase">from </span> <.hotkey keybind="c f" /></div>
+              <input
+                value={@query.from}
+                phx-debounce="300"
+                class="bg-zinc-50 border-zinc-300 border shadow-[1px_1px_0px_0px] shadow-zinc-300"
+                data-controller="hotkey"
+                data-hotkey="c f"
+                name="from"
+                type="date"
+              />
             </label>
-          </fieldset>
-        </.intersperse>
+            <label class="flex flex-col">
+              <div><span class="uppercase">until </span> <.hotkey keybind="c u" /></div>
+              <input
+                value={@query.to}
+                phx-debounce="300"
+                class="bg-zinc-50 border-zinc-300 border shadow-[1px_1px_0px_0px] shadow-zinc-300"
+                data-controller="hotkey"
+                data-hotkey="c u"
+                name="to"
+                type="date"
+              />
+            </label>
+          </div>
+        </fieldset>
       </form>
     </.controls>
     """
