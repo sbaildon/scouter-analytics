@@ -269,7 +269,7 @@ defmodule Dashboard.StatsLive do
         TypeID.uuid(domain.id)
       end)
 
-    filters |> Keyword.replace(:sites, sites) |> IO.inspect(label: "cool")
+    Keyword.replace(filters, :sites, sites)
   end
 
   # filter by sites because host is not present
@@ -281,7 +281,7 @@ defmodule Dashboard.StatsLive do
         if authorized_domain.host in query.sites, do: [TypeID.uuid(authorized_domain.id) | acc], else: acc
       end)
 
-    filters |> Keyword.replace(:sites, sites) |> IO.inspect(label: "cool")
+    Keyword.replace(filters, :sites, sites)
   end
 
   # filter for the single /:host, ignoring query[:sites] because it has no effect when :host
