@@ -117,7 +117,7 @@ defmodule Dashboard.StatsLive do
         {:noreply, fetch_aggregates(socket)}
 
       {:deny, ms_until_next_window} ->
-        Process.send_after(self(), :fetch_aggregates, ms_until_next_window)
+        schedule_fetch(ms_until_next_window)
         {:noreply, socket}
     end
   end
@@ -125,6 +125,10 @@ defmodule Dashboard.StatsLive do
   @impl true
   def handle_info({:aggregates, field, aggregates}, socket) do
     {:noreply, stream(socket, field, aggregates, reset: true)}
+  end
+
+  defp schedule_fetch(in_ms) do
+    Process.send_after(self(), :fetch_aggregates, in_ms)
   end
 
   def handle_event("scale", params, socket) do
