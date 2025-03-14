@@ -122,3 +122,12 @@ input:where([type="checkbox"], [type="radio"]):checked {
 	background-color: var(--color-lime-400);
 	/* border-color: var(--color-lime-600); */
 }
+
+input[type="date"] {
+	&::-webkit-datetime-edit-year-field:focus,
+	&::-webkit-datetime-edit-month-field:focus,
+	&::-webkit-datetime-edit-day-field:focus {
+		background: var(--color-lime-400);
+		border-radius: 0px;
+	}
+}
