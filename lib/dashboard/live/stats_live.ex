@@ -25,6 +25,7 @@ defmodule Dashboard.StatsLive do
     socket
     |> authorized_domains(socket.assigns.live_action, query)
     |> available()
+    |> assign(:debug, %{query_time: 0, query_version: nil})
     |> assign(:version, version())
     |> assign(:edition, edition())
     |> configure_stream_for_aggregate_fields()
@@ -58,24 +59,41 @@ defmodule Dashboard.StatsLive do
   end
 
   defp update_aggregate_streams(stream) do
-    EventsRepo.transaction(fn ->
-      stream
-      |> EventsRepo.merge_columns()
-      |> Enum.to_list()
-      |> then_process()
+    arg = fn ->
+      version_b(stream)
+    end
+
+    {time, your_func_result} = :timer.tc(EventsRepo, :transaction, [arg])
+
+    send(self(), {:query_time, {time, :b}})
+    your_func_result
+  end
+
+  defp version_a(stream) do
+    stream
+    |> EventsRepo.merge_columns()
+    |> Enum.to_list()
+    |> then(fn [%{data: counts}, %{data: grouping_ids}, %{data: values}, %{data: maxes}] ->
+      [counts, grouping_ids, values, maxes]
+      |> Enum.zip_with(fn [count, grouping_id, value, max] ->
+        aggregate(count: count, grouping_id: grouping_id, value: value, max: max)
+      end)
+      |> Enum.chunk_by(fn aggregate -> aggregate(aggregate, :grouping_id) end)
+      |> Enum.map(fn [aggregate | _] = aggregates ->
+        send(self(), {:aggregates, to_atom(aggregate(aggregate, :grouping_id)), aggregates})
+        aggregate(aggregate, :grouping_id)
+      end)
     end)
   end
 
-  defp then_process([]) do
-    []
-  end
-
-  defp then_process([%{data: counts}, %{data: grouping_ids}, %{data: values}, %{data: maxes}]) do
-    [counts, grouping_ids, values, maxes]
-    |> Enum.zip_with(fn [count, grouping_id, value, max] ->
-      aggregate(count: count, grouping_id: grouping_id, value: value, max: max)
+  defp version_b(stream) do
+    stream
+    |> Stream.flat_map(fn [%{data: counts}, %{data: grouping_ids}, %{data: values}, %{data: maxs}] ->
+      Enum.zip_with([counts, grouping_ids, values, maxs], fn [count, grouping_id, value, max] ->
+        aggregate(count: count, grouping_id: grouping_id, value: value, max: max)
+      end)
     end)
-    |> Enum.chunk_by(fn aggregate -> aggregate(aggregate, :grouping_id) end)
+    |> Stream.chunk_by(fn aggregate -> aggregate(aggregate, :grouping_id) end)
     |> Enum.map(fn [aggregate | _] = aggregates ->
       send(self(), {:aggregates, to_atom(aggregate(aggregate, :grouping_id)), aggregates})
       aggregate(aggregate, :grouping_id)
@@ -105,6 +123,11 @@ defmodule Dashboard.StatsLive do
   end
 
   defp stream_empty_aggregates(socket), do: Enum.reduce(aggregate_fields(), socket, &stream(&2, &1, [], reset: true))
+
+  @impl true
+  def handle_info({:query_time, {time, version}}, socket) do
+    {:noreply, update(socket, :debug, fn debug -> %{debug | query_version: version, query_time: time} end)}
+  end
 
   @impl true
   def handle_info(:fetch_aggregates, socket) do
