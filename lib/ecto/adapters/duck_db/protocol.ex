@@ -6,27 +6,15 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
 
   defstruct [:conn, :db, transaction_status: :idle]
 
-  @compile {:inline, db: 0, conn: 0}
-  defp db, do: __MODULE__.DB
-  defp conn, do: __MODULE__.Conn
-
-  @dynamic_supervisor Ecto.Adapters.DuckDB.Adbc
-
   @impl DBConnection
   def connect(opts) do
     {path, _opts} = Keyword.pop(opts, :database, ":memory:")
 
     {:ok, db} =
-      DynamicSupervisor.start_child(
-        @dynamic_supervisor,
-        {Adbc.Database, path: path, driver: :duckdb, process_options: [name: db()]}
-      )
+      Adbc.Database.start_link(driver: :duckdb, path: path, process_options: [])
 
     {:ok, conn} =
-      DynamicSupervisor.start_child(
-        @dynamic_supervisor,
-        {Adbc.Connection, database: db(), process_options: [name: conn()]}
-      )
+      Adbc.Connection.start_link(database: db, process_options: [])
 
     setup(conn)
 
@@ -48,8 +36,8 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
   @impl DBConnection
   def disconnect(_err, state) do
     %{db: db, conn: conn} = state
-    :ok = DynamicSupervisor.terminate_child(@dynamic_supervisor, conn)
-    :ok = DynamicSupervisor.terminate_child(@dynamic_supervisor, db)
+    :ok = GenServer.stop(conn)
+    :ok = GenServer.stop(db)
     :ok
   end
 

@@ -10,7 +10,6 @@ defmodule Stats.Application do
     children = [
       Stats.Repo,
       Stats.EventsRepo,
-      Ecto.Adapters.DuckDB.Adbc,
       Dashboard,
       {Oban, Application.fetch_env!(:stats, Oban)},
       {Stats.Geo, Application.fetch_env!(:stats, Stats.Geo)},

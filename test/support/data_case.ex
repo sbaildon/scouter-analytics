@@ -25,6 +25,7 @@ defmodule Stats.DataCase do
       import Ecto.Query
       import Stats.DataCase
 
+      alias Stats.EventsRepo
       alias Stats.Repo
     end
   end
@@ -38,8 +39,13 @@ defmodule Stats.DataCase do
   Sets up the sandbox based on the test tags.
   """
   def setup_sandbox(tags) do
-    pid = Sandbox.start_owner!(Stats.Repo, shared: not tags[:async])
-    on_exit(fn -> Sandbox.stop_owner(pid) end)
+    data_pid = Sandbox.start_owner!(Stats.Repo, shared: not tags[:async])
+    events_pid = Sandbox.start_owner!(Stats.EventsRepo, shared: not tags[:async])
+
+    on_exit(fn ->
+      Sandbox.stop_owner(data_pid)
+      Sandbox.stop_owner(events_pid)
+    end)
   end
 
   @doc """
