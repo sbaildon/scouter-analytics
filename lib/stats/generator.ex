@@ -48,5 +48,5 @@ defmodule Stats.Generator do
     Events.record(events)
   end
 
-  defp period_ms, do: 50_000
+  defp period_ms, do: 3_000
 end
