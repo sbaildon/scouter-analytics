@@ -1,16 +1,10 @@
 defmodule Stats.Events do
   @moduledoc false
-  use Agent
-
   alias Stats.Event
   alias Stats.EventsRepo
   alias Stats.Geo
 
   require Logger
-
-  def start_link(_) do
-    Agent.start_link(fn -> nil end, name: __MODULE__)
-  end
 
   def scale(scale, filters \\ []) do
     Event.query()
@@ -146,11 +140,7 @@ defmodule Stats.Events do
     filter(query, rest)
   end
 
-  def record(event_or_events) do
-    Agent.get(__MODULE__, &record(&1, event_or_events))
-  end
-
-  def record(_context, events) when is_list(events) do
+  def record(events) when is_list(events) do
     now = NaiveDateTime.utc_now()
 
     events
@@ -164,7 +154,7 @@ defmodule Stats.Events do
     |> then(&EventsRepo.insert_all(Event, &1))
   end
 
-  def record(_context, %Event{} = event) do
+  def record(%Event{} = event) do
     now = NaiveDateTime.utc_now()
 
     events =

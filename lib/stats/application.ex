@@ -10,14 +10,14 @@ defmodule Stats.Application do
     children = [
       Stats.Repo,
       Stats.EventsRepo,
-      Dashboard,
       {Oban, Application.fetch_env!(:stats, Oban)},
+      API,
+      Dashboard,
       {Stats.Geo, Application.fetch_env!(:stats, Stats.Geo)},
       {Finch, Application.fetch_env!(:stats, Finch)},
       {Ecto.Migrator, repos: Application.fetch_env!(:stats, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:stats, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Stats.PubSub},
-      Stats.Events,
       {Objex, Application.fetch_env!(:stats, Objex)},
       Stats.Generator
     ]
