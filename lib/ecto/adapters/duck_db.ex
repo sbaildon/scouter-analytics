@@ -1,9 +1,13 @@
 defmodule Ecto.Adapters.DuckDB do
   @moduledoc false
+
+  @behaviour Ecto.Adapter.Storage
+
   use Ecto.Adapters.SQL,
     driver: :adbc
 
   alias Ecto.Adapter.Migration
+  alias Ecto.Adapter.Storage
 
   def arrow_stream(adapter_meta, query_meta, prepared, params, opts) do
     do_stream(adapter_meta, prepared, params, put_source(opts, query_meta))
@@ -53,5 +57,31 @@ defmodule Ecto.Adapters.DuckDB do
   @impl Migration
   def lock_for_migrations(_meta, _options, fun) do
     fun.()
+  end
+
+  @impl Storage
+  def storage_up(opts) do
+    {database, _opts} = Keyword.pop!(opts, :database)
+
+    {_, 0} = System.cmd("duckdb", ["#{database}", "SELECT 1"])
+    :ok
+  end
+
+  @impl Storage
+  def storage_status(opts) do
+    {database, _opts} = Keyword.pop!(opts, :database)
+
+    if File.exists?(database) do
+      :up
+    else
+      :down
+    end
+  end
+
+  @impl Storage
+  def storage_down(opts) do
+    {database, _opts} = Keyword.pop!(opts, :database)
+
+    File.rm(database)
   end
 end
