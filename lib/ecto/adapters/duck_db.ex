@@ -63,7 +63,7 @@ defmodule Ecto.Adapters.DuckDB do
   def storage_up(opts) do
     {database, _opts} = Keyword.pop!(opts, :database)
 
-    {_, 0} = System.cmd("duckdb", ["#{database}", "SELECT 1"])
+    {:ok, _state} = Ecto.Adapters.DuckDB.Protocol.connect(database: database)
     :ok
   end
 
