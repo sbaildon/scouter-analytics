@@ -3,7 +3,7 @@ import Config
 config :ecto_sqlite3,
   uuid_type: :string
 
-config :logger, :default_formatter, format: "[$level] $message\n"
+config :logger, :default_formatter, format: "$metadata[$level] $message\n", metadata: [:module]
 
 config :phoenix,
   plug_init_mode: :runtime,
