@@ -10,9 +10,9 @@
 }
 
 @theme {
-	--font-mono: "Berkeley Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-		Consolas, "Liberation Mono", "Courier New", monospace;
 	--text-base: 14px;
+	--font-mono: ui-monospace, "Berkeley Mono", SFMono-Regular, Menlo, Monaco,
+		Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
 section[data-tabs] {
