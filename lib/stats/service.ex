@@ -1,20 +1,20 @@
 defmodule Stats.Domain do
   @moduledoc false
-  use Stats.Schema, prefix: "domain"
+  use Stats.Schema, prefix: "service"
 
   import Ecto.Query
 
-  schema "domains" do
-    field :host, :string
+  schema "services" do
+    field :name, :string
     field :published, :boolean
 
     timestamps()
   end
 
-  def changeset(domain, params) do
-    domain
-    |> cast(params, [:host])
-    |> validate_required([:host])
+  def changeset(service, params) do
+    service
+    |> cast(params, [:name, :published])
+    |> validate_required([:name, :published])
   end
 
   defp named_binding, do: :domain
@@ -29,9 +29,9 @@ defmodule Stats.Domain do
     )
   end
 
-  def where_host(query, host) do
+  def where_name(query, name) do
     from([{^named_binding(), domain}] in query,
-      where: domain.host == ^host
+      where: domain.name == ^name
     )
   end
 end

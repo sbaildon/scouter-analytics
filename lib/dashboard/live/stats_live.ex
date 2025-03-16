@@ -7,10 +7,10 @@ defmodule Dashboard.StatsLive do
   alias Dashboard.RateLimit
   alias Dashboard.StatsLive.Query
   alias Stats.Aggregate
-  alias Stats.Domains
   alias Stats.Events
   alias Stats.EventsRepo
   alias Stats.Queryable
+  alias Stats.Services
 
   require Logger
 
@@ -23,7 +23,7 @@ defmodule Dashboard.StatsLive do
     {:ok, query} = Query.validate(params)
 
     socket
-    |> authorized_domains(socket.assigns.live_action, query)
+    |> authorized_services(socket.assigns.live_action, query)
     |> available()
     |> assign(:debug, %{query_time: 0, query_version: nil})
     |> assign(:version, version())
@@ -37,17 +37,17 @@ defmodule Dashboard.StatsLive do
     end)
   end
 
-  defp authorized_domains(socket, :host, query) do
+  defp authorized_services(socket, :host, query) do
     {:ok, host} = Map.fetch(query, :host)
 
-    case Domains.get_by_host(host) do
-      nil -> assign(socket, :domains, [])
-      {:ok, domain} -> assign(socket, :domains, List.wrap(domain))
+    case Services.get_by_name(host) do
+      nil -> assign(socket, :services, [])
+      {:ok, service} -> assign(socket, :services, List.wrap(service))
     end
   end
 
-  defp authorized_domains(socket, :index, _query) do
-    assign(socket, :domains, Domains.list_published())
+  defp authorized_services(socket, :index, _query) do
+    assign(socket, :services, Services.list_published())
   end
 
   defp configure_stream_for_aggregate_fields(socket) do
@@ -197,7 +197,7 @@ defmodule Dashboard.StatsLive do
 
   @impl true
   def handle_params(params, _url, socket) do
-    case socket.assigns.domains do
+    case socket.assigns.services do
       [_ | _] ->
         {:noreply, apply_action(socket, socket.assigns.live_action, params)}
 
@@ -248,7 +248,7 @@ defmodule Dashboard.StatsLive do
   embed_templates "stats_live_html/*", suffix: "_html"
 
   @impl true
-  def render(%{domains: []} = assigns) do
+  def render(%{services: []} = assigns) do
     four_oh_four_html(assigns)
   end
 
@@ -274,7 +274,7 @@ defmodule Dashboard.StatsLive do
 
   defp fetch_aggregates(socket) when is_connected(socket) do
     query = socket.assigns.query
-    filters = authorized_filters(query, socket.assigns.domains)
+    filters = authorized_filters(query, socket.assigns.services)
 
     start_async(socket, :fetch_aggregates, fn ->
       Events.stream_aggregates(filters)
@@ -283,12 +283,12 @@ defmodule Dashboard.StatsLive do
 
   defp fetch_aggregates(socket), do: socket
 
-  # lists all authorized domains because nothing has been filtered
-  defp authorized_filters(%{sites: nil, host: nil} = query, authorized_domains) do
+  # lists all authorized services because nothing has been filtered
+  defp authorized_filters(%{sites: nil, host: nil} = query, authorized_services) do
     filters = Query.to_filters(query)
 
     sites =
-      Enum.map(authorized_domains, fn domain ->
+      Enum.map(authorized_services, fn domain ->
         TypeID.uuid(domain.id)
       end)
 
@@ -296,12 +296,12 @@ defmodule Dashboard.StatsLive do
   end
 
   # filter by sites because host is not present
-  defp authorized_filters(%{host: nil} = query, authorized_domains) do
+  defp authorized_filters(%{host: nil} = query, authorized_services) do
     filters = Query.to_filters(query)
 
     sites =
-      Enum.reduce(authorized_domains, [], fn authorized_domain, acc ->
-        if authorized_domain.host in query.sites, do: [TypeID.uuid(authorized_domain.id) | acc], else: acc
+      Enum.reduce(authorized_services, [], fn authorized_service, acc ->
+        if authorized_service.name in query.sites, do: [TypeID.uuid(authorized_service.id) | acc], else: acc
       end)
 
     Keyword.replace(filters, :sites, sites)
@@ -309,10 +309,10 @@ defmodule Dashboard.StatsLive do
 
   # filter for the single /:host, ignoring query[:sites] because it has no effect when :host
   # is provided
-  defp authorized_filters(%{host: host} = query, [authorized_domain | []]) when not is_nil(host) do
+  defp authorized_filters(%{host: host} = query, [authorized_service | []]) when not is_nil(host) do
     filters = Query.to_filters(query)
 
-    Keyword.replace(filters, :sites, [TypeID.uuid(authorized_domain.id)])
+    Keyword.replace(filters, :sites, [TypeID.uuid(authorized_service.id)])
   end
 
   defp authorized_filters(_, _), do: []

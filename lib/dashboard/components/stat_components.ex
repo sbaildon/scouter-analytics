@@ -249,17 +249,17 @@ defmodule Dashboard.StatComponents do
     """
   end
 
-  attr :domains, :list
+  attr :services, :list
   attr :query, Query
 
-  def sites(%{domains: [_ | []]} = assigns) do
+  def sites(%{services: [_ | []]} = assigns) do
     ~H"""
-    <.controls id="sites" title={gettext("Site")}>
+    <.controls id="services" title={gettext("Service")}>
       <form phx-change="filter" action="/" method="GET">
         <ul class="flex flex-col pb-1.25">
-          <li :for={domain <- @domains} class="px-2">
+          <li :for={service <- @services} class="px-2">
             <span class="flex flex-row justify-between">
-              <span>{domain.host}</span>
+              <span>{service.name}</span>
             </span>
           </li>
         </ul>
@@ -270,21 +270,21 @@ defmodule Dashboard.StatComponents do
 
   def sites(assigns) do
     ~H"""
-    <.controls id="sites" title={gettext("Sites")}>
+    <.controls id="services" title={gettext("Services")}>
       <form phx-change="filter" action="/" method="GET">
         <ul class="flex flex-col pb-1.25">
-          <li :for={{domain, i} <- Enum.with_index(@domains, 1)} class="px-2 hover:bg-zinc-200/70">
+          <li :for={{service, i} <- Enum.with_index(@services, 1)} class="px-2 hover:bg-zinc-200/70">
             <label class="flex flex-row justify-between">
               <div>
                 <input
                   data-controller="hotkey"
                   data-hotkey={i}
-                  value={domain.host}
+                  value={service.name}
                   name="sites[]"
                   type="checkbox"
-                  checked={domain.host in (@query.sites || [])}
+                  checked={service.name in (@query.sites || [])}
                 />
-                <span>{domain.host}</span>
+                <span>{service.name}</span>
               </div>
               <.hotkey keybind={i} />
             </label>

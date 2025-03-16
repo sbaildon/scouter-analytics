@@ -1,16 +1,16 @@
-defmodule Stats.Domains do
+defmodule Stats.Services do
   @moduledoc false
   alias Stats.Domain
   alias Stats.Repo
 
-  def register(host) do
-    Repo.insert(Domain.changeset(%{host: host}))
+  def register(name) do
+    Repo.insert(Domain.changeset(%{name: name}))
   end
 
-  def get_by_host(host) do
+  def get_by_name(name) do
     Domain.query()
     |> Domain.where_published()
-    |> Domain.where_host(host)
+    |> Domain.where_name(name)
     |> EctoHelpers.one()
   end
 
