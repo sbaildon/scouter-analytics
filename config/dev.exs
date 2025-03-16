@@ -13,18 +13,6 @@ config :phoenix_live_view,
   debug_heex_annotations: true,
   enable_expensive_runtime_checks: true
 
-config :stats, Telemetry.Endpoint,
-  check_origin: false,
-  code_reloader: true,
-  debug_errors: true,
-  live_reload: [
-    web_console_logger: true,
-    patterns: [
-      ~r"priv/gettext/.*(po)$",
-      ~r"lib/api/(controllers|components)/.*(ex|heex)$"
-    ]
-  ]
-
 config :stats, Dashboard.Endpoint,
   check_origin: false,
   code_reloader: true,
@@ -49,6 +37,18 @@ config :stats, Stats.EventsRepo,
 config :stats, Stats.Repo,
   stacktrace: true,
   show_sensitive_data_on_connection_error: true
+
+config :stats, Telemetry.Endpoint,
+  check_origin: false,
+  code_reloader: true,
+  debug_errors: true,
+  live_reload: [
+    web_console_logger: true,
+    patterns: [
+      ~r"priv/gettext/.*(po)$",
+      ~r"lib/api/(controllers|components)/.*(ex|heex)$"
+    ]
+  ]
 
 config :stats, dev_routes: true
 
