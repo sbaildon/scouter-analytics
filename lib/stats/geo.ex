@@ -31,7 +31,7 @@ defmodule Stats.Geo do
   def lookup(ip) do
     case :locus.lookup(:ipdb, ip) do
       {:ok, result} ->
-        result
+        {:ok, result}
 
       :not_found ->
         nil

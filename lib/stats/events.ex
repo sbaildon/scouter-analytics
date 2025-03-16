@@ -178,7 +178,7 @@ defmodule Stats.Events do
   def country_details(event, ip) do
     geo_params =
       case Geo.lookup(ip) do
-        %{} = entry ->
+        {:ok, entry} ->
           country_code =
             entry
             |> get_in(["country", "iso_code"])
