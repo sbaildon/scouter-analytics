@@ -57,6 +57,14 @@ httpfs_credentials = fn ->
   |> remove_prefix_and_group_by_name.()
 end
 
+config :stats, Telemetry.Endpoint,
+  url: [host: env!.("TELEMETRY_HOST"), port: 443, scheme: "https"],
+  http: [
+    ip: {0, 0, 0, 0, 0, 0, 0, 0},
+    port: env_as!.("TELEMETRY_PORT", :integer)
+  ],
+  secret_key_base: env!.("TELEMETRY_SECRET_KEY_BASE")
+
 config :stats, Dashboard.Endpoint,
   url: [host: env!.("DASHBOARD_HOST"), port: 443, scheme: "https"],
   http: [

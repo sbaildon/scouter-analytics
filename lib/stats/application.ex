@@ -11,7 +11,7 @@ defmodule Stats.Application do
       Stats.Repo,
       Stats.EventsRepo,
       {Oban, Application.fetch_env!(:stats, Oban)},
-      API,
+      Telemetry,
       Dashboard,
       {Stats.Geo, Application.fetch_env!(:stats, Stats.Geo)},
       {Finch, Application.fetch_env!(:stats, Finch)},
