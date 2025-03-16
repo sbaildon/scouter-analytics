@@ -157,16 +157,14 @@ defmodule Stats.Events do
   def record(%Event{} = event) do
     now = NaiveDateTime.utc_now()
 
-    events =
-      for _i <- 1..Enum.random(51..200) do
-        event
-        |> Map.replace(:site_id, TypeID.new("site"))
-        |> Map.put_new(:timestamp, now)
-        |> Map.from_struct()
-        |> Map.delete(:__meta__)
-      end
+    event =
+      event
+      |> Map.put_new(:site_id, TypeID.new("site"))
+      |> Map.put_new(:timestamp, now)
+      |> Map.from_struct()
+      |> Map.delete(:__meta__)
 
-    EventsRepo.insert_all(Event, events)
+    EventsRepo.insert_all(Event, [event])
   end
 
   def count_and_range("past_hour"), do: {1, :hour}
