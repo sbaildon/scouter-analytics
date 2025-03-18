@@ -14,7 +14,7 @@ defmodule Stats.Event do
   @primary_key false
   schema "events" do
     field :site_id, :string
-    field :timestamp, :naive_datetime_usec
+    field :timestamp, :naive_datetime
     field :host, :string
     field :path, :string
     field :referrer, :string
