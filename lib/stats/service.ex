@@ -1,4 +1,4 @@
-defmodule Stats.Domain do
+defmodule Stats.Service do
   @moduledoc false
   use Stats.Schema, prefix: "service"
 
