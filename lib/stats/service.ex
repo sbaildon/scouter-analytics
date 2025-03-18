@@ -17,7 +17,7 @@ defmodule Stats.Service do
     |> validate_required([:name, :published])
   end
 
-  defp named_binding, do: :domain
+  defp named_binding, do: :service
 
   def query do
     from(__MODULE__, as: ^named_binding())
