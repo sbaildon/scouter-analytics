@@ -18,8 +18,7 @@ defmodule Stats.Application do
       {Ecto.Migrator, repos: Application.fetch_env!(:stats, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:stats, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Stats.PubSub},
-      {Objex, Application.fetch_env!(:stats, Objex)},
-      Stats.Generator
+      {Objex, Application.fetch_env!(:stats, Objex)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
