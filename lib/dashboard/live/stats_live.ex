@@ -221,23 +221,24 @@ defmodule Dashboard.StatsLive do
   defp query_struct_to_query_params(%Query{} = query) do
     query
     |> Map.from_struct()
-    |> Enum.reduce([], fn
+    |> Enum.reduce({nil, []}, fn
       # reject host because it's a path param
-      {:host, _}, params -> params
+      {:service, path}, {_, params} -> {path, params}
       # reject nils
-      {_k, nil}, params -> params
+      {_k, nil}, {path, params} -> {path, params}
       # everything else is okay
-      kv, params -> [kv | params]
+      kv, {path, params} -> {path, [kv | params]}
     end)
   end
 
   defp patch(socket, %Query{} = query) do
-    query_params = query_struct_to_query_params(query)
+    {path, query_params} = query_struct_to_query_params(query)
 
     request_uri =
-      case query do
-        %{host: nil} -> ~p"/?#{query_params}"
-        %{host: host} -> ~p"/#{host}?#{query_params}"
+      if path do
+        ~p"/#{path}?#{query_params}"
+      else
+        ~p"/?#{query_params}"
       end
 
     socket
