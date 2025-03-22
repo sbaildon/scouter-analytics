@@ -14,7 +14,7 @@ defmodule Stats.Services do
 
   def register(namespace) do
     Multi.new()
-    |> Multi.insert(:service, Service.changeset(%{name: name}))
+    |> Multi.insert(:service, Service.changeset(%{name: namespace}))
     |> Multi.insert(:service_provider, Service.Provider.changeset(%{namespace: namespace}))
     |> Repo.transaction()
     |> EctoHelpers.take_from_multi(:service)
