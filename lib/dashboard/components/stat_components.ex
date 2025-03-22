@@ -252,7 +252,7 @@ defmodule Dashboard.StatComponents do
   attr :services, :list
   attr :query, Query
 
-  def sites(%{services: [_ | []]} = assigns) do
+  def services(%{services: [_ | []]} = assigns) do
     ~H"""
     <.controls id="services" title={gettext("Service")}>
       <form phx-change="filter" action="/" method="GET">
@@ -268,7 +268,7 @@ defmodule Dashboard.StatComponents do
     """
   end
 
-  def sites(assigns) do
+  def services(assigns) do
     ~H"""
     <.controls id="services" title={gettext("Services")}>
       <form phx-change="filter" action="/" method="GET">

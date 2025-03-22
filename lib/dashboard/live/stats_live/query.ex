@@ -6,7 +6,7 @@ defmodule Dashboard.StatsLive.Query do
 
   @primary_key false
   embedded_schema do
-    field :sites, {:array, :string}
+    field :services, {:array, :string}
     field :browsers, {:array, :string}
     field :browser_versions, {:array, :string}
     field :paths, {:array, :string}

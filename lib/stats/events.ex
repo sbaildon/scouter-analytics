@@ -104,7 +104,7 @@ defmodule Stats.Events do
     filter(Event.where_in(query, :referrer, values), rest)
   end
 
-  defp filter(query, [{:sites, values} | rest]) do
+  defp filter(query, [{:services, values} | rest]) do
     filter(Event.where_in(query, :site_id, values), rest)
   end
 

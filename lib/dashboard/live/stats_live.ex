@@ -41,8 +41,11 @@ defmodule Dashboard.StatsLive do
     {:ok, host} = Map.fetch(query, :host)
 
     case Services.get_by_name(host) do
-      nil -> assign(socket, :services, [])
-      {:ok, service} -> assign(socket, :services, List.wrap(service))
+      nil ->
+        assign(socket, :services, [])
+
+      {:ok, service} ->
+        assign(socket, :services, List.wrap(service))
     end
   end
 
@@ -284,27 +287,27 @@ defmodule Dashboard.StatsLive do
   defp fetch_aggregates(socket), do: socket
 
   # lists all authorized services because nothing has been filtered
-  defp authorized_filters(%{sites: nil, host: nil} = query, authorized_services) do
+  defp authorized_filters(%{services: nil, host: nil} = query, authorized_services) do
     filters = Query.to_filters(query)
 
-    sites =
+    services =
       Enum.map(authorized_services, fn domain ->
         TypeID.uuid(domain.id)
       end)
 
-    Keyword.replace(filters, :sites, sites)
+    Keyword.replace(filters, :services, services)
   end
 
   # filter by sites because host is not present
   defp authorized_filters(%{host: nil} = query, authorized_services) do
     filters = Query.to_filters(query)
 
-    sites =
+    services =
       Enum.reduce(authorized_services, [], fn authorized_service, acc ->
-        if authorized_service.name in query.sites, do: [TypeID.uuid(authorized_service.id) | acc], else: acc
+        if authorized_service.name in query.services, do: [TypeID.uuid(authorized_service.id) | acc], else: acc
       end)
 
-    Keyword.replace(filters, :sites, sites)
+    Keyword.replace(filters, :services, services)
   end
 
   # filter for the single /:host, ignoring query[:sites] because it has no effect when :host
@@ -312,7 +315,7 @@ defmodule Dashboard.StatsLive do
   defp authorized_filters(%{host: host} = query, [authorized_service | []]) when not is_nil(host) do
     filters = Query.to_filters(query)
 
-    Keyword.replace(filters, :sites, [TypeID.uuid(authorized_service.id)])
+    Keyword.replace(filters, :services, [TypeID.uuid(authorized_service.id)])
   end
 
   defp authorized_filters(_, _), do: []
