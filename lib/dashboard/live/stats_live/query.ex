@@ -24,7 +24,7 @@ defmodule Dashboard.StatsLive.Query do
     field :interval, :string
     field :from, :string
     field :to, :string
-    field :host, :string
+    field :service, :string
   end
 
   defp castable do

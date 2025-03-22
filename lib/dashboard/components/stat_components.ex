@@ -288,6 +288,13 @@ defmodule Dashboard.StatComponents do
               </div>
               <.hotkey keybind={i} />
             </label>
+            <ol class="has-[li:only-child]:hidden pl-8 pr-2 text-zinc-400">
+              <li :for={provider <- service.providers}>
+                <div>
+                  <span>{provider.namespace}</span>
+                </div>
+              </li>
+            </ol>
           </li>
         </ul>
       </form>

@@ -37,10 +37,10 @@ defmodule Dashboard.StatsLive do
     end)
   end
 
-  defp authorized_services(socket, :host, query) do
-    {:ok, host} = Map.fetch(query, :host)
+  defp authorized_services(socket, :service, query) do
+    {:ok, service} = Map.fetch(query, :service)
 
-    case Services.get_by_name(host) do
+    case Services.get_by_name(service) do
       nil ->
         assign(socket, :services, [])
 

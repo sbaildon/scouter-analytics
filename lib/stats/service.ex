@@ -9,7 +9,7 @@ defmodule Stats.Service do
   schema "services" do
     field :name, :string
     field :published, :boolean
-    has_many :hosts, Services.Host
+    has_many :providers, Services.Provider
 
     timestamps()
   end
@@ -44,8 +44,8 @@ defmodule Stats.Service do
     )
   end
 
-  def with_hosts(query, opts \\ []) do
-    assoc = :hosts
+  def with_providers(query, opts \\ []) do
+    assoc = :providers
     as = Keyword.get(opts, :as, assoc)
     from = Keyword.get(opts, :from, named_binding())
 

@@ -20,7 +20,7 @@ defmodule Dashboard.Router do
     live "/", StatsLive, :index
 
     if Application.compile_env(:stats, :edition) == :commercial do
-      live "/:host", StatsLive, :host
+      live "/:service", StatsLive, :service
     end
   end
 
