@@ -273,16 +273,16 @@ defmodule Dashboard.StatComponents do
     <.controls id="services" title={gettext("Services")}>
       <form phx-change="filter" action="/" method="GET">
         <ul class="flex flex-col pb-1.25">
-          <li :for={{service, i} <- Enum.with_index(@services, 1)} class="px-2 hover:bg-zinc-200/70">
-            <label class="flex flex-row justify-between">
+          <li :for={{service, i} <- Enum.with_index(@services, 1)}>
+            <label class="hover:bg-zinc-200/70 px-2 flex flex-row justify-between">
               <div>
                 <input
                   data-controller="hotkey"
                   data-hotkey={i}
                   value={service.name}
-                  name="sites[]"
+                  name="services[]"
                   type="checkbox"
-                  checked={service.name in (@query.sites || [])}
+                  checked={service.name in (@query.services || [])}
                 />
                 <span>{service.name}</span>
               </div>
