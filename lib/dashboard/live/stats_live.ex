@@ -288,7 +288,7 @@ defmodule Dashboard.StatsLive do
   defp fetch_aggregates(socket), do: socket
 
   # lists all authorized services because nothing has been filtered
-  defp authorized_filters(%{services: nil, host: nil} = query, authorized_services) do
+  defp authorized_filters(%{services: nil, service: nil} = query, authorized_services) do
     filters = Query.to_filters(query)
 
     services =
@@ -299,8 +299,8 @@ defmodule Dashboard.StatsLive do
     Keyword.replace(filters, :services, services)
   end
 
-  # filter by sites because host is not present
-  defp authorized_filters(%{host: nil} = query, authorized_services) do
+  # filter by sites because service is not present
+  defp authorized_filters(%{service: nil} = query, authorized_services) do
     filters = Query.to_filters(query)
 
     services =
@@ -311,9 +311,9 @@ defmodule Dashboard.StatsLive do
     Keyword.replace(filters, :services, services)
   end
 
-  # filter for the single /:host, ignoring query[:sites] because it has no effect when :host
+  # filter for the single /:host, ignoring query[:service] because it has no effect when :service
   # is provided
-  defp authorized_filters(%{host: host} = query, [authorized_service | []]) when not is_nil(host) do
+  defp authorized_filters(%{service: service} = query, [authorized_service | []]) when not is_nil(service) do
     filters = Query.to_filters(query)
 
     Keyword.replace(filters, :services, [TypeID.uuid(authorized_service.id)])
