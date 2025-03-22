@@ -120,7 +120,6 @@ input:where([type="checkbox"], [type="radio"]):disabled {
 input:where([type="checkbox"], [type="radio"]):checked {
 	color: var(--color-lime-600);
 	background-color: var(--color-lime-400);
-	/* border-color: var(--color-lime-600); */
 }
 
 input[type="checkbox"]:indeterminate {
