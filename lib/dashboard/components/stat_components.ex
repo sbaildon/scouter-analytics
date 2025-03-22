@@ -57,11 +57,11 @@ defmodule Dashboard.StatComponents do
 
   def filters(assigns) do
     ~H"""
-    <.controls title="Filters" id="filters" class="hidden has-[li]:block">
+    <.controls title="Filters" id="filters" class="hidden has-[li]:block pb-1.25">
       <section
         :for={{param, group_id, title} <- filters()}
         :if={Map.get(@query, param)}
-        class="has-[li]:block hidden last-of-type:pb-1.25"
+        class="has-[li]:block hidden"
       >
         <h3 class="px-2">{title}</h3>
         <ol>
