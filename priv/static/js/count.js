@@ -47,6 +47,7 @@
 				window.devicePixelRatio || 1,
 			],
 			b: is_bot(),
+			o: window.location.origin,
 			q: location.search,
 		};
 

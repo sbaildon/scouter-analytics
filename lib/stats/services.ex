@@ -1,8 +1,41 @@
 defmodule Stats.Services do
   @moduledoc false
+  use Supervisor
+
+  alias Ecto.Multi
   alias Stats.Repo
   alias Stats.Service
-  alias Ecto.Multi
+  alias Stats.Services
+
+  def start_link(init_arg) do
+    Supervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
+  end
+
+  @impl Supervisor
+  def init(_init_arg) do
+    children = [
+      {Cachex, name: service_cache()}
+    ]
+
+    Supervisor.init(children, strategy: :one_for_one)
+  end
+
+  def get_for_namespace(namespace) do
+    Cachex.fetch(service_cache(), namespace, fn namespace ->
+      service =
+        Service.query()
+        |> Service.with_providers(as: :provider)
+        |> Services.Provider.where_ns(namespace)
+        |> EctoHelpers.preload()
+        |> Repo.one()
+
+      if service do
+        {:commit, service}
+      else
+        {:ignore, nil}
+      end
+    end)
+  end
 
   def add_provider(service_id, namespace) do
     %Services.Provider{service_id: TypeID.from_string!(service_id)}
@@ -37,5 +70,11 @@ defmodule Stats.Services do
     |> Service.with_providers()
     |> EctoHelpers.preload()
     |> Repo.all()
+  end
+
+  defp service_cache, do: ServiceCache
+
+  def clear_cache do
+    Cachex.clear(service_cache())
   end
 end
