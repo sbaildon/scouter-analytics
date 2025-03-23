@@ -132,9 +132,6 @@ defmodule Telemetry.EventController do
   defp os_version(%UserAgent{os: %UserAgent.OS{version: :unknown}}), do: nil
   defp os_version(%UserAgent{os: %UserAgent.OS{version: version}}), do: version
 
-  defp bot_response(conn), do: resp(conn, :forbidden, "forbidden")
-  defp invalid_response(conn), do: resp(conn, :not_found, "not found")
-
   # allow 127.0.0.1 as client_ip when in development
   if Application.compile_env(:stats, :dev_routes) do
     defp clients, do: ["127.0.0.1"]
