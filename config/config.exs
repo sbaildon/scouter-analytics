@@ -27,14 +27,6 @@ config :logger, :default_formatter,
 
 config :phoenix, :json_library, JSON
 
-config :stats, Telemetry.Endpoint,
-  adapter: Bandit.PhoenixAdapter,
-  render_errors: [
-    formats: [json: Telemetry.ErrorJSON],
-    layout: false
-  ],
-  pubsub_server: Stats.PubSub
-
 config :stats, Dashboard.Endpoint,
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
@@ -57,6 +49,14 @@ config :stats, Stats.EventsRepo,
 config :stats, Stats.Repo,
   migration_primary_key: [name: :id, type: :uuid, null: false],
   migration_timestamps: [type: :utc_datetime_usec]
+
+config :stats, Telemetry.Endpoint,
+  adapter: Bandit.PhoenixAdapter,
+  render_errors: [
+    formats: [json: Telemetry.ErrorJSON],
+    layout: false
+  ],
+  pubsub_server: Stats.PubSub
 
 config :stats,
   ecto_repos: [Stats.Repo, Stats.EventsRepo],
