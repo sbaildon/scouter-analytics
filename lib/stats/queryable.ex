@@ -24,8 +24,9 @@ defimpl Stats.Queryable, for: Tuple do
   def present(aggregate(value: nil)), do: "<Unknown>"
   def present(aggregate(value: "")), do: "<Unknown>"
 
-  def present(aggregate(grouping_id: group_id(:referrer), value: value)),
-    do: value |> URI.parse() |> Map.fetch!(:host) |> then(fn host -> Regex.replace(~r/(www\.)/, host, "") end)
+  def present(aggregate(grouping_id: group_id(:referrer), value: value)) do
+    normalize_potential_uri(value)
+  end
 
   def present(aggregate(grouping_id: group_id(:country_code), value: value)),
     do: Stats.Cldr.Territory.from_territory_code!(value)
@@ -34,4 +35,15 @@ defimpl Stats.Queryable, for: Tuple do
 
   def value(aggregate(value: value)), do: value
   def count(aggregate(count: count)), do: count
+
+  defp normalize_potential_uri(value) do
+    case_result =
+      case value do
+        "https://" <> _ = uri -> uri
+        "http://" <> _ = uri -> uri
+        schemaless -> "invalid://#{schemaless}"
+      end
+
+    case_result |> URI.parse() |> Map.fetch!(:host)
+  end
 end
