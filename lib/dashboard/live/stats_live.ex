@@ -33,7 +33,7 @@ defmodule Dashboard.StatsLive do
     |> then(fn socket ->
       headers = get_connect_info(socket, :x_headers) || []
       ip = RemoteIp.from(headers, clients: clients())
-      assign(socket, :client_ip, :inet.ntoa(ip))
+      assign(socket, :client_ip, ip && :inet.ntoa(ip))
     end)
   end
 
