@@ -70,7 +70,10 @@ defmodule Stats.MixProject do
       {:remote_ip, "~> 1.2"},
       {:ex_cldr_numbers, "~> 2.33"},
       {:hammer, "~> 7.0"},
-      {:cachex, "~> 4.0"}
+      {:cachex, "~> 4.0"},
+      {:gen_stage, "~> 1.2"},
+      {:broadway, "~> 1.2"},
+      {:broadway_dashboard, "~> 0.4", only: [:dev, :text]}
     ]
   end
 

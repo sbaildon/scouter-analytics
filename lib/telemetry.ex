@@ -11,7 +11,8 @@ defmodule Telemetry do
   def init(_opts) do
     children = [
       Telemetry.Telemetry,
-      Telemetry.Endpoint
+      Telemetry.Endpoint,
+      Telemetry.Broadway
     ]
 
     opts = [strategy: :one_for_one]

@@ -10,5 +10,6 @@ defmodule Telemetry.Context do
     embeds_one :service, Stats.Service
     embeds_one :user_agent, UserAgent
     embeds_one :geo, :map
+    field :headers, {:array, :string}
   end
 end

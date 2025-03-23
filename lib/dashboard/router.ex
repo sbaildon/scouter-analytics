@@ -30,7 +30,12 @@ defmodule Dashboard.Router do
     scope "/dev" do
       pipe_through :browser
 
-      live_dashboard "/dashboard", metrics: Dashboard.Telemetry
+      live_dashboard "/dashboard",
+        metrics: Dashboard.Telemetry,
+        additional_pages: [
+          broadway: {BroadwayDashboard, pipelines: [Telemetry.Broadway]}
+        ]
+
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
   end

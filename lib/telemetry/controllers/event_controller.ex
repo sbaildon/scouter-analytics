@@ -2,7 +2,6 @@ defmodule Telemetry.EventController do
   use Telemetry, :controller
 
   alias Stats.Event
-  alias Stats.Events
   alias Stats.Services
   alias Telemetry.Context
   alias UAInspector.Result, as: UserAgent
@@ -10,82 +9,84 @@ defmodule Telemetry.EventController do
   require Logger
 
   def record(conn, params) do
-    Logger.debug(params: params)
-    Logger.debug(headrs: conn.req_headers)
-    validate_or_fail(conn, %Context{}, params)
+    :ok =
+      params
+      |> Map.put("u", NaiveDateTime.utc_now())
+      |> Telemetry.Sink.push(conn.req_headers)
+
+    resp(conn, :ok, "ok")
   end
 
-  def validate_or_fail(conn, context, params) do
+  def transform(params, headers) do
     case Telemetry.Count.validate(params) do
       {:ok, count} ->
-        continue_unless_bot(conn, %{context | count: count})
+        context = %Context{}
+        continue_unless_bot(%{context | count: count, headers: headers})
 
       {:error, changeset} ->
         Logger.debug(changeset: changeset)
-        resp(conn, :bad_request, "bad request")
+        {:error, :invalid_params}
     end
   end
 
-  defp continue_unless_bot(conn, %{count: %{b: true}}) do
-    bot_response(conn)
+  defp continue_unless_bot(%{count: %{b: true}}) do
+    {:error, :is_bot}
   end
 
-  defp continue_unless_bot(conn, context) do
-    case user_agent(conn.req_headers) do
+  defp continue_unless_bot(context) do
+    case user_agent(context.headers) do
       %UserAgent{} = user_agent ->
         Logger.debug(user_agent: user_agent)
-        continue_unless_invalid_service(conn, %{context | user_agent: user_agent})
+        continue_unless_invalid_service(%{context | user_agent: user_agent})
 
       %UserAgent.Bot{} ->
-        bot_response(conn)
+        {:error, :is_bot}
     end
   end
 
-  defp continue_unless_invalid_service(conn, context) do
+  defp continue_unless_invalid_service(context) do
     case Services.get_for_namespace(context.count.o.host) do
-      {:ignore, nil} -> invalid_response(conn)
-      {_, service} -> geo_step(conn, %{context | service: service})
+      {:ignore, nil} -> {:error, :service_not_registered}
+      {_, service} -> geo_step(%{context | service: service})
     end
   end
 
-  def geo_step(conn, context) do
-    ip = RemoteIp.from(conn.req_headers, clients: clients())
+  def geo_step(context) do
+    ip = RemoteIp.from(context.headers, clients: clients())
 
     case Stats.Geo.lookup(ip) do
       {:ok, geo} ->
-        continue(conn, %{context | geo: geo})
+        continue(%{context | geo: geo})
 
       _other ->
-        continue(conn, context)
+        continue(context)
     end
   end
 
-  def continue(conn, context) do
+  def continue(context) do
     Logger.debug(origin: context.count.o.host)
 
-    {1, _} =
-      Events.record(%Event{
-        site_id: TypeID.uuid(context.service.id),
-        host: context.count.o.host,
-        path: context.count.p,
-        referrer: context.count.r,
-        timestamp: utc_now_s(),
-        browser: browser(context.user_agent),
-        browser_version: browser_version(context.user_agent),
-        operating_system: os(context.user_agent),
-        operating_system_version: os_version(context.user_agent),
-        country_code: country_code(context.geo),
-        subdivision1_code: subdivision1_code(context.geo),
-        subdivision2_code: subdivision2_code(context.geo),
-        city_geoname_id: city_geoname_id(context.geo),
-        utm_medium: utm_medium(context.count.q),
-        utm_source: utm_source(context.count.q),
-        utm_campaign: utm_campaign(context.count.q),
-        utm_content: utm_content(context.count.q),
-        utm_term: utm_term(context.count.q)
-      })
-
-    resp(conn, :ok, "ok")
+    {:ok,
+     %Event{
+       site_id: TypeID.uuid(context.service.id),
+       host: context.count.o.host,
+       path: context.count.p,
+       referrer: context.count.r,
+       timestamp: utc_now_s(),
+       browser: browser(context.user_agent),
+       browser_version: browser_version(context.user_agent),
+       operating_system: os(context.user_agent),
+       operating_system_version: os_version(context.user_agent),
+       country_code: country_code(context.geo),
+       subdivision1_code: subdivision1_code(context.geo),
+       subdivision2_code: subdivision2_code(context.geo),
+       city_geoname_id: city_geoname_id(context.geo),
+       utm_medium: utm_medium(context.count.q),
+       utm_source: utm_source(context.count.q),
+       utm_campaign: utm_campaign(context.count.q),
+       utm_content: utm_content(context.count.q),
+       utm_term: utm_term(context.count.q)
+     }}
   end
 
   defp utc_now_s, do: NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second)
