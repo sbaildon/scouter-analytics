@@ -236,11 +236,7 @@ defmodule Dashboard.StatsLive do
     {path, query_params} = query_struct_to_query_params(query)
 
     request_uri =
-      if path do
-        ~p"/#{path}?#{query_params}"
-      else
-        ~p"/?#{query_params}"
-      end
+      (path && ~p"/#{path}?#{query_params}") || ~p"/?#{query_params}"
 
     socket
     |> assign(:query, query)
