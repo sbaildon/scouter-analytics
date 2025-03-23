@@ -6,7 +6,7 @@ defmodule Stats.Aggregate do
   embedded_schema do
     field :grouping_id, :binary
     field :count, :integer
-    field :host, :string
+    field :namespace, :string
     field :path, :string
     field :referrer, :string
     field :utm_medium, :string

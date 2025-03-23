@@ -223,7 +223,7 @@ defmodule Dashboard.StatsLive do
     query
     |> Map.from_struct()
     |> Enum.reduce({nil, []}, fn
-      # reject host because it's a path param
+      # reject namespace because it's a path param
       {:service, path}, {_, params} -> {path, params}
       # reject nils
       {_k, nil}, {path, params} -> {path, params}
@@ -312,7 +312,7 @@ defmodule Dashboard.StatsLive do
     Keyword.replace(filters, :services, services)
   end
 
-  # filter for the single /:host, ignoring query[:service] because it has no effect when :service
+  # filter for the single /:namespace, ignoring query[:service] because it has no effect when :service
   # is provided
   defp authorized_filters(%{service: service} = query, [authorized_service | []]) when not is_nil(service) do
     filters = Query.to_filters(query)

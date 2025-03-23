@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-	static targets = ["service", "host"];
+	static targets = ["service", "namespace"];
 
 	toggleParent({ target: element }) {
 		this.#matchChildrenStateToParent(element);
@@ -13,19 +13,19 @@ export default class extends Controller {
 
 	#matchChildrenStateToParent(parent) {
 		const checked = parent.checked;
-		this.hostTargets.forEach((host) => (host.checked = checked));
+		this.namespaceTargets.forEach((namespace) => (namespace.checked = checked));
 	}
 
 	#maybeSetParentIntermediate() {
-		const totalSelected = this.hostTargets.reduce(
-			(total, host) => (host.checked ? total + 1 : total),
+		const totalSelected = this.namespaceTargets.reduce(
+			(total, namespace) => (namespace.checked ? total + 1 : total),
 			0,
 		);
 
 		const [checked, indeterminate] =
 			totalSelected == 0
 				? [false, false]
-				: totalSelected != this.hostTargets.length
+				: totalSelected != this.namespaceTargets.length
 					? [false, true]
 					: [true, false];
 

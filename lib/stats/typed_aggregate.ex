@@ -13,7 +13,7 @@ defmodule Stats.TypedAggregate do
 
     field :grouping_id, Ecto.Enum,
       values: [
-        host: group_id(:host),
+        namespace: group_id(:namespace),
         path: group_id(:path),
         referrer: group_id(:referrer),
         utm_medium: group_id(:utm_medium),

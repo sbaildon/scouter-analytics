@@ -105,7 +105,7 @@ defmodule Stats.Events do
   end
 
   defp filter(query, [{:services, values} | rest]) do
-    filter(Event.where_in(query, :site_id, values), rest)
+    filter(Event.where_in(query, :service_id, values), rest)
   end
 
   defp filter(query, [{:operating_systems, values} | rest]) do

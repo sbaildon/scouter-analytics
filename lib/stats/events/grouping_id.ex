@@ -1,6 +1,6 @@
 defmodule Stats.Events.GroupingID do
   @moduledoc false
-  defmacro group_id(:host), do: 0b0111111111111111
+  defmacro group_id(:namespace), do: 0b0111111111111111
   defmacro group_id(:path), do: 0b1011111111111111
   defmacro group_id(:referrer), do: 0b1101111111111111
   defmacro group_id(:utm_medium), do: 0b1110111111111111

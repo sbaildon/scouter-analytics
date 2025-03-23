@@ -4,9 +4,9 @@ defmodule Stats.EventsRepo.Migrations.CreateEvents do
 
   def change do
     create table("events", primary_key: false) do
-      add :site_id, :uuid, null: false
+      add :service_id, :uuid, null: false
       add :timestamp, :naive_datetime, null: false
-      add :host, :text, null: false
+      add :namespace, :text, null: false
       add :path, :text, null: false
       add :referrer, :text
       add :utm_medium, :text

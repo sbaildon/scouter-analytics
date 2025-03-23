@@ -13,9 +13,9 @@ defmodule Stats.Event do
 
   @primary_key false
   schema "events" do
-    field :site_id, :string
+    field :service_id, :string
     field :timestamp, :naive_datetime
-    field :host, :string
+    field :namespace, :string
     field :path, :string
     field :referrer, :string
     field :utm_medium, :string
@@ -40,9 +40,9 @@ defmodule Stats.Event do
   def changeset(event, params) do
     event
     |> cast(params, [
-      :site_id,
+      :service_id,
       :timestamp,
-      :host,
+      :namespace,
       :path,
       :referrer,
       :utm_medium,
@@ -164,7 +164,7 @@ defmodule Stats.Event do
             selected_as(
               fragment(
                 "GROUPING (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) :: USMALLINT",
-                e.host,
+                e.namespace,
                 e.path,
                 e.referrer,
                 e.utm_medium,
@@ -204,7 +204,7 @@ defmodule Stats.Event do
 		WHEN '1111111111111101' :: BITSTRING THEN ?
 		WHEN '1111111111111110' :: BITSTRING THEN ? END",
                 selected_as(:grouping_id),
-                e.host,
+                e.namespace,
                 e.path,
                 e.referrer,
                 e.utm_medium,
@@ -232,7 +232,7 @@ defmodule Stats.Event do
         group_by:
           fragment(
             "GROUPING SETS((?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?))",
-            e.host,
+            e.namespace,
             e.path,
             e.referrer,
             e.utm_medium,
@@ -267,7 +267,7 @@ defmodule Stats.Event do
             selected_as(
               fragment(
                 "GROUPING (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                e.host,
+                e.namespace,
                 e.path,
                 e.referrer,
                 e.utm_medium,
@@ -287,7 +287,7 @@ defmodule Stats.Event do
               :grouping_id
             ),
           count: count(),
-          host: e.host,
+          namespace: e.namespace,
           path: e.path,
           referrer: e.referrer,
           utm_medium: e.utm_medium,
@@ -311,7 +311,7 @@ defmodule Stats.Event do
         group_by:
           fragment(
             "GROUPING SETS((?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?))",
-            e.host,
+            e.namespace,
             e.path,
             e.referrer,
             e.utm_medium,
