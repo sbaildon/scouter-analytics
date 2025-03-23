@@ -144,35 +144,27 @@ defmodule Stats.Events do
     {0, []}
   end
 
+  def record(%Event{} = event) do
+    record([event])
+  end
+
   def record([%Event{} | _] = events) do
     now = NaiveDateTime.utc_now()
 
     events
-    |> Enum.map(fn event ->
-      event
-      |> Map.from_struct()
-      |> Map.delete(:__meta__)
-      |> Map.reject(fn {_k, v} -> is_nil(v) end)
-      |> Map.put_new(:timestamp, now)
+    |> Enum.reduce([], fn event, acc ->
+      prepared =
+        event
+        |> prepare_record_all()
+        |> Map.put_new(:timestamp, now)
+
+      [prepared | acc]
     end)
     |> then(&EventsRepo.insert_all(Event, &1))
   end
 
-  def record(%Event{} = event) do
-    now = NaiveDateTime.utc_now()
-
-    event =
-      event
-      |> Map.put_new(:site_id, TypeID.new("site"))
-      |> Map.put_new(:timestamp, now)
-      |> Map.from_struct()
-      |> Map.delete(:__meta__)
-
-    EventsRepo.insert_all(Event, [event])
-  end
-
-  def record_all(events) when is_list(events) do
-    EventsRepo.insert_all(Event, events)
+  def record_all(maps) when is_list(maps) do
+    EventsRepo.insert_all(Event, maps)
   end
 
   def prepare_record_all(%Event{} = event) do
