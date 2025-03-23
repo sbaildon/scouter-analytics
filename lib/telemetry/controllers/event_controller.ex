@@ -37,10 +37,18 @@ defmodule Telemetry.EventController do
     case user_agent(context.headers) do
       %UserAgent{} = user_agent ->
         Logger.debug(user_agent: user_agent)
-        continue_unless_invalid_service(%{context | user_agent: user_agent})
+        continue_unless_spammer(%{context | user_agent: user_agent})
 
       %UserAgent.Bot{} ->
         {:error, :is_bot}
+    end
+  end
+
+  defp continue_unless_spammer(context) do
+    if ReferrerBlocklist.is_spammer?(context.count.o.host) do
+      {:error, :spam_host}
+    else
+      continue_unless_invalid_service(context)
     end
   end
 

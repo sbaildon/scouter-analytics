@@ -11,6 +11,7 @@ defmodule Stats.Application do
       Stats.Repo,
       Stats.EventsRepo,
       {Oban, Application.fetch_env!(:stats, Oban)},
+      {ReferrerBlocklist, [http_client: Req]},
       Stats.Services,
       Telemetry,
       Dashboard,
