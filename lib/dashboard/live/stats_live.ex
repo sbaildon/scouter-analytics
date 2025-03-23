@@ -45,6 +45,7 @@ defmodule Dashboard.StatsLive do
         assign(socket, :services, [])
 
       {:ok, service} ->
+        Logger.debug(service: service)
         assign(socket, :services, List.wrap(service))
     end
   end
