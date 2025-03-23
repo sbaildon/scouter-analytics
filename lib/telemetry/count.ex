@@ -11,7 +11,7 @@ defmodule Telemetry.Count do
     field :b, :boolean
     field :q, Count.QueryParams
     field :p, Count.Path
-    field :r, :string
+    field :r, Ecto.URI
     field :o, Ecto.URI
     field :u, :naive_datetime
   end
