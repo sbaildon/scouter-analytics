@@ -57,14 +57,6 @@ httpfs_credentials = fn ->
   |> remove_prefix_and_group_by_name.()
 end
 
-config :stats, Telemetry.Endpoint,
-  url: [host: env!.("TELEMETRY_HOST"), port: 443, scheme: "https"],
-  http: [
-    ip: {0, 0, 0, 0, 0, 0, 0, 0},
-    port: env_as!.("TELEMETRY_PORT", :integer)
-  ],
-  secret_key_base: env!.("TELEMETRY_SECRET_KEY_BASE")
-
 config :stats, Dashboard.Endpoint,
   url: [host: env!.("DASHBOARD_HOST"), port: 443, scheme: "https"],
   http: [
@@ -105,6 +97,14 @@ config :stats, Stats.Geo,
 config :stats, Stats.Repo,
   database: env!.("DATABASE_PATH"),
   pool_size: env_as.("POOL_SIZE", "10", :integer)
+
+config :stats, Telemetry.Endpoint,
+  url: [host: env!.("TELEMETRY_HOST"), port: 443, scheme: "https"],
+  http: [
+    ip: {0, 0, 0, 0, 0, 0, 0, 0},
+    port: env_as!.("TELEMETRY_PORT", :integer)
+  ],
+  secret_key_base: env!.("TELEMETRY_SECRET_KEY_BASE")
 
 config :stats, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
