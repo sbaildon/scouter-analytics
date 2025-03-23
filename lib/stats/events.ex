@@ -158,10 +158,6 @@ defmodule Stats.Events do
     |> then(&EventsRepo.insert_all(Event, &1))
   end
 
-  def record(events) when is_list(events) do
-    EventsRepo.insert_all(Event, events)
-  end
-
   def record(%Event{} = event) do
     now = NaiveDateTime.utc_now()
 
@@ -175,10 +171,12 @@ defmodule Stats.Events do
     EventsRepo.insert_all(Event, [event])
   end
 
-  def prepare_insert_all(%Event{} = event) do
-    event
-    |> Map.from_struct()
-    |> Map.delete(:__meta__)
+  def record_all(events) when is_list(events) do
+    EventsRepo.insert_all(Event, events)
+  end
+
+  def prepare_record_all(%Event{} = event) do
+    Map.take(event, Event.__schema__(:fields))
   end
 
   def count_and_range("past_hour"), do: {1, :hour}
