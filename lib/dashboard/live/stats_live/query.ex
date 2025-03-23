@@ -10,7 +10,6 @@ defmodule Dashboard.StatsLive.Query do
     field :browsers, {:array, :string}
     field :browser_versions, {:array, :string}
     field :paths, {:array, :string}
-    field :hosts, {:array, :string}
     field :operating_systems, {:array, :string}
     field :operating_system_versions, {:array, :string}
     field :referrers, {:array, :string}
