@@ -98,6 +98,7 @@ defmodule Telemetry.EventController do
   end
 
   defp referrer(nil), do: nil
+  defp referrer(%{host: nil}), do: nil
   defp referrer(%{host: host}), do: String.trim_leading(host, "www.")
 
   defp utc_now_s, do: NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second)
