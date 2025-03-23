@@ -54,7 +54,7 @@ defmodule Stats.EventsRepo.BackupWorker do
     ) TO '#{to}' (
     FORMAT parquet,
     OVERWRITE_OR_IGNORE true,
-    PARTITION_BY ('year', 'month')
+    PARTITION_BY ('service_id', 'year', 'month')
     );
     """
   end
