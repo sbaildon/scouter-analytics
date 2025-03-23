@@ -44,6 +44,6 @@ defimpl Stats.Queryable, for: Tuple do
         schemaless -> "invalid://#{schemaless}"
       end
 
-    case_result |> URI.parse() |> Map.fetch!(:host)
+    case_result |> URI.parse() |> Map.fetch!(:host) |> String.trim_leading("www.")
   end
 end
