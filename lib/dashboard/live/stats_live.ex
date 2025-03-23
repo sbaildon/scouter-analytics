@@ -73,7 +73,7 @@ defmodule Dashboard.StatsLive do
     your_func_result
   end
 
-  defp version_a(stream) do
+  def version_a(stream) do
     stream
     |> EventsRepo.merge_columns()
     |> Enum.to_list()
