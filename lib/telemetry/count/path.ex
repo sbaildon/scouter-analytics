@@ -13,7 +13,6 @@ defmodule Telemetry.Count.Path do
 
   def cast(_), do: :error
 
-
   def load(data), do: {:ok, data}
 
   def dump(path), do: {:ok, path}
