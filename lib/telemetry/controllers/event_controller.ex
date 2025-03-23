@@ -79,7 +79,7 @@ defmodule Telemetry.EventController do
        service_id: TypeID.uuid(context.service.id),
        namespace: context.count.o.host,
        path: context.count.p,
-       referrer: context.count.r,
+       referrer: referrer(context.count.r),
        timestamp: utc_now_s(),
        browser: browser(context.user_agent),
        browser_version: browser_version(context.user_agent),
@@ -96,6 +96,9 @@ defmodule Telemetry.EventController do
        utm_term: utm_term(context.count.q)
      }}
   end
+
+  defp referrer(nil), do: nil
+  defp referrer(%{host: host}), do: String.trim_leading(host, "www.")
 
   defp utc_now_s, do: NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second)
 
