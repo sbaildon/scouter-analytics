@@ -3,7 +3,7 @@ defmodule Stats.Repo.Migrations.CreateSites do
 
   def change do
     create table("sites", options: "STRICT") do
-      add :published, :boolean, null: false, default: false
+      add :published, :boolean, null: false, default: true
       timestamps()
     end
   end
