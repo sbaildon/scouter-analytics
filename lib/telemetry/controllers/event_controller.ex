@@ -44,7 +44,7 @@ defmodule Telemetry.EventController do
     end
   end
 
-  defp continue_unless_spammer(context) do
+  defp continue_unless_spammer(context) when is_map(context.count.o) do
     if ReferrerBlocklist.is_spammer?(context.count.o.host) do
       {:error, :spam_host}
     else
@@ -52,11 +52,19 @@ defmodule Telemetry.EventController do
     end
   end
 
-  defp continue_unless_invalid_service(context) do
+  defp continue_unless_spammer(context) do
+    continue_unless_invalid_service(context)
+  end
+
+  defp continue_unless_invalid_service(context) when is_map(context.count.o) do
     case Services.get_for_namespace(context.count.o.host) do
       {:ignore, nil} -> {:error, :service_not_registered}
       {_, service} -> geo_step(%{context | service: service})
     end
+  end
+
+  defp continue_unless_invalid_service(_context) do
+    {:error, :service_not_registered}
   end
 
   def geo_step(context) do
