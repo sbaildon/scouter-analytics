@@ -130,4 +130,201 @@ defmodule Stats.Events.Mock do
       "Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604."
     ]
   end
+
+  def add_path(event) do
+    Map.replace(event, :path, Enum.random(paths()))
+  end
+
+  defp paths do
+    List.duplicate("/", 300) ++
+      [
+        "/home",
+        "/about",
+        "/contact",
+        "/products",
+        "/products/laptops",
+        "/products/phones",
+        "/products/shoes",
+        "/services",
+        "/services/web-design",
+        "/services/marketing",
+        "/blog",
+        "/blog/10-seo-tips",
+        "/blog/how-to-code",
+        "/blog/startup-growth-hacks",
+        "/careers",
+        "/careers/software-engineer",
+        "/careers/marketing-manager",
+        "/login",
+        "/signup",
+        "/dashboard",
+        "/account",
+        "/account/settings",
+        "/account/billing",
+        "/cart",
+        "/checkout",
+        "/orders",
+        "/orders/12345",
+        "/help",
+        "/help/faq",
+        "/help/contact-support",
+        "/privacy-policy",
+        "/terms-of-service",
+        "/news",
+        "/news/tech",
+        "/news/finance",
+        "/news/sports",
+        "/category/fashion",
+        "/category/electronics",
+        "/category/books",
+        "/category/home-garden",
+        "/deals",
+        "/deals/black-friday",
+        "/deals/cyber-monday",
+        "/events",
+        "/events/tech-conference",
+        "/events/music-festival",
+        "/events/webinar",
+        "/forum",
+        "/forum/general-discussion",
+        "/forum/help-and-support",
+        "/forum/product-feedback",
+        "/gallery",
+        "/gallery/summer-collection",
+        "/gallery/architecture",
+        "/docs",
+        "/docs/getting-started",
+        "/docs/api-reference",
+        "/leaderboard",
+        "/community",
+        "/community/members",
+        "/community/events",
+        "/press",
+        "/press/releases",
+        "/partners",
+        "/partners/affiliate-program",
+        "/partners/resellers",
+        "/podcast",
+        "/podcast/episode-1",
+        "/podcast/episode-2",
+        "/sitemap",
+        "/404",
+        "/500"
+      ]
+  end
+
+  def add_referrer(event) do
+    ref = random_referrer()
+
+    event
+    |> Map.replace(:referrer, ref.referer)
+    |> replace_referrer_source(ref.source)
+  end
+
+  defp replace_referrer_source(event, :unknown), do: Map.replace(event, :referrer_source, nil)
+  defp replace_referrer_source(event, source), do: Map.replace(event, :referrer_source, source)
+
+  defp random_referrer do
+    all_referrers() |> Enum.random() |> RefInspector.parse()
+  end
+
+  defp all_referrers do
+    Enum.concat([
+      List.duplicate(nil, 10),
+      general_referrers(),
+      social_media_referrers(),
+      advertisement_and_affiliate_referrers(),
+      ecommerce_referrers(),
+      news_and_blog_referrers()
+    ])
+  end
+
+  defp general_referrers do
+    [
+      "https://www.google.com/",
+      "https://www.bing.com/",
+      "https://search.yahoo.com/",
+      "https://duckduckgo.com/",
+      "https://www.baidu.com/",
+      "https://www.yandex.ru/",
+      "https://www.ecosia.org/",
+      "https://www.ask.com/",
+      "https://www.aol.com/",
+      "https://www.qwant.com/"
+    ]
+  end
+
+  defp social_media_referrers do
+    [
+      "https://www.facebook.com/",
+      "https://m.facebook.com/",
+      "https://www.instagram.com/",
+      "https://www.linkedin.com/",
+      "https://twitter.com/",
+      "https://t.co/",
+      "https://www.reddit.com/",
+      "https://old.reddit.com/",
+      "https://www.pinterest.com/",
+      "https://www.tiktok.com/",
+      "https://www.snapchat.com/",
+      "https://www.twitch.tv/",
+      "https://www.youtube.com/",
+      "https://m.youtube.com/",
+      "https://www.threads.net/"
+    ]
+  end
+
+  defp news_and_blog_referrers do
+    [
+      "https://www.medium.com/",
+      "https://substack.com/",
+      "https://www.forbes.com/",
+      "https://www.nytimes.com/",
+      "https://www.bbc.com/news",
+      "https://www.cnn.com/",
+      "https://www.theguardian.com/",
+      "https://www.huffpost.com/",
+      "https://news.ycombinator.com/",
+      "https://www.bloomberg.com/",
+      "https://www.wsj.com/"
+    ]
+  end
+
+  defp advertisement_and_affiliate_referrers do
+    [
+      "https://www.googleadservices.com/",
+      "https://ads.google.com/",
+      "https://www.facebook.com/ads/",
+      "https://www.bing.com/ads/",
+      "https://ad.doubleclick.net/",
+      "https://www.taboola.com/",
+      "https://www.outbrain.com/",
+      "https://www.affiliatesite.com/",
+      "https://www.impact.com/",
+      "https://partner.amazon.com/"
+    ]
+  end
+
+  defp ecommerce_referrers do
+    [
+      "https://www.amazon.com/",
+      "https://www.ebay.com/",
+      "https://www.etsy.com/",
+      "https://www.walmart.com/",
+      "https://www.target.com/",
+      "https://www.aliexpress.com/",
+      "https://www.shopify.com/",
+      "https://www.bestbuy.com/",
+      "https://www.costco.com/",
+      "https://www.flipkart.com/"
+    ]
+  end
+
+  def add_site_and_namespace(event) do
+    service = Enum.random(Stats.Services.list_published())
+
+    event
+    |> Map.replace(:namespace, service.name)
+    |> Map.replace(:service_id, service.id)
+  end
 end
