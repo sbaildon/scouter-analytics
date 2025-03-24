@@ -45,6 +45,7 @@ defmodule Dashboard.StatComponents do
       {:operating_systems, group_id(:operating_system), "Operating Systems"},
       {:operating_system_versions, group_id(:operating_system_version), "Operating System Vers."},
       {:paths, group_id(:path), "Paths"},
+      {:sources, group_id(:referrer_source), "Sources"},
       {:referrers, group_id(:referrer), "Referrers"},
       {:utm_mediums, group_id(:utm_medium), "UTM Mediums"},
       {:utm_sources, group_id(:utm_source), "UTM Sources"},
