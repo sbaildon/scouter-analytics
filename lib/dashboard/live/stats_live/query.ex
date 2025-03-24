@@ -13,6 +13,7 @@ defmodule Dashboard.StatsLive.Query do
     field :operating_systems, {:array, :string}
     field :operating_system_versions, {:array, :string}
     field :referrers, {:array, :string}
+    field :sources, {:array, :string}
     field :utm_sources, {:array, :string}
     field :utm_campaigns, {:array, :string}
     field :utm_mediums, {:array, :string}

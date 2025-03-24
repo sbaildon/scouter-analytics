@@ -9,6 +9,7 @@ defmodule Stats.EventsRepo.Migrations.CreateEvents do
       add :namespace, :text, null: false
       add :path, :text, null: false
       add :referrer, :text
+      add :referrer_source, :text
       add :utm_medium, :text
       add :utm_source, :text
       add :utm_campaign, :text

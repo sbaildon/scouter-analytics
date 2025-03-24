@@ -9,6 +9,7 @@ defmodule Stats.Aggregate do
     field :namespace, :string
     field :path, :string
     field :referrer, :string
+    field :referrer_source, :string
     field :utm_medium, :string
     field :utm_source, :string
     field :utm_campaign, :string

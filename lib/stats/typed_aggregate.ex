@@ -16,6 +16,7 @@ defmodule Stats.TypedAggregate do
         namespace: group_id(:namespace),
         path: group_id(:path),
         referrer: group_id(:referrer),
+        referrer_source: group_id(:referrer_source),
         utm_medium: group_id(:utm_medium),
         utm_source: group_id(:utm_source),
         utm_campaign: group_id(:utm_campaign),

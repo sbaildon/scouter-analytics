@@ -5,8 +5,6 @@ defmodule Stats.Event do
   import Ecto.Changeset
   import Ecto.Query
 
-  alias Stats.Aggregate
-
   require Record
 
   Record.defrecord(:aggregate, [:count, :grouping_id, :value, :max])
@@ -18,6 +16,7 @@ defmodule Stats.Event do
     field :namespace, :string
     field :path, :string
     field :referrer, :string
+    field :referrer_source, :string
     field :utm_medium, :string
     field :utm_source, :string
     field :utm_campaign, :string
@@ -45,6 +44,7 @@ defmodule Stats.Event do
       :namespace,
       :path,
       :referrer,
+      :referrer_source,
       :utm_medium,
       :utm_source,
       :utm_campaign,
@@ -163,10 +163,11 @@ defmodule Stats.Event do
           grouping_id:
             selected_as(
               fragment(
-                "GROUPING (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) :: USMALLINT",
+                "GROUPING (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) :: UINTEGER",
                 e.namespace,
                 e.path,
                 e.referrer,
+                e.referrer_source,
                 e.utm_medium,
                 e.utm_source,
                 e.utm_campaign,
@@ -187,26 +188,28 @@ defmodule Stats.Event do
             selected_as(
               fragment(
                 "CASE ?
-                WHEN '0111111111111111' :: BITSTRING THEN ?
-		WHEN '1011111111111111' :: BITSTRING THEN ?
-		WHEN '1101111111111111' :: BITSTRING THEN ?
-		WHEN '1110111111111111' :: BITSTRING THEN ?
-		WHEN '1111011111111111' :: BITSTRING THEN ?
-		WHEN '1111101111111111' :: BITSTRING THEN ?
-		WHEN '1111110111111111' :: BITSTRING THEN ?
-		WHEN '1111111011111111' :: BITSTRING THEN ?
-		WHEN '1111111101111111' :: BITSTRING THEN ?
-		WHEN '1111111110111111' :: BITSTRING THEN ?
-		WHEN '1111111111011111' :: BITSTRING THEN ?
-		WHEN '1111111111101111' :: BITSTRING THEN ?::text
-		WHEN '1111111111110111' :: BITSTRING THEN ?
-		WHEN '1111111111111011' :: BITSTRING THEN ?
-		WHEN '1111111111111101' :: BITSTRING THEN ?
-		WHEN '1111111111111110' :: BITSTRING THEN ? END",
+                  WHEN '0b01111111111111111' THEN ?
+                  WHEN '0b10111111111111111' THEN ?
+                  WHEN '0b11011111111111111' THEN ?
+                  WHEN '0b11101111111111111' THEN ?
+                  WHEN '0b11110111111111111' THEN ?
+                  WHEN '0b11111011111111111' THEN ?
+                  WHEN '0b11111101111111111' THEN ?
+                  WHEN '0b11111110111111111' THEN ?
+                  WHEN '0b11111111011111111' THEN ?
+                  WHEN '0b11111111101111111' THEN ?
+                  WHEN '0b11111111110111111' THEN ?
+                  WHEN '0b11111111111011111' THEN ?
+                  WHEN '0b11111111111101111' THEN ?::text
+                  WHEN '0b11111111111110111' THEN ?
+                  WHEN '0b11111111111111011' THEN ?
+                  WHEN '0b11111111111111101' THEN ?
+                  WHEN '0b11111111111111110' THEN ? END",
                 selected_as(:grouping_id),
                 e.namespace,
                 e.path,
                 e.referrer,
+                e.referrer_source,
                 e.utm_medium,
                 e.utm_source,
                 e.utm_campaign,
@@ -231,10 +234,11 @@ defmodule Stats.Event do
       from([{^named_binding(), e}] in query,
         group_by:
           fragment(
-            "GROUPING SETS((?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?))",
+            "GROUPING SETS((?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?))",
             e.namespace,
             e.path,
             e.referrer,
+            e.referrer_source,
             e.utm_medium,
             e.utm_source,
             e.utm_campaign,

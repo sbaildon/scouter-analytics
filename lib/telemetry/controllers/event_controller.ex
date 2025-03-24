@@ -80,6 +80,7 @@ defmodule Telemetry.EventController do
        namespace: context.count.o.host,
        path: context.count.p,
        referrer: referrer(context.count.r),
+       referrer_source: referrer_source(context.count.r),
        timestamp: utc_now_s(),
        browser: browser(context.user_agent),
        browser_version: browser_version(context.user_agent),
@@ -100,6 +101,16 @@ defmodule Telemetry.EventController do
   defp referrer(nil), do: nil
   defp referrer(%{host: nil}), do: nil
   defp referrer(%{host: host}), do: String.trim_leading(host, "www.")
+
+  defp referrer_source(nil), do: nil
+
+  defp referrer_source(%URI{} = uri),
+    do: uri |> URI.to_string() |> RefInspector.parse() |> Map.fetch!(:source) |> nil_if_unknown()
+
+  defp referrer_source(_other), do: nil
+
+  defp nil_if_unknown(:unknown), do: nil
+  defp nil_if_unknown(other), do: other
 
   defp utc_now_s, do: NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second)
 

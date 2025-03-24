@@ -69,7 +69,13 @@
     </.tabbed_chart>
     <.tabbed_chart>
       <:tab
-        title={gettext("Referrer")}
+        title={gettext("Sources")}
+        field="sources"
+        aggregates={@streams.referrer_source}
+        filtered={@query.sources}
+      />
+      <:tab
+        title={gettext("Referrers")}
         field="referrers"
         aggregates={@streams.referrer}
         filtered={@query.referrers}

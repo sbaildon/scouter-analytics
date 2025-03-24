@@ -7,7 +7,7 @@ defmodule Ecto.URI do
   # Provide custom casting rules.
   # Cast strings into the URI struct to be used at runtime
   def cast(uri) when is_binary(uri) do
-    URI.new(uri)
+    {:ok, URI.parse(uri)}
   end
 
   # Accept casting of URI structs as well
