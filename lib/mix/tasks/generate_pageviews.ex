@@ -5,6 +5,7 @@ defmodule Mix.Tasks.GeneratePageviews do
   defp default_host, do: "https://" <> System.fetch_env!("TELEMETRY_HOST")
   defp default_path, do: "/"
   defp default_ip, do: "127.0.0.1"
+  defp default_origin, do: System.fetch_env!("DASHBOARD_HOST")
 
   defp default_user_agent,
     do:
@@ -21,7 +22,8 @@ defmodule Mix.Tasks.GeneratePageviews do
     path: :string,
     referrer: :string,
     host: :string,
-    query_params: :string
+    query_params: :string,
+    origin: :string
   ]
 
   @impl Mix.Task
@@ -71,7 +73,8 @@ defmodule Mix.Tasks.GeneratePageviews do
       b: bot,
       p: Keyword.get(opts, :path, default_path()),
       q: Keyword.get(opts, :query_params, default_query_params()),
-      r: Keyword.get(opts, :referrer, default_referrer())
+      r: Keyword.get(opts, :referrer, default_referrer()),
+      o: Keyword.get(opts, :origin, default_origin())
     }
 
     opts = []
