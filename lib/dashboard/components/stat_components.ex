@@ -141,7 +141,7 @@ defmodule Dashboard.StatComponents do
                 <span class="relative w-full">
                   <meter
                     min="0"
-                    class="h-full w-full absolute inset-0 opacity-40 appearance-none"
+                    class="h-[1lh] w-full absolute inset-0 opacity-40"
                     value={Queryable.count(aggregate)}
                     max={aggregate(aggregate, :max)}
                   />
