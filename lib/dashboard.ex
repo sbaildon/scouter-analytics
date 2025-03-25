@@ -23,7 +23,7 @@ defmodule Dashboard do
     Dashboard.Endpoint.config_change(changed, removed)
   end
 
-  def static_paths, do: ~w(assets js images favicon.ico robots.txt)
+  def static_paths, do: ~w(assets js css images favicon.ico robots.txt)
   def object_paths, do: ~w(fonts)
 
   def router do
