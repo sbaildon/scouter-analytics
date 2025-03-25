@@ -1,6 +1,6 @@
 defmodule Stats.Service do
   @moduledoc false
-  use Stats.Schema, prefix: "service"
+  use Schema, prefix: "service"
 
   import Ecto.Query
 
