@@ -58,7 +58,7 @@ defmodule Dashboard.StatsLive.Query do
 
   def periods do
     [
-      [{"Live", "live", "l"}, {"Past Hour", "past_hour", "h"}, {"Today", "today", "t"}, {"Yesterday", "yesterday", "y"}],
+      [{"Past Hour", "past_hour", "h"}, {"Today", "today", "t"}, {"Yesterday", "yesterday", "y"}],
       [{"Month to Date", "month_to_date", "d m"}, {"Last Month", "last_month", "Shift+M"}],
       [{"Year to Date", "year_to_date", "d y"}, {"Last Year", "last_year", "Shift+Y"}],
       [
