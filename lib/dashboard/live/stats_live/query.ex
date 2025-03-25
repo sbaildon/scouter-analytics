@@ -20,7 +20,6 @@ defmodule Dashboard.StatsLive.Query do
     field :utm_contents, {:array, :string}
     field :utm_terms, {:array, :string}
     field :country_codes, {:array, :string}
-    field :scale, :string
     field :interval, :string
     field :from, :string
     field :to, :string
@@ -41,7 +40,6 @@ defmodule Dashboard.StatsLive.Query do
     query
     |> cast(params, castable(), empty_values: [nil])
     |> cast(params, [:to, :from])
-    |> validate_inclusion(:scale, scale_values())
     |> apply_action(:validate)
   end
 
@@ -53,8 +51,6 @@ defmodule Dashboard.StatsLive.Query do
       {"Month", "month", "s m"},
       {"Year", "year", "s y"}
     ]
-
-  defp scale_values, do: Enum.map(scale(), &elem(&1, 1))
 
   def periods do
     [
