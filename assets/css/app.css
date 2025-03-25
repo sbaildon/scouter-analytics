@@ -1,3 +1,4 @@
+@import url("/css/meter.css");
 @import url("/css/inputs.css");
 @import "tailwindcss";
 
@@ -54,28 +55,6 @@ section[data-tabs] {
 		& > section:nth-of-type(5) {
 			display: block;
 		}
-	}
-}
-
-meter {
-	--height: 1lh;
-	height: var(--height);
-
-	/* Applicable only to Firefox */
-	background: none;
-	background-color: transparent;
-
-	&::-webkit-meter-optimum-value {
-		background: var(--color-lime-500);
-	}
-
-	&::-moz-meter-bar {
-		background: var(--color-lime-500);
-	}
-
-	&::-webkit-meter-bar {
-		height: var(--height);
-		background: none;
 	}
 }
 

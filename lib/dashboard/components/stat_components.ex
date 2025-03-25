@@ -128,8 +128,24 @@ defmodule Dashboard.StatComponents do
             phx-update="stream"
             class="overflow-y-scroll snap-y snap-mandatory h-[10lh]"
           >
-            <li :for={{dom_id, aggregate} <- tab.aggregates} id={dom_id} class="snap-start">
-              <label class="flex flex-row items-center hover:bg-zinc-100">
+            <li
+              :for={{dom_id, aggregate} <- tab.aggregates}
+              id={dom_id}
+              class="isolate snap-start relative"
+            >
+              <div class="grid grid-cols-1 grid-rows-1 isolate">
+                <meter
+                  min="0"
+                  class="w-full absolute inset-0"
+                  value={Queryable.count(aggregate)}
+                  max={aggregate(aggregate, :max)}
+                />
+                <span class="flex flex-row justify-between px-[1ch] z-10">
+                  <span>{Queryable.present(aggregate)}</span>
+                  <span>{display_aggregate_count(aggregate)}</span>
+                </span>
+              </div>
+              <label class="absolute inset-0">
                 <input
                   type="checkbox"
                   class="hidden"
@@ -138,18 +154,6 @@ defmodule Dashboard.StatComponents do
                   name={"#{tab.field}[]"}
                   value={Queryable.value(aggregate) || ""}
                 />
-                <span class="relative w-full">
-                  <meter
-                    min="0"
-                    class="w-full absolute inset-0 opacity-40 appearance-none"
-                    value={Queryable.count(aggregate)}
-                    max={aggregate(aggregate, :max)}
-                  />
-                  <span class="flex flex-row justify-between w-full px-[1ch]">
-                    <span>{Queryable.present(aggregate)}</span>
-                    <span>{display_aggregate_count(aggregate)}</span>
-                  </span>
-                </span>
               </label>
             </li>
           </ol>

@@ -1,0 +1,27 @@
+@layer meter {
+	:root {
+		--height: 1lh;
+		--color: color-mix(in oklab, var(--color-lime-400) 40%, transparent);
+	}
+
+	meter {
+		height: var(--height);
+
+		@supports (-moz-appearance: none) {
+			background: none;
+		}
+
+		&::-moz-meter-bar {
+			background: var(--color);
+		}
+	}
+
+	::-webkit-meter-bar {
+		background: none;
+		height: var(--height);
+	}
+
+	::-webkit-meter-optimum-value {
+		background: var(--color);
+	}
+}
