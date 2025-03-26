@@ -10,8 +10,9 @@ config :ecto_sqlite3,
 
 config :esbuild,
   version: "0.17.11",
-  stats: [
-    args: ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
+  dashboard: [
+    args:
+      ~w(js/dashboard.js --bundle --target=es2017 --outdir=../priv/static/assets/ --external:/fonts/* --external:/images/*),
     cd: Path.expand("../assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
@@ -66,10 +67,10 @@ config :stats,
 
 config :tailwind,
   version: "4.0.4",
-  stats: [
+  dashboard: [
     args: ~w(
-      --input=./assets/css/app.css
-      --output=./priv/static/assets/app.css
+      --input=./assets/css/dashboard.css
+      --output=./priv/static/assets/dashboard.css
     )
   ]
 
