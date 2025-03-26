@@ -1,6 +1,6 @@
 @import url("/css/meter.css");
 @import url("/css/inputs.css");
-@import "tailwindcss";
+@import "tailwindcss" source("../../lib/dashboard");
 
 [data-phx-root-id] {
 	display: contents;
