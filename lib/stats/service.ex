@@ -38,6 +38,12 @@ defmodule Stats.Service do
     )
   end
 
+  def where_id(query, ids) when is_list(ids) do
+    from([{^named_binding(), service}] in query,
+      where: service.id in ^ids
+    )
+  end
+
   def where_id(query, id) do
     from([{^named_binding(), service}] in query,
       where: service.id == ^id
