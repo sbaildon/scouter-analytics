@@ -49,7 +49,8 @@ config :stats, Stats.EventsRepo,
 
 config :stats, Stats.Repo,
   migration_primary_key: [name: :id, type: :uuid, null: false],
-  migration_timestamps: [type: :utc_datetime_usec]
+  migration_timestamps: [type: :utc_datetime_usec],
+  service_queries_require_service_ids: true
 
 config :stats, Telemetry.Endpoint,
   adapter: Bandit.PhoenixAdapter,

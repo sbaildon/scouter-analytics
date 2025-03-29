@@ -19,10 +19,11 @@ defmodule Dashboard.StatsLive do
     {:ok, handle_mount(socket.assigns.live_action, params, session, socket)}
   end
 
-  def handle_mount(_live_action, params, _session, socket) do
+  def handle_mount(_live_action, params, session, socket) do
     {:ok, query} = Query.validate(params)
 
     socket
+    |> caveats(session)
     |> authorized_services(socket.assigns.live_action, query)
     |> available()
     |> assign(:debug, %{query_time: 0, query_version: nil})
@@ -37,10 +38,15 @@ defmodule Dashboard.StatsLive do
     end)
   end
 
+  defp caveats(socket, _) do
+    assign(socket, :caveats, [])
+  end
+
   defp authorized_services(socket, :service, query) do
     {:ok, service} = Map.fetch(query, :service)
+    %{caveats: service_ids} = socket.assigns
 
-    case Services.get_by_name(service) do
+    case Services.get_by_name(service, only: service_ids) do
       nil ->
         assign(socket, :services, [])
 
@@ -51,7 +57,8 @@ defmodule Dashboard.StatsLive do
   end
 
   defp authorized_services(socket, :index, _query) do
-    assign(socket, :services, Services.list_published())
+    %{caveats: service_ids} = socket.assigns
+    assign(socket, :services, Services.list_published(only: service_ids))
   end
 
   defp configure_stream_for_aggregate_fields(socket) do

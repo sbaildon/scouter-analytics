@@ -53,23 +53,33 @@ defmodule Stats.Services do
     |> EctoHelpers.take_from_multi(:service)
   end
 
-  def get_by_name(name) do
+  def get_by_name(name, opts \\ []) do
     Service.query()
     |> Service.where_published()
     |> Service.where_name(name)
-    |> EctoHelpers.one()
+    |> service_query_opts(opts)
+    |> EctoHelpers.one(opts)
   end
 
   def list do
     Repo.all(Service)
   end
 
-  def list_published do
+  def list_published(opts \\ []) do
     Service.query()
     |> Service.where_published()
     |> Service.with_providers()
+    |> service_query_opts(opts)
     |> EctoHelpers.preload()
     |> Repo.all()
+  end
+
+  defp service_query_opts(query, opts) do
+    Enum.reduce(opts, query, fn
+      {:only, []}, query -> query
+      {:only, service_ids}, query -> Service.where_id(query, service_ids)
+      _, query -> query
+    end)
   end
 
   defp service_cache, do: ServiceCache
