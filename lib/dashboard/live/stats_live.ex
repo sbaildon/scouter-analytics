@@ -24,7 +24,7 @@ defmodule Dashboard.StatsLive do
 
     socket
     |> caveats(session)
-    |> authorized_services(socket.assigns.live_action, query)
+    |> authorized_services(query)
     |> available()
     |> assign(:debug, %{query_time: 0, query_version: nil})
     |> assign(:version, version())
@@ -42,8 +42,12 @@ defmodule Dashboard.StatsLive do
     assign(socket, :caveats, [])
   end
 
-  defp authorized_services(socket, :service, query) do
-    {:ok, service} = Map.fetch(query, :service)
+  defp authorized_services(socket, %{service: nil}) do
+    %{caveats: service_ids} = socket.assigns
+    assign(socket, :services, Services.list_published(only: service_ids))
+  end
+
+  defp authorized_services(socket, %{service: service}) do
     %{caveats: service_ids} = socket.assigns
 
     case Services.get_by_name(service, only: service_ids) do
@@ -54,11 +58,6 @@ defmodule Dashboard.StatsLive do
         Logger.debug(service: service)
         assign(socket, :services, List.wrap(service))
     end
-  end
-
-  defp authorized_services(socket, :index, _query) do
-    %{caveats: service_ids} = socket.assigns
-    assign(socket, :services, Services.list_published(only: service_ids))
   end
 
   defp configure_stream_for_aggregate_fields(socket) do
