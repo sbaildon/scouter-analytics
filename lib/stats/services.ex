@@ -27,7 +27,7 @@ defmodule Stats.Services do
         |> Service.with_providers(as: :provider)
         |> Services.Provider.where_ns(namespace)
         |> EctoHelpers.preload()
-        |> Repo.one()
+        |> Repo.one(skip_service_id: true)
 
       if service do
         {:commit, service}

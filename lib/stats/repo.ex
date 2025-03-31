@@ -10,6 +10,9 @@ defmodule Stats.Repo do
     ensure_explicit_service_query? = ensure_explicit_service_query?(query.from.source)
 
     cond do
+      opts[:skip_service_id] ->
+        {query, opts}
+
       ensure_explicit_service_query? && filtering_by_service_id?(query) ->
         {query, opts}
 
