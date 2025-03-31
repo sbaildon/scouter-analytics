@@ -26,6 +26,8 @@ defmodule Dashboard.Endpoint do
     gzip: not code_reloading?,
     only: Dashboard.static_paths()
 
+  plug Dashboard.TrustedProxiesPlug
+
   plug Objex.Plug,
     paths: Dashboard.object_paths()
 

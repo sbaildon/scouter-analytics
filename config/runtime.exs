@@ -64,7 +64,8 @@ config :stats, Dashboard.Endpoint,
     port: env_as!.("DASHBOARD_PORT", :integer)
   ],
   secret_key_base: env!.("DASHBOARD_SECRET_KEY_BASE"),
-  live_view: [signing_salt: env!.("DASHBOARD_SIGNING_SALT")]
+  live_view: [signing_salt: env!.("DASHBOARD_SIGNING_SALT")],
+  trusted_proxies: System.get_env("TRUSTED_PROXIES")
 
 config :stats, Oban,
   plugins: [

@@ -74,7 +74,8 @@ defmodule Stats.MixProject do
       {:gen_stage, "~> 1.2"},
       {:broadway, "~> 1.2"},
       {:broadway_dashboard, "~> 0.4", only: [:dev, :text]},
-      {:referrer_blocklist, git: "https://github.com/sbaildon/referrer-blocklist"}
+      {:referrer_blocklist, git: "https://github.com/sbaildon/referrer-blocklist"},
+      {:cidr, "~> 1.2"}
     ]
   end
 
