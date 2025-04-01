@@ -5,7 +5,7 @@ defmodule EctoHelpers do
 
   defmacro __using__(_opts) do
     quote do
-      def fetch(queryable, opts) do
+      def fetch(queryable, opts \\ []) do
         if entity = one(queryable, opts) do
           {:ok, entity}
         else
@@ -13,7 +13,7 @@ defmodule EctoHelpers do
         end
       end
 
-      def list(queryable, opts) do
+      def list(queryable, opts \\ []) do
         if entities = all(queryable, opts) do
           {:ok, entities}
         else
