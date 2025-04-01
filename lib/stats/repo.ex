@@ -3,6 +3,8 @@ defmodule Stats.Repo do
     otp_app: :stats,
     adapter: Ecto.Adapters.SQLite3
 
+  use EctoHelpers
+
   require Ecto.Query
 
   @impl Ecto.Repo

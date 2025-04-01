@@ -7,6 +7,26 @@ defmodule EctoHelpers do
 
   alias Stats.Repo
 
+  defmacro __using__(_opts) do
+    quote do
+      def fetch(queryable, opts) do
+        if entity = one(queryable, opts) do
+          {:ok, entity}
+        else
+          :error
+        end
+      end
+
+      def list(queryable, opts) do
+        if entities = all(queryable, opts) do
+          {:ok, entities}
+        else
+          :error
+        end
+      end
+    end
+  end
+
   @spec all(query :: Ecto.Query.t(), opts :: list()) :: {:ok, orders :: list(Order)}
   def all(query, opts) when is_list(opts) do
     result =
