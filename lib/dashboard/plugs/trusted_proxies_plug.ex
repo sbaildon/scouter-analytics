@@ -63,11 +63,13 @@ defmodule Dashboard.TrustedProxiesPlug do
 
   def parse_cidr!(network), do: network |> ipv4_network_to_ipv6() |> parse_cidr!()
 
-  defp ipv4_network_to_ipv6(network)  do
-    [ip, mask] = String.split(network, "/")
+  defp ipv4_network_to_ipv6(network) do
+    [address, mask] = String.split(network, "/")
 
-    ipv6_mask = String.to_integer(mask) + 96
+    ipv6_mask = String.to_integer(mask) + mapped_ipv4_fixed_mask()
 
-     "#{ipv4_mapped_prefix()}#{ip}/#{ipv6_mask}"
+    "#{ipv4_mapped_prefix()}#{address}/#{ipv6_mask}"
   end
+
+  defp mapped_ipv4_fixed_mask, do: 96
 end
