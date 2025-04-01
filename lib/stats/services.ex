@@ -61,8 +61,10 @@ defmodule Stats.Services do
     |> Repo.fetch(opts)
   end
 
-  def list do
-    Repo.list(Service)
+  def list(opts \\ []) do
+    Service.query()
+    |> service_query_opts(opts)
+    |> Repo.list()
   end
 
   def list_published(opts \\ []) do
