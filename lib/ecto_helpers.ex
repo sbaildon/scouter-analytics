@@ -1,8 +1,6 @@
 defmodule EctoHelpers do
   @moduledoc false
 
-  use Gettext, backend: Dashboard.Gettext
-
   import Ecto.Changeset
 
   alias Stats.Repo
@@ -212,7 +210,7 @@ defmodule EctoHelpers do
 
   def validate_email(changeset, field \\ :email) do
     changeset
-    |> validate_required([field], message: gettext("An email is required"))
+    |> validate_required([field], message: "An email is required")
     |> validate_format(field, ~r/^[^\s]+@[^\s]+$/, message: "An email must contain @, with no spaces")
   end
 
