@@ -58,7 +58,7 @@ defmodule Stats.Services do
     |> Service.where_published()
     |> Service.where_name(name)
     |> service_query_opts(opts)
-    |> EctoHelpers.one(opts)
+    |> Repo.fetch(opts)
   end
 
   def list do
