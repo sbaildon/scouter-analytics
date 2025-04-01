@@ -14,8 +14,8 @@ defmodule Stats.Services.Provider do
 
   def changeset(svc_provider, params) do
     svc_provider
-    |> cast(params, [:namespace])
-    |> validate_required([:namespace])
+    |> cast(params, [:service_id, :namespace])
+    |> validate_required([:service_id, :namespace])
   end
 
   defp named_binding, do: :provider

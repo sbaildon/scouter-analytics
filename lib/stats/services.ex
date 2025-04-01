@@ -38,10 +38,11 @@ defmodule Stats.Services do
   end
 
   def add_provider(service_id, namespace) do
-    %Services.Provider{service_id: TypeID.from_string!(service_id)}
-    |> Services.Provider.changeset(%{
+    %{
+      service_id: service_id,
       namespace: namespace
-    })
+    }
+    |> Services.Provider.changeset()
     |> Repo.insert()
   end
 
@@ -63,7 +64,9 @@ defmodule Stats.Services do
 
   def list(opts \\ []) do
     Service.query()
+    |> Service.with_providers()
     |> service_query_opts(opts)
+    |> EctoHelpers.preload()
     |> Repo.list()
   end
 
