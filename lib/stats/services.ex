@@ -46,10 +46,17 @@ defmodule Stats.Services do
     |> Repo.insert()
   end
 
-  def register(namespace) do
+  def register(namespace, opts) do
+    opts =
+      opts
+      |> Keyword.put_new(:public, false)
+      |> Keyword.put_new(:published, true)
+
     Multi.new()
-    |> Multi.insert(:service, Service.changeset(%{name: namespace}))
-    |> Multi.insert(:service_provider, Services.Provider.changeset(%{namespace: namespace}))
+    |> Multi.insert(:service, Service.changeset(%{name: namespace, published: opts[:published], public: opts[:public]}))
+    |> Multi.insert(:service_provider, fn %{service: service} ->
+      Services.Provider.changeset(%{service_id: service.id, namespace: namespace})
+    end)
     |> Repo.transaction()
     |> EctoHelpers.take_from_multi(:service)
   end
