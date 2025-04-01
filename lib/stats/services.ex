@@ -62,7 +62,7 @@ defmodule Stats.Services do
   end
 
   def list do
-    Repo.all(Service)
+    Repo.list(Service)
   end
 
   def list_published(opts \\ []) do
@@ -71,7 +71,7 @@ defmodule Stats.Services do
     |> Service.with_providers()
     |> service_query_opts(opts)
     |> EctoHelpers.preload()
-    |> Repo.all()
+    |> Repo.list()
   end
 
   defp service_query_opts(query, opts) do
