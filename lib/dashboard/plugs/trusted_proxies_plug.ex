@@ -16,13 +16,15 @@ defmodule Dashboard.TrustedProxiesPlug do
           client_ip <= trusted.last && client_ip >= trusted.first
         end)
 
-      (trusted_environment? && trusted_environment(conn)) || untrusted_environment(conn)
+      (trusted_environment? && trusted_environment(conn, trusted_proxies)) || untrusted_environment(conn)
     else
       unspecified_environment(conn)
     end
   end
 
-  defp trusted_environment(conn), do: assign(conn, :environment, :trusted)
+  defp trusted_environment(conn, trusted_proxies),
+    do: conn |> assign(:environment, :trusted) |> assign(:trusted_proxies, trusted_proxies)
+
   defp untrusted_environment(conn), do: assign(conn, :environment, :untrusted)
   defp unspecified_environment(conn), do: assign(conn, :environment, :unspecified)
 
