@@ -3,8 +3,6 @@ defmodule EctoHelpers do
 
   import Ecto.Changeset
 
-  alias Stats.Repo
-
   defmacro __using__(_opts) do
     quote do
       def fetch(queryable, opts) do
@@ -22,67 +20,6 @@ defmodule EctoHelpers do
           :error
         end
       end
-    end
-  end
-
-  @spec all(query :: Ecto.Query.t(), opts :: list()) :: {:ok, orders :: list(Order)}
-  def all(query, opts) when is_list(opts) do
-    result =
-      cond do
-        opts[:skip_account_id] -> Repo.all(query, skip_account_id: true)
-        account_id = opts[:account_id] -> Repo.all(query, account_id: account_id)
-        true -> Repo.all(query)
-      end
-
-    case result do
-      nil -> nil
-      entities -> {:ok, entities}
-    end
-  end
-
-  @spec all(query :: Ecto.Query.t(), account_id :: Identifier.t()) :: {:ok, orders :: list(Order)}
-  def all(query, account_id) do
-    case_result =
-      case account_id do
-        :skip_account_id -> Repo.all(query, skip_account_id: true)
-        account_id -> Repo.all(query, account_id: account_id)
-      end
-
-    then(case_result, fn result -> {:ok, result} end)
-  end
-
-  @spec one(query :: Ecto.Query.t()) ::
-          {:ok, Ecto.Schema.t()} | nil
-  def one(query), do: one(query, [])
-
-  @spec one(query :: Ecto.Query.t(), opts :: list()) ::
-          {:ok, Ecto.Schema.t()} | nil
-  def one(query, opts) when is_list(opts) do
-    result =
-      cond do
-        opts[:skip_account_id] -> Repo.one(query, skip_account_id: true)
-        account_id = opts[:account_id] -> Repo.one(query, account_id: account_id)
-        true -> Repo.one(query)
-      end
-
-    case result do
-      nil -> nil
-      entity -> {:ok, entity}
-    end
-  end
-
-  @spec one(query :: Ecto.Query.t(), account_id :: Identifier.t()) ::
-          {:ok, Ecto.Schema.t()} | nil
-  def one(query, account_id) do
-    case_result =
-      case account_id do
-        :skip_account_id -> Repo.one(query, skip_account_id: true)
-        account_id -> Repo.one(query, account_id: account_id)
-      end
-
-    case case_result do
-      nil -> nil
-      entity -> {:ok, entity}
     end
   end
 
