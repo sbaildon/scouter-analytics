@@ -15,6 +15,11 @@ config :esbuild,
       ~w(js/dashboard.js --bundle --target=es2017 --outdir=../priv/static/assets/ --external:/fonts/* --external:/images/*),
     cd: Path.expand("../assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+  ],
+  iam: [
+    args: ~w(js/iam.js --bundle --target=es2017 --outdir=../priv/static/assets/ --external:/fonts/* --external:/images/*),
+    cd: Path.expand("../assets", __DIR__),
+    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
 
 config :ex_cldr,
@@ -37,10 +42,19 @@ config :stats, Dashboard.Endpoint,
   pubsub_server: Stats.PubSub
 
 config :stats, Finch, name: Stats.Finch
+config :stats, IAM, service_routes: Dashboard.Routes
+
+config :stats, IAM.Endpoint,
+  adapter: Bandit.PhoenixAdapter,
+  render_errors: [
+    formats: [html: IAM.ErrorHTML, json: IAM.ErrorJSON],
+    layout: false
+  ],
+  pubsub_server: Stats.PubSub
 
 config :stats, Oban,
   engine: Oban.Engines.Lite,
-  queues: [default: 10],
+  queues: [default: 10, mailer: 10, backups: 1],
   repo: Stats.Repo
 
 config :stats, Stats.EventsRepo,
@@ -60,6 +74,12 @@ config :stats, Telemetry.Endpoint,
   ],
   pubsub_server: Stats.PubSub
 
+config :stats, Yemma,
+  repo: Stats.Repo,
+  user: IAM.User,
+  token: IAM.UserToken,
+  pubsub_server: Stats.PubSub
+
 config :stats,
   ecto_repos: [Stats.Repo, Stats.EventsRepo],
   app_name: "Stats",
@@ -72,6 +92,12 @@ config :tailwind,
     args: ~w(
       --input=./assets/css/dashboard.css
       --output=./priv/static/assets/dashboard.css
+    )
+  ],
+  iam: [
+    args: ~w(
+      --input=./assets/css/iam.css
+      --output=./priv/static/assets/iam.css
     )
   ]
 

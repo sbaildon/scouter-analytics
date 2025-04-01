@@ -4,7 +4,8 @@ defmodule Stats.EventsRepo.BackupWorker do
     unique: [
       period: :infinity,
       states: duplicate_if_state_is_any()
-    ]
+    ],
+    queue: :backups
 
   alias Stats.EventsRepo
 
