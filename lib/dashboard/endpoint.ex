@@ -27,6 +27,7 @@ defmodule Dashboard.Endpoint do
     only: Dashboard.static_paths()
 
   plug Dashboard.TrustedProxiesPlug
+  plug Dashboard.RemoteIPPlug
 
   plug Objex.Plug,
     paths: Dashboard.object_paths()
