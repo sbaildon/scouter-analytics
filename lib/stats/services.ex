@@ -62,11 +62,31 @@ defmodule Stats.Services do
   end
 
   def change(service_id, params) do
-    Service.query()
-    |> Service.where_id(service_id)
-    |> Repo.one()
-    |> Service.changeset(params)
-    |> Repo.update()
+    Multi.new()
+    |> Multi.one(:service, fn _ ->
+      service_id
+      |> Service.where_id()
+      |> Service.with_providers()
+      |> EctoHelpers.preload()
+    end)
+    |> Multi.run(:change, fn _repo, %{service: service} ->
+      {:ok, Service.changeset(service, params)}
+    end)
+    |> Multi.update(:update, & &1.change)
+    |> Multi.merge(&update_service_provider_if_name_changed/1)
+    |> Repo.transaction()
+    |> EctoHelpers.take_from_multi(:update)
+  end
+
+  defp update_service_provider_if_name_changed(%{change: change, service: service}) do
+    if change.changes[:name] && length(service.providers) == 1 do
+      Multi.update(Multi.new(), :service_provider, fn _ ->
+        [provider | []] = service.providers
+        Services.Provider.changeset(provider, %{namespace: change.changes[:name]})
+      end)
+    else
+      Multi.new()
+    end
   end
 
   def get_by_name(name, opts \\ []) do
