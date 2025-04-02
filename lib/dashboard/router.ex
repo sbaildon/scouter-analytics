@@ -14,13 +14,19 @@ defmodule Dashboard.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :authz do
+    plug Dashboard.AuthzPlug
+  end
+
   scope "/", Dashboard do
-    pipe_through :browser
+    pipe_through [:browser, :authz]
 
-    live "/", StatsLive, :index
+    live_session :default, on_mount: Dashboard.InitAssigns do
+      live "/", StatsLive, :index
 
-    if Application.compile_env(:stats, :edition) == :commercial do
-      live "/:service", StatsLive, :service
+      if Application.compile_env(:stats, :edition) == :commercial do
+        live "/:service", StatsLive, :service
+      end
     end
   end
 

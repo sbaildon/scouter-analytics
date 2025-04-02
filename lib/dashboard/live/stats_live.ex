@@ -23,7 +23,6 @@ defmodule Dashboard.StatsLive do
     {:ok, query} = Query.validate(params)
 
     socket
-    |> caveats(session)
     |> authorized_services(query)
     |> available()
     |> assign(:debug, %{query_time: 0, query_version: nil})
@@ -38,13 +37,11 @@ defmodule Dashboard.StatsLive do
     end)
   end
 
-  defp caveats(socket, _) do
-    assign(socket, :caveats, [])
-  end
-
   defp authorized_services(socket, %{service: nil}) do
-    %{caveats: service_ids} = socket.assigns
-    assign(socket, :services, Services.list_published(only: service_ids))
+    with %{caveats: service_ids} <- socket.assigns,
+         {:ok, services} <- Services.list_published(only: service_ids) do
+      assign(socket, :services, services)
+    end
   end
 
   defp authorized_services(socket, %{service: service}) do
@@ -298,6 +295,15 @@ defmodule Dashboard.StatsLive do
       Enum.map(authorized_services, fn domain ->
         TypeID.uuid(domain.id)
       end)
+
+    Keyword.replace(filters, :services, services)
+  end
+
+  # return all authorized services, because none are filtered
+  defp authorized_filters(%{service: nil, services: []} = query, authorized_services) do
+    filters = Query.to_filters(query)
+
+    services = Enum.map(authorized_services, &TypeID.uuid(&1.id))
 
     Keyword.replace(filters, :services, services)
   end
