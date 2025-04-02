@@ -30,6 +30,9 @@ defmodule Dashboard.StatsLive do
     |> assign(:edition, edition())
     |> configure_stream_for_aggregate_fields()
     |> assign(:query, query)
+    |> assign_new(:email, fn ->
+      session["from"]
+    end)
     |> then(fn socket ->
       headers = get_connect_info(socket, :x_headers) || []
       ip = RemoteIp.from(headers, clients: clients())

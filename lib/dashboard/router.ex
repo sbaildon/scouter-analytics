@@ -15,6 +15,7 @@ defmodule Dashboard.Router do
   end
 
   pipeline :authz do
+    plug Dashboard.FromPlug
     plug Dashboard.AuthzPlug
   end
 
