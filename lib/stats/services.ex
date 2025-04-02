@@ -61,6 +61,14 @@ defmodule Stats.Services do
     |> EctoHelpers.take_from_multi(:service)
   end
 
+  def change(service_id, params) do
+    Service.query()
+    |> Service.where_id(service_id)
+    |> Repo.one()
+    |> Service.changeset(params)
+    |> Repo.update()
+  end
+
   def get_by_name(name, opts \\ []) do
     Service.query()
     |> Service.where_published()
