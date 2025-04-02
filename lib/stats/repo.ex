@@ -37,6 +37,13 @@ defmodule Stats.Repo do
   defp filtering_by_service_id?(query) do
     service_alias = Map.get(query.aliases, :service, false)
 
-    service_alias && Enum.any?(query.wheres, &List.keymember?(&1.params, {:in, {service_alias, :id}}, 1))
+    service_alias &&
+      Enum.any?(query.wheres, fn wheres ->
+        Enum.any?(wheres.params, fn
+          {_arg, {:in, {^service_alias, :id}}} -> true
+          {_arg, {^service_alias, :id}} -> true
+          _ -> false
+        end)
+      end)
   end
 end
