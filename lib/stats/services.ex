@@ -47,13 +47,10 @@ defmodule Stats.Services do
   end
 
   def register(namespace, opts) do
-    opts =
-      opts
-      |> Keyword.put_new(:public, false)
-      |> Keyword.put_new(:published, true)
+    opts = Keyword.put_new(opts, :published, true)
 
     Multi.new()
-    |> Multi.insert(:service, Service.changeset(%{name: namespace, published: opts[:published], public: opts[:public]}))
+    |> Multi.insert(:service, Service.changeset(%{name: namespace, published: opts[:published]}))
     |> Multi.insert(:service_provider, fn %{service: service} ->
       Services.Provider.changeset(%{service_id: service.id, namespace: namespace})
     end)

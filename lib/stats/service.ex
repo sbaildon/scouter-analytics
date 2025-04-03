@@ -9,7 +9,6 @@ defmodule Stats.Service do
   schema "services" do
     field :name, :string
     field :published, :boolean, default: true
-    field :public, :boolean, default: false
     has_many :providers, Services.Provider
 
     timestamps()
@@ -17,8 +16,8 @@ defmodule Stats.Service do
 
   def changeset(service, params) do
     service
-    |> cast(params, [:name, :published, :public])
-    |> validate_required([:name, :published, :public])
+    |> cast(params, [:name, :published])
+    |> validate_required([:name, :published])
   end
 
   defp named_binding, do: :service
@@ -35,7 +34,7 @@ defmodule Stats.Service do
 
   def where_shared(query) do
     from([{^named_binding(), domain}] in query,
-      where: domain.published and domain.public
+      where: domain.published
     )
   end
 
