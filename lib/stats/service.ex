@@ -33,6 +33,12 @@ defmodule Stats.Service do
     )
   end
 
+  def where_shared(query) do
+    from([{^named_binding(), domain}] in query,
+      where: domain.published and domain.public
+    )
+  end
+
   def where_name(query, name) do
     from([{^named_binding(), domain}] in query,
       where: domain.name == ^name
