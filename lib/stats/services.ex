@@ -91,7 +91,7 @@ defmodule Stats.Services do
     |> Service.where_published()
     |> Service.where_name(name)
     |> service_query_opts(opts)
-    |> Repo.fetch(opts)
+    |> Repo.fetch([{:skip_service_id, true} | opts])
   end
 
   def list(opts \\ []) do
