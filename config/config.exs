@@ -87,7 +87,7 @@ config :stats,
   generators: [timestamp_type: :utc_datetime, binary_id: true]
 
 config :tailwind,
-  version: "4.0.4",
+  version: "4.1.3",
   dashboard: [
     args: ~w(
       --input=./assets/css/dashboard.css
