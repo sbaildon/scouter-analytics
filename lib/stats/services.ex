@@ -20,6 +20,12 @@ defmodule Stats.Services do
     Supervisor.init(children, strategy: :one_for_one)
   end
 
+  def fetch(service_id) do
+    Service.query()
+    |> Service.where_id(service_id)
+    |> Repo.fetch()
+  end
+
   def get_for_namespace(namespace) do
     Cachex.fetch(service_cache(), namespace, fn namespace ->
       service =
