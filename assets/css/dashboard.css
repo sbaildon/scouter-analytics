@@ -1,6 +1,7 @@
 @import url("/css/meter.css");
 @import url("/css/inputs.css");
 @import "tailwindcss" source(none);
+@source "../../lib/components.ex";
 @source "../../lib/dashboard";
 @source "./dashboard.css";
 
