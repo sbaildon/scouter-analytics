@@ -26,6 +26,15 @@ defmodule Stats.Services do
     |> Repo.fetch()
   end
 
+  def delete(service_id) do
+    Multi.new()
+    |> Multi.delete_all(:provides, Services.Provider.where_service(service_id))
+    |> Multi.one(:service, Service.where_id(service_id))
+    |> Multi.delete(:delete, fn %{service: service} -> service end)
+    |> Repo.transaction()
+    |> EctoHelpers.take_from_multi(:service)
+  end
+
   def get_for_namespace(namespace) do
     Cachex.fetch(service_cache(), namespace, fn namespace ->
       service =
