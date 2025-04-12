@@ -20,6 +20,20 @@ defmodule Stats.Services.Provider do
 
   defp named_binding, do: :provider
 
+  def query do
+    from(__MODULE__, as: ^named_binding())
+  end
+
+  def where_service(service_id) do
+    where_service(query(), service_id)
+  end
+
+  def where_service(query, service_id) do
+    from([{^named_binding(), struct}] in query,
+      where: struct.service_id == ^service_id
+    )
+  end
+
   def where_ns(query, ns) do
     from([{^named_binding(), struct}] in query,
       where: struct.namespace == ^ns
