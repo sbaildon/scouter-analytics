@@ -77,13 +77,16 @@ defmodule Stats.Services do
   end
 
   def change(service_id, params) do
-    Multi.new()
-    |> Multi.one(:service, fn _ ->
+    read_query =
       service_id
       |> Service.where_id()
       |> Service.with_providers()
       |> Service.with_primary_provider()
       |> EctoHelpers.preload()
+
+    Multi.new()
+    |> Multi.one(:service, fn _ ->
+      read_query
     end)
     |> Multi.update(:update, fn %{service: service} ->
       Service.changeset(service, params)
@@ -92,11 +95,7 @@ defmodule Stats.Services do
       Services.Provider.changeset(service.primary_provider, params)
     end)
     |> Multi.one(:read_after_write, fn _ ->
-      service_id
-      |> Service.where_id()
-      |> Service.with_providers()
-      |> Service.with_primary_provider()
-      |> EctoHelpers.preload()
+      read_query
     end)
     |> Repo.transaction()
     |> EctoHelpers.take_from_multi(:read_after_write)
