@@ -9,7 +9,7 @@ defmodule Stats.Service do
   schema "services" do
     field :published, :boolean, default: true
     has_many :providers, Services.Provider
-    has_one :primary_provider, Services.Provider
+    belongs_to :primary_provider, Services.Provider
 
     timestamps()
   end
