@@ -264,7 +264,7 @@ defmodule Dashboard.StatComponents do
         <ul class="flex flex-col pb-1.25">
           <li :for={service <- @services} class="px-2">
             <span class="flex flex-row justify-between">
-              <span>{service.name}</span>
+              <span>{Stats.Service.name(service)}</span>
             </span>
           </li>
         </ul>

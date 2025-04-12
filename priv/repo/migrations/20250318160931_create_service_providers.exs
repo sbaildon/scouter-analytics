@@ -10,5 +10,9 @@ defmodule Stats.Repo.Migrations.CreateServiceProviders do
     end
 
     create unique_index(:service_providers, [:service_id, :namespace])
+
+    alter table(:services) do
+      add :primary_provider, references(:service_providers, on_delete: :nilify_all), null: true
+    end
   end
 end

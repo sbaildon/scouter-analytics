@@ -34,8 +34,10 @@ defmodule Stats.Services.Provider do
     )
   end
 
-  def where_ns(query, ns) do
-    from([{^named_binding(), struct}] in query,
+  def where_ns(query, ns, opts \\ []) do
+    from = Keyword.get(opts, :from, named_binding())
+
+    from([{^from, struct}] in query,
       where: struct.namespace == ^ns
     )
   end

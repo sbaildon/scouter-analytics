@@ -23,6 +23,8 @@ defmodule Stats.Services do
   def fetch(service_id) do
     Service.query()
     |> Service.where_id(service_id)
+    |> Service.with_primary_provider()
+    |> EctoHelpers.preload()
     |> Repo.fetch()
   end
 
@@ -40,7 +42,8 @@ defmodule Stats.Services do
       service =
         Service.query()
         |> Service.with_providers(as: :provider)
-        |> Services.Provider.where_ns(namespace)
+        |> Service.with_primary_provider()
+        |> Services.Provider.where_ns(namespace, from: :primary_provider)
         |> EctoHelpers.preload()
         |> Repo.one(skip_service_id: true)
 
@@ -79,39 +82,41 @@ defmodule Stats.Services do
       service_id
       |> Service.where_id()
       |> Service.with_providers()
+      |> Service.with_primary_provider()
       |> EctoHelpers.preload()
     end)
-    |> Multi.run(:change, fn _repo, %{service: service} ->
-      {:ok, Service.changeset(service, params)}
+    |> Multi.update(:update, fn %{service: service} ->
+      Service.changeset(service, params)
     end)
-    |> Multi.update(:update, & &1.change)
-    |> Multi.merge(&update_service_provider_if_name_changed/1)
+    |> Multi.update(:update_two, fn %{service: service} ->
+      Services.Provider.changeset(service.primary_provider, params)
+    end)
+    |> Multi.one(:read_after_write, fn _ ->
+      service_id
+      |> Service.where_id()
+      |> Service.with_providers()
+      |> Service.with_primary_provider()
+      |> EctoHelpers.preload()
+    end)
     |> Repo.transaction()
-    |> EctoHelpers.take_from_multi(:update)
-  end
-
-  defp update_service_provider_if_name_changed(%{change: change, service: service}) do
-    if change.changes[:name] && length(service.providers) == 1 do
-      Multi.update(Multi.new(), :service_provider, fn _ ->
-        [provider | []] = service.providers
-        Services.Provider.changeset(provider, %{namespace: change.changes[:name]})
-      end)
-    else
-      Multi.new()
-    end
+    |> EctoHelpers.take_from_multi(:read_after_write)
   end
 
   def get_by_name(name, opts \\ []) do
     Service.query()
     |> Service.where_published()
-    |> Service.where_name(name)
+    |> Service.with_providers()
+    |> Service.with_primary_provider()
+    |> Services.Provider.where_ns(name, from: :primary_provider)
     |> service_query_opts(opts)
+    |> EctoHelpers.preload()
     |> Repo.fetch([{:skip_service_id, true} | opts])
   end
 
   def list(opts \\ []) do
     Service.query()
     |> Service.with_providers()
+    |> Service.with_primary_provider()
     |> service_query_opts(opts)
     |> EctoHelpers.preload()
     |> Repo.list()
@@ -121,6 +126,7 @@ defmodule Stats.Services do
     Service.query()
     |> Service.where_published()
     |> Service.with_providers()
+    |> Service.with_primary_provider()
     |> service_query_opts(opts)
     |> EctoHelpers.preload()
     |> Repo.list()
