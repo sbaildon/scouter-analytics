@@ -72,6 +72,9 @@ defmodule Stats.Services do
     |> Multi.insert(:service_provider, fn %{service: service} ->
       Services.Provider.changeset(%{service_id: service.id, namespace: namespace})
     end)
+    |> Multi.update(:primary_provider, fn %{service: service, service_provider: service_provider} ->
+      Service.set_primary_provider(service, service_provider.id)
+    end)
     |> Repo.transaction()
     |> EctoHelpers.take_from_multi(:service)
   end

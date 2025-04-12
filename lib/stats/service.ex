@@ -88,6 +88,10 @@ defmodule Stats.Service do
     provider.namespace
   end
 
+  def set_primary_provider(service, provider_id) do
+    Ecto.Changeset.change(service, primary_provider_id: provider_id)
+  end
+
   defimpl Phoenix.Param do
     def to_param(service) do
       Stats.Service.name(service)
