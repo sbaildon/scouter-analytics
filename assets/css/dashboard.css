@@ -1,9 +1,10 @@
-@import url("/css/meter.css");
+@import url("/css/meter.css") layer(meter);
 @import url("/css/inputs.css");
 @import "tailwindcss" source(none);
 @source "../../lib/components.ex";
 @source "../../lib/dashboard";
 @source "./dashboard.css";
+@source "../../priv/static/css/meter.css";
 
 [data-phx-root-id] {
 	display: contents;
