@@ -5,6 +5,7 @@
 @source "../../lib/dashboard";
 @source "./dashboard.css";
 @source "../../priv/static/css/meter.css";
+@source "../../priv/static/css/inputs.css";
 
 [data-phx-root-id] {
 	display: contents;
