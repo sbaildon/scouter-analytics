@@ -16,6 +16,7 @@ defmodule Form do
       def new(form, opts) when is_struct(form), do: new(form, %{}, opts)
       def new(params) when is_map(params), do: new(struct(__MODULE__), params, [])
       def new(params, opts) when is_map(params), do: new(struct(__MODULE__), params, opts)
+      def new(opts) when is_list(opts), do: new(struct(__MODULE__), %{}, opts)
       def new(form, params, opts), do: form |> changeset(params) |> to_form(opts)
 
       @spec validate(struct :: __MODULE__, params :: map()) ::
