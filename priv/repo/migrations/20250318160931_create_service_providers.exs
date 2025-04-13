@@ -9,7 +9,7 @@ defmodule Stats.Repo.Migrations.CreateServiceProviders do
       timestamps()
     end
 
-    create unique_index(:service_providers, [:service_id, :namespace])
+    create unique_index(:service_providers, [:namespace])
 
     alter table(:services) do
       add :primary_provider_id,
