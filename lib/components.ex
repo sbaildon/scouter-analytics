@@ -22,7 +22,6 @@ defmodule Components do
 
   slot :entry do
     attr :dt, :string
-    attr :dd, :string
   end
 
   def dl(assigns) do
@@ -30,7 +29,7 @@ defmodule Components do
     <dl class="flex flex-row gap-x-4 items-center py-0.5 px-1 w-max">
       <div :for={entry <- @entry} class="flex flex-row gap-x-1">
         <dt class="uppercase">{entry.dt}</dt>
-        <dd>{entry.dd}</dd>
+        <dd>{render_slot(entry)}</dd>
       </div>
     </dl>
     """
