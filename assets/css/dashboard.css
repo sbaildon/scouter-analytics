@@ -4,8 +4,7 @@
 @source "../../lib/components.ex";
 @source "../../lib/dashboard";
 @source "./dashboard.css";
-@source "../../priv/static/css/meter.css";
-@source "../../priv/static/css/inputs.css";
+@source "../../priv/static/css/*.css";
 
 [data-phx-root-id] {
 	display: contents;
