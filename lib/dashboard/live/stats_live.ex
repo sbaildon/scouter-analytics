@@ -317,7 +317,9 @@ defmodule Dashboard.StatsLive do
 
     services =
       Enum.reduce(authorized_services, [], fn authorized_service, acc ->
-        if authorized_service.name in query.services, do: [TypeID.uuid(authorized_service.id) | acc], else: acc
+        if Stats.Service.name(authorized_service) in query.services,
+          do: [TypeID.uuid(authorized_service.id) | acc],
+          else: acc
       end)
 
     Keyword.replace(filters, :services, services)

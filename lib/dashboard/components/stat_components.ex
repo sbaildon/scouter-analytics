@@ -284,12 +284,12 @@ defmodule Dashboard.StatComponents do
                 <input
                   data-controller="hotkey"
                   data-hotkey={i}
-                  value={service.name}
+                  value={Stats.Service.name(service)}
                   name="services[]"
                   type="checkbox"
-                  checked={service.name in (@query.services || [])}
+                  checked={Stats.Service.name(service) in (@query.services || [])}
                 />
-                <span>{service.name}</span>
+                <span>{Stats.Service.name(service)}</span>
               </div>
               <.hotkey keybind={i} />
             </label>
