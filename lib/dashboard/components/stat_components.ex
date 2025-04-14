@@ -293,8 +293,8 @@ defmodule Dashboard.StatComponents do
               </div>
               <.hotkey keybind={i} />
             </label>
-            <ol class="has-[li:only-child]:hidden pl-8 pr-2 text-zinc-400">
-              <li :for={provider <- service.providers}>
+            <ol class="pl-8 pr-2 text-zinc-400">
+              <li :for={provider <- drop_primary_provider(service)}>
                 <div>
                   <span>{provider.namespace}</span>
                 </div>
@@ -305,6 +305,10 @@ defmodule Dashboard.StatComponents do
       </form>
     </.controls>
     """
+  end
+
+  defp drop_primary_provider(service) do
+    for provider <- service.providers, provider.id != service.primary_provider_id, do: provider
   end
 
   attr :action, :string, required: false
