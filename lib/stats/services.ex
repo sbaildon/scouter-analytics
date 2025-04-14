@@ -41,9 +41,8 @@ defmodule Stats.Services do
     Cachex.fetch(service_cache(), namespace, fn namespace ->
       service =
         Service.query()
-        |> Service.with_providers(as: :provider)
-        |> Service.with_primary_provider()
-        |> Services.Provider.where_ns(namespace, from: :primary_provider)
+        |> Service.with_providers()
+        |> Services.Provider.where_ns(namespace, from: :providers)
         |> EctoHelpers.preload()
         |> Repo.one(skip_service_id: true)
 
