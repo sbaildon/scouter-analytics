@@ -73,7 +73,7 @@ defmodule Stats.MixProject do
       {:cachex, "~> 4.0"},
       {:gen_stage, "~> 1.2"},
       {:broadway, "~> 1.2"},
-      {:broadway_dashboard, "~> 0.4", only: [:dev, :text]},
+      {:broadway_dashboard, "~> 0.4", only: [:dev, :test]},
       {:referrer_blocklist, git: "https://github.com/sbaildon/referrer-blocklist"},
       {:cidr, "~> 1.2"}
     ]
