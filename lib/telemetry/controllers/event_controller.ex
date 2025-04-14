@@ -157,6 +157,7 @@ defmodule Telemetry.EventController do
   defp browser_version(%UserAgent{client: %UserAgent.Client{version: version}}), do: version
 
   defp os(%UserAgent{os_family: :unknown}), do: nil
+  defp os(%UserAgent{os_family: "Mac"}), do: "macOS"
   defp os(%UserAgent{os_family: os}), do: os
 
   defp os_version(%UserAgent{os: :unknown}), do: nil
