@@ -1,8 +1,8 @@
-defmodule Stats.Events do
+defmodule Scouter.Events do
   @moduledoc false
-  alias Stats.Event
-  alias Stats.EventsRepo
-  alias Stats.Geo
+  alias Scouter.Event
+  alias Scouter.EventsRepo
+  alias Scouter.Geo
 
   require Logger
 

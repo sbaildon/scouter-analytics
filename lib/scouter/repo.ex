@@ -1,6 +1,6 @@
-defmodule Stats.Repo do
+defmodule Scouter.Repo do
   use Ecto.Repo,
-    otp_app: :stats,
+    otp_app: :scouter,
     adapter: Ecto.Adapters.SQLite3
 
   use EctoHelpers
@@ -26,7 +26,7 @@ defmodule Stats.Repo do
     end
   end
 
-  defp ensure_explicit_service_query?({"services", Stats.Service}) do
+  defp ensure_explicit_service_query?({"services", Scouter.Service}) do
     config()[:service_queries_require_service_ids] || false
   end
 

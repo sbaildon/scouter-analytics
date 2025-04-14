@@ -1,4 +1,4 @@
-defmodule Stats.Events.GroupingID do
+defmodule Scouter.Events.GroupingID do
   @moduledoc false
   defmacro group_id(:namespace), do: 0b01111111111111111
   defmacro group_id(:path), do: 0b10111111111111111

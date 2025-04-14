@@ -1,4 +1,4 @@
-defmodule Stats.Repo.Migrations.CreateServiceProviders do
+defmodule Scouter.Repo.Migrations.CreateServiceProviders do
   use Ecto.Migration
 
   def change do

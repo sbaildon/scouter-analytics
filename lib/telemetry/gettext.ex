@@ -21,5 +21,5 @@ defmodule Telemetry.Gettext do
 
   See the [Gettext Docs](https://hexdocs.pm/gettext) for detailed usage.
   """
-  use Gettext.Backend, otp_app: :stats
+  use Gettext.Backend, otp_app: :scouter
 end

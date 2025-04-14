@@ -13,7 +13,7 @@ config :phoenix_live_view,
   debug_heex_annotations: true,
   enable_expensive_runtime_checks: true
 
-config :stats, Dashboard.Endpoint,
+config :scouter, Dashboard.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
@@ -30,16 +30,7 @@ config :stats, Dashboard.Endpoint,
     ]
   ]
 
-config :stats, Stats.EventsRepo,
-  stacktrace: true,
-  show_sensitive_data_on_connection_error: true,
-  log: false
-
-config :stats, Stats.Repo,
-  stacktrace: true,
-  show_sensitive_data_on_connection_error: true
-
-config :stats, Telemetry.Endpoint,
+config :scouter, Telemetry.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
@@ -51,7 +42,16 @@ config :stats, Telemetry.Endpoint,
     ]
   ]
 
-config :stats, dev_routes: true
+config :scouter, dev_routes: true
+
+config :stats, Stats.EventsRepo,
+  stacktrace: true,
+  show_sensitive_data_on_connection_error: true,
+  log: false
+
+config :stats, Stats.Repo,
+  stacktrace: true,
+  show_sensitive_data_on_connection_error: true
 
 config :swoosh, :api_client, false
 
@@ -59,7 +59,7 @@ config :typeid_elixir,
   default_type: :string
 
 with {:ok, object_storage_url} <- System.fetch_env("MINIO_API_HOST") do
-  config :stats, Finch,
+  config :scouter, Finch,
     pools: %{
       "https://#{object_storage_url}" => [
         conn_opts: [

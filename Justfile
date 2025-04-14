@@ -1,7 +1,7 @@
 set dotenv-load := true
 
-default_repo := "Stats.Repo"
-otp_app := "stats"
+default_repo := "Scouter.Repo"
+otp_app := "scouter"
 
 serve:
     iex -S mix phx.server

@@ -1,4 +1,4 @@
-defmodule Stats.Geo do
+defmodule Scouter.Geo do
   @moduledoc false
   use Supervisor
 

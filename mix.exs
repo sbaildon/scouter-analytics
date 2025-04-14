@@ -1,9 +1,9 @@
-defmodule Stats.MixProject do
+defmodule Scouter.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :stats,
+      app: :scouter,
       version: "0.0.0-dev",
       elixir: "~> 1.15",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -22,7 +22,7 @@ defmodule Stats.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {Stats.Application, []},
+      mod: {Scouter.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
   end
@@ -92,10 +92,10 @@ defmodule Stats.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
-      "assets.build": ["tailwind stats", "esbuild stats"],
+      "assets.build": ["tailwind scouter", "esbuild scouter"],
       "assets.deploy": [
-        "tailwind stats --minify",
-        "esbuild stats --minify",
+        "tailwind scouter --minify",
+        "esbuild scouter --minify",
         "phx.digest"
       ]
     ]

@@ -1,11 +1,11 @@
-defmodule Stats.TypedAggregate do
+defmodule Scouter.TypedAggregate do
   @moduledoc false
   use Ecto.Schema
 
   import Ecto.Changeset
-  import Stats.Events.GroupingID
+  import Scouter.Events.GroupingID
 
-  alias Stats.Cldr.Territory
+  alias Scouter.Cldr.Territory
 
   @primary_key false
   embedded_schema do
@@ -39,7 +39,7 @@ defmodule Stats.TypedAggregate do
     cast(typed_aggregate, params, [:count, :grouping_id, :value])
   end
 
-  defimpl Stats.Queryable do
+  defimpl Scouter.Queryable do
     def present(%{grouping_id: :country_code, value: nil}), do: "Unknown"
     def present(%{grouping_id: :country_code, value: country_code}), do: Territory.from_territory_code!(country_code)
 

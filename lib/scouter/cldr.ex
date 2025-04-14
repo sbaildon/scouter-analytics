@@ -1,8 +1,8 @@
-defmodule Stats.Cldr do
+defmodule Scouter.Cldr do
   @moduledoc false
   use Cldr,
     locales: [:en],
-    gettext: Stats.Gettext,
-    otp_app: :stats,
+    gettext: Scouter.Gettext,
+    otp_app: :scouter,
     providers: [Cldr.Territory, Cldr.Number]
 end

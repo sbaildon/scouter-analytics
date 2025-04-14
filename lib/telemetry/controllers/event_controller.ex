@@ -1,8 +1,8 @@
 defmodule Telemetry.EventController do
   use Telemetry, :controller
 
-  alias Stats.Event
-  alias Stats.Services
+  alias Scouter.Event
+  alias Scouter.Services
   alias Telemetry.Context
   alias UAInspector.Result, as: UserAgent
 
@@ -70,7 +70,7 @@ defmodule Telemetry.EventController do
   def geo_step(context) do
     ip = RemoteIp.from(context.headers, clients: clients())
 
-    case Stats.Geo.lookup(ip) do
+    case Scouter.Geo.lookup(ip) do
       {:ok, geo} ->
         continue(%{context | geo: geo})
 
@@ -165,7 +165,7 @@ defmodule Telemetry.EventController do
   defp os_version(%UserAgent{os: %UserAgent.OS{version: version}}), do: version
 
   # allow 127.0.0.1 as client_ip when in development
-  if Application.compile_env(:stats, :dev_routes) do
+  if Application.compile_env(:scouter, :dev_routes) do
     defp clients, do: ["127.0.0.1"]
   else
     defp clients, do: []

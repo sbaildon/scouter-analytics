@@ -31,7 +31,7 @@ defmodule Mix.Tasks.GeneratePageviews do
     Application.ensure_started(:telemetry)
 
     Finch.start_link(
-      name: Stats.Finch,
+      name: Scouter.Finch,
       pools: %{
         default_host() => [
           conn_opts: [
@@ -81,7 +81,7 @@ defmodule Mix.Tasks.GeneratePageviews do
 
     req = Finch.build("POST", to <> "/telemetry", headers, JSON.encode!(body), opts)
 
-    Finch.request(req, Stats.Finch)
+    Finch.request(req, Scouter.Finch)
   end
 
   defp usage do

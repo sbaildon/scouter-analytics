@@ -1,5 +1,5 @@
 {
-  description = "Stats";
+  description = "Scouter";
 
   outputs =
     {

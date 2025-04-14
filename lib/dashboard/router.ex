@@ -25,13 +25,13 @@ defmodule Dashboard.Router do
     live_session :default, on_mount: Dashboard.InitAssigns do
       live "/", StatsLive, :index
 
-      if Application.compile_env(:stats, :edition) == :commercial do
+      if Application.compile_env(:scouter, :edition) == :commercial do
         live "/:service", StatsLive, :service
       end
     end
   end
 
-  if Application.compile_env(:stats, :dev_routes) do
+  if Application.compile_env(:scouter, :dev_routes) do
     import Phoenix.LiveDashboard.Router
 
     scope "/dev" do

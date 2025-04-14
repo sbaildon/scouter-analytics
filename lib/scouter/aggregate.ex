@@ -1,4 +1,4 @@
-defmodule Stats.Aggregate do
+defmodule Scouter.Aggregate do
   @moduledoc false
   use Ecto.Schema
 

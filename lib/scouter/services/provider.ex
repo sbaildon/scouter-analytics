@@ -1,10 +1,10 @@
-defmodule Stats.Services.Provider do
+defmodule Scouter.Services.Provider do
   @moduledoc false
   use Schema, prefix: "svc_provider"
 
   import Ecto.Query
 
-  alias Stats.Service
+  alias Scouter.Service
 
   schema "service_providers" do
     belongs_to :service, Service

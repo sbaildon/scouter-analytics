@@ -1,4 +1,4 @@
-defmodule Stats.Repo.Migrations.AddObanJobsTable do
+defmodule Scouter.Repo.Migrations.AddObanJobsTable do
   use Ecto.Migration
 
   def up do

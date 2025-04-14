@@ -3,13 +3,13 @@ defmodule Dashboard.StatComponents do
   use Phoenix.Component
   use Gettext, backend: Dashboard.Gettext
 
-  import Stats.Event, only: [aggregate: 1, aggregate: 2]
-  import Stats.Events.GroupingID
+  import Scouter.Event, only: [aggregate: 1, aggregate: 2]
+  import Scouter.Events.GroupingID
 
   alias Dashboard.StatsLive.Query
-  alias Stats.Cldr.Number
-  alias Stats.Queryable
-  alias Stats.TypedAggregate
+  alias Scouter.Cldr.Number
+  alias Scouter.Queryable
+  alias Scouter.TypedAggregate
 
   require Logger
 
@@ -85,13 +85,13 @@ defmodule Dashboard.StatComponents do
     """
   end
 
-  defp input_id(field, %TypedAggregate{} = typed_aggregate), do: "#{field}-#{Stats.Queryable.hash(typed_aggregate)}"
+  defp input_id(field, %TypedAggregate{} = typed_aggregate), do: "#{field}-#{Scouter.Queryable.hash(typed_aggregate)}"
   defp input_id(group_id, value), do: Queryable.hash({group_id, value})
 
   slot :tab, doc: "Tabs" do
     attr :title, :string, required: true
     attr :field, :string, required: true
-    attr :aggregates, :list, required: true, doc: "List of Stats.Aggregate"
+    attr :aggregates, :list, required: true, doc: "List of Scouter.Aggregate"
     attr :filtered, :list, required: true
     attr :hotkey, :string, required: false
   end
@@ -264,7 +264,7 @@ defmodule Dashboard.StatComponents do
         <ul class="flex flex-col pb-1.25">
           <li :for={service <- @services} class="px-2">
             <span class="flex flex-row justify-between">
-              <span>{Stats.Service.name(service)}</span>
+              <span>{Scouter.Service.name(service)}</span>
             </span>
           </li>
         </ul>
@@ -284,12 +284,12 @@ defmodule Dashboard.StatComponents do
                 <input
                   data-controller="hotkey"
                   data-hotkey={i}
-                  value={Stats.Service.name(service)}
+                  value={Scouter.Service.name(service)}
                   name="services[]"
                   type="checkbox"
-                  checked={Stats.Service.name(service) in (@query.services || [])}
+                  checked={Scouter.Service.name(service) in (@query.services || [])}
                 />
-                <span>{Stats.Service.name(service)}</span>
+                <span>{Scouter.Service.name(service)}</span>
               </div>
               <.hotkey keybind={i} />
             </label>

@@ -33,7 +33,7 @@ defmodule Dashboard.ConnCase do
   end
 
   setup tags do
-    Stats.DataCase.setup_sandbox(tags)
+    Scouter.DataCase.setup_sandbox(tags)
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 end

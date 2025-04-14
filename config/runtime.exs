@@ -57,7 +57,7 @@ httpfs_credentials = fn ->
   |> remove_prefix_and_group_by_name.()
 end
 
-config :stats, Dashboard.Endpoint,
+config :scouter, Dashboard.Endpoint,
   url: [host: env!.("DASHBOARD_HOST"), port: 443, scheme: "https"],
   http: [
     ip: {0, 0, 0, 0, 0, 0, 0, 0},
@@ -67,39 +67,39 @@ config :stats, Dashboard.Endpoint,
   live_view: [signing_salt: env!.("DASHBOARD_SIGNING_SALT")],
   trusted_proxies: System.get_env("TRUSTED_PROXIES")
 
-config :stats, Oban,
+config :scouter, Oban,
   plugins: [
     {Oban.Plugins.Cron,
      crontab: [
-       {env.("BACKUP_SCHEDULE", "05 4 * * 2"), Stats.EventsRepo.BackupWorker}
+       {env.("BACKUP_SCHEDULE", "05 4 * * 2"), Scouter.EventsRepo.BackupWorker}
      ]}
   ]
 
-config :stats, Objex,
+config :scouter, Objex,
   access_key_id: env!.("AWS_ACCESS_KEY_ID"),
   secret_access_key: env!.("AWS_SECRET_KEY"),
   proto: Map.fetch!(s3_endpoint, "proto"),
   endpoint: Map.fetch!(s3_endpoint, "endpoint"),
   port: Map.fetch!(s3_endpoint, "port"),
   region: env.("AWS_REGION", "auto"),
-  http_client: {Finch, name: Stats.Finch}
+  http_client: {Finch, name: Scouter.Finch}
 
-config :stats, Stats.EventsRepo,
+config :scouter, Scouter.EventsRepo,
   database: env!.("EVENT_DATABASE_PATH"),
   httpfs_credentials: httpfs_credentials.(),
   pool_size: 1
 
-config :stats, Stats.Geo,
+config :scouter, Scouter.Geo,
   database: Path.join([".", "/"] ++ Path.wildcard("./priv/mmdb/*.mmdb")),
   maxmind_opts: [
     license_key: env.("API_KEY_MAXMIND", nil)
   ]
 
-config :stats, Stats.Repo,
+config :scouter, Scouter.Repo,
   database: env!.("DATABASE_PATH"),
   pool_size: env_as.("POOL_SIZE", "10", :integer)
 
-config :stats, Telemetry.Endpoint,
+config :scouter, Telemetry.Endpoint,
   url: [host: env!.("TELEMETRY_HOST"), port: 443, scheme: "https"],
   http: [
     ip: {0, 0, 0, 0, 0, 0, 0, 0},

@@ -1,11 +1,11 @@
-defmodule Stats.Services do
+defmodule Scouter.Services do
   @moduledoc false
   use Supervisor
 
   alias Ecto.Multi
-  alias Stats.Repo
-  alias Stats.Service
-  alias Stats.Services
+  alias Scouter.Repo
+  alias Scouter.Service
+  alias Scouter.Services
 
   def start_link(init_arg) do
     Supervisor.start_link(__MODULE__, init_arg, name: __MODULE__)

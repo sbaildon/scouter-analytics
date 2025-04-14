@@ -1,4 +1,4 @@
-defmodule Stats.Application do
+defmodule Scouter.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -8,24 +8,24 @@ defmodule Stats.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      Stats.Repo,
-      Stats.EventsRepo,
-      {Oban, Application.fetch_env!(:stats, Oban)},
+      Scouter.Repo,
+      Scouter.EventsRepo,
+      {Oban, Application.fetch_env!(:scouter, Oban)},
       {ReferrerBlocklist, [http_client: Req]},
-      Stats.Services,
+      Scouter.Services,
       Telemetry,
       Dashboard,
-      {Stats.Geo, Application.fetch_env!(:stats, Stats.Geo)},
-      {Finch, Application.fetch_env!(:stats, Finch)},
-      {Ecto.Migrator, repos: Application.fetch_env!(:stats, :ecto_repos), skip: skip_migrations?()},
-      {DNSCluster, query: Application.get_env(:stats, :dns_cluster_query) || :ignore},
-      {Phoenix.PubSub, name: Stats.PubSub},
-      {Objex, Application.fetch_env!(:stats, Objex)}
+      {Scouter.Geo, Application.fetch_env!(:scouter, Scouter.Geo)},
+      {Finch, Application.fetch_env!(:scouter, Finch)},
+      {Ecto.Migrator, repos: Application.fetch_env!(:scouter, :ecto_repos), skip: skip_migrations?()},
+      {DNSCluster, query: Application.get_env(:scouter, :dns_cluster_query) || :ignore},
+      {Phoenix.PubSub, name: Scouter.PubSub},
+      {Objex, Application.fetch_env!(:scouter, Objex)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Stats.Supervisor]
+    opts = [strategy: :one_for_one, name: Scouter.Supervisor]
     Supervisor.start_link(children, opts)
   end
 

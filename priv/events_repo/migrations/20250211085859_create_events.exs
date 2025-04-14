@@ -1,4 +1,4 @@
-defmodule Stats.EventsRepo.Migrations.CreateEvents do
+defmodule Scouter.EventsRepo.Migrations.CreateEvents do
   @moduledoc false
   use Ecto.Migration
 

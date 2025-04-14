@@ -1,4 +1,4 @@
-defmodule Stats.EventsRepo.BackupWorker do
+defmodule Scouter.EventsRepo.BackupWorker do
   @moduledoc false
   use Oban.Worker,
     unique: [
@@ -7,12 +7,12 @@ defmodule Stats.EventsRepo.BackupWorker do
     ],
     queue: :backups
 
-  alias Stats.EventsRepo
+  alias Scouter.EventsRepo
 
   def perform(_args) do
     httpfs_credentials =
-      :stats
-      |> Application.fetch_env!(Stats.EventsRepo)
+      :scouter
+      |> Application.fetch_env!(Scouter.EventsRepo)
       |> Keyword.fetch!(:httpfs_credentials)
 
     bucket = System.fetch_env!("BACKUP_BUCKET")

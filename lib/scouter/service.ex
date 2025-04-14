@@ -1,10 +1,10 @@
-defmodule Stats.Service do
+defmodule Scouter.Service do
   @moduledoc false
   use Schema, prefix: "service"
 
   import Ecto.Query
 
-  alias Stats.Services
+  alias Scouter.Services
 
   schema "services" do
     field :published, :boolean, default: true
@@ -94,7 +94,7 @@ defmodule Stats.Service do
 
   defimpl Phoenix.Param do
     def to_param(service) do
-      Stats.Service.name(service)
+      Scouter.Service.name(service)
     end
   end
 end

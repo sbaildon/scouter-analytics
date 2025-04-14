@@ -1,4 +1,4 @@
-# Stats
+# Scouter
 
 To start your Phoenix server:
 

@@ -1,6 +1,6 @@
-defmodule Stats.EventsRepo do
+defmodule Scouter.EventsRepo do
   use Ecto.Repo,
-    otp_app: :stats,
+    otp_app: :scouter,
     adapter: Ecto.Adapters.DuckDB
 
   alias Ecto.Query.Planner

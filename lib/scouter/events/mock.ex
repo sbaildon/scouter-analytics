@@ -1,6 +1,6 @@
-defmodule Stats.Events.Mock do
+defmodule Scouter.Events.Mock do
   @moduledoc false
-  alias Stats.Events
+  alias Scouter.Events
 
   def add_utm_parameters(event) do
     {utm_source, utm_medium, utm_campaign, utm_term, utm_content} = Enum.random(utm_parameters())
@@ -321,7 +321,7 @@ defmodule Stats.Events.Mock do
   end
 
   def add_site_and_namespace(event) do
-    service = Enum.random(Stats.Services.list_published())
+    service = Enum.random(Scouter.Services.list_published())
 
     event
     |> Map.replace(:namespace, service.name)

@@ -55,23 +55,23 @@ defmodule Dashboard.Telemetry do
       ),
 
       # Database Metrics
-      summary("stats.repo.query.total_time",
+      summary("scouter.repo.query.total_time",
         unit: {:native, :millisecond},
         description: "The sum of the other measurements"
       ),
-      summary("stats.repo.query.decode_time",
+      summary("scouter.repo.query.decode_time",
         unit: {:native, :millisecond},
         description: "The time spent decoding the data received from the database"
       ),
-      summary("stats.repo.query.query_time",
+      summary("scouter.repo.query.query_time",
         unit: {:native, :millisecond},
         description: "The time spent executing the query"
       ),
-      summary("stats.repo.query.queue_time",
+      summary("scouter.repo.query.queue_time",
         unit: {:native, :millisecond},
         description: "The time spent waiting for a database connection"
       ),
-      summary("stats.repo.query.idle_time",
+      summary("scouter.repo.query.idle_time",
         unit: {:native, :millisecond},
         description: "The time the connection spent waiting before being checked out for the query"
       ),

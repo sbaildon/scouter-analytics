@@ -2,15 +2,15 @@ defmodule Dashboard.StatsLive do
   @moduledoc false
   use Dashboard, :live_view
 
-  import Stats.Event, only: [aggregate: 1, aggregate: 2]
+  import Scouter.Event, only: [aggregate: 1, aggregate: 2]
 
   alias Dashboard.RateLimit
   alias Dashboard.StatsLive.Query
-  alias Stats.Aggregate
-  alias Stats.Events
-  alias Stats.EventsRepo
-  alias Stats.Queryable
-  alias Stats.Services
+  alias Scouter.Aggregate
+  alias Scouter.Events
+  alias Scouter.EventsRepo
+  alias Scouter.Queryable
+  alias Scouter.Services
 
   require Logger
 
@@ -111,7 +111,7 @@ defmodule Dashboard.StatsLive do
   end
 
   def to_atom(grouping_id) do
-    {:parameterized, {_, %{on_load: on_load}}} = Stats.TypedAggregate.__schema__(:type, :grouping_id)
+    {:parameterized, {_, %{on_load: on_load}}} = Scouter.TypedAggregate.__schema__(:type, :grouping_id)
     Map.fetch!(on_load, grouping_id)
   end
 
@@ -265,18 +265,18 @@ defmodule Dashboard.StatsLive do
   end
 
   # allow 127.0.0.1 as client_ip when in development
-  if Application.compile_env(:stats, :dev_routes) do
+  if Application.compile_env(:scouter, :dev_routes) do
     defp clients, do: ["127.0.0.1"]
   else
     defp clients, do: []
   end
 
   defp version do
-    :stats |> Application.spec(:vsn) |> to_string()
+    :scouter |> Application.spec(:vsn) |> to_string()
   end
 
   defp edition do
-    Application.fetch_env!(:stats, :edition)
+    Application.fetch_env!(:scouter, :edition)
   end
 
   defp fetch_aggregates(socket) when is_connected(socket) do
@@ -317,7 +317,7 @@ defmodule Dashboard.StatsLive do
 
     services =
       Enum.reduce(authorized_services, [], fn authorized_service, acc ->
-        if Stats.Service.name(authorized_service) in query.services,
+        if Scouter.Service.name(authorized_service) in query.services,
           do: [TypeID.uuid(authorized_service.id) | acc],
           else: acc
       end)

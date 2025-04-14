@@ -2,7 +2,7 @@ defmodule Telemetry.Broadway do
   @moduledoc false
   use Broadway
 
-  alias Stats.Events
+  alias Scouter.Events
 
   require Logger
 

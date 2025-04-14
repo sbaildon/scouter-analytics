@@ -1,11 +1,11 @@
 defmodule Telemetry.Endpoint do
-  use Phoenix.Endpoint, otp_app: :stats
+  use Phoenix.Endpoint, otp_app: :scouter
 
   if code_reloading? do
     socket "/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket
     plug Phoenix.LiveReloader
     plug Phoenix.CodeReloader
-    plug Phoenix.Ecto.CheckRepoStatus, otp_app: :stats
+    plug Phoenix.Ecto.CheckRepoStatus, otp_app: :scouter
   end
 
   plug Phoenix.LiveDashboard.RequestLogger,

@@ -1,4 +1,4 @@
-defmodule Stats.Event do
+defmodule Scouter.Event do
   @moduledoc false
   use Ecto.Schema
 
@@ -148,7 +148,7 @@ defmodule Stats.Event do
   def count_by(query, field) do
     from([{^named_binding(), event}] in query,
       group_by: field(event, ^field),
-      select: %Stats.Aggregate{count: count(field(event, ^field)), value: field(event, ^field)},
+      select: %Scouter.Aggregate{count: count(field(event, ^field)), value: field(event, ^field)},
       order_by: [desc: count(field(event, ^field))]
     )
   end
