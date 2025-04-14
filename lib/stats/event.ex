@@ -114,16 +114,16 @@ defmodule Stats.Event do
 
   def last_calendar(query, field) do
     from([{^named_binding(), event}] in query,
-      where: fragment("date_trunc(?, ?)", ^field, event.timestamp) < fragment("date_trunc(?, current_timestamp)", ^field),
+      where: fragment("timezone('UTC', ?)", event.timestamp) < fragment("date_trunc(?, current_timestamp)", ^field),
       where:
-        fragment("date_trunc(?, ?)", ^field, event.timestamp) >=
+        fragment("timezone('UTC', ?)", event.timestamp) >=
           fragment("date_trunc(?, current_timestamp) - ('1 ' || ?)::interval", ^field, ^field)
     )
   end
 
   def from_truncated_date(query, field) do
     from([{^named_binding(), event}] in query,
-      where: fragment("date_trunc(?, ?) >= date_trunc(?, current_timestamp)", ^field, event.timestamp, ^field)
+      where: fragment("timezone('UTC', ?) >= date_trunc(?, current_timestamp)", event.timestamp, ^field)
     )
   end
 
