@@ -15,8 +15,9 @@ defmodule Scouter.Services.Provider do
   def changeset(svc_provider, params) do
     svc_provider
     |> cast(params, [:service_id, :namespace])
+    |> validate_required([:service_id])
+    |> validate_required(:namespace, message: "Namespace required")
     |> unique_constraint(:namespace)
-    |> validate_required([:service_id, :namespace])
   end
 
   defp named_binding, do: :provider
