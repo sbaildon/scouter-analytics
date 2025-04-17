@@ -19,7 +19,7 @@ defmodule Scouter.Repo do
         {query, opts}
 
       ensure_explicit_service_query? ->
-        raise "need an explicit list of services"
+        {Ecto.Query.where(query, [service], service.id in []), opts}
 
       true ->
         {query, opts}
