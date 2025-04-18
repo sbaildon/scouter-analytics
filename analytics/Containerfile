@@ -2,7 +2,7 @@ FROM docker.io/library/elixir:1.18-alpine AS base
 
 ENV MIX_ENV=prod
 
-RUN apk add git cmake make gcc pkgconfig glib-dev musl-dev
+RUN apk add git cmake make clang pkgconfig glib-dev musl-dev
 RUN mkdir /app
 WORKDIR /app
 RUN mix local.hex --force
