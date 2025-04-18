@@ -4,10 +4,11 @@ ENV MIX_ENV=prod
 
 RUN apt-get update && \
 	apt-get install -y --no-install-recommends \
-	git \
-	cmake \
-	make \
+	ca-certificates \
 	clang \
+	cmake \
+	git \
+	make \
 	&& rm -rf /var/lib/apt/lists/*
 RUN mkdir /app
 WORKDIR /app
