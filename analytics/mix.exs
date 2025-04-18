@@ -92,10 +92,10 @@ defmodule Scouter.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
-      "assets.build": ["tailwind scouter", "esbuild scouter"],
+      "assets.build": ["tailwind dashboard", "esbuild dashboard"],
       "assets.deploy": [
-        "tailwind scouter --minify",
-        "esbuild scouter --minify",
+        "tailwind dashboard --minify",
+        "esbuild dashboard --minify",
         "phx.digest"
       ]
     ]
