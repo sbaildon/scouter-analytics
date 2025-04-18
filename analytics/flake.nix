@@ -22,6 +22,7 @@
           pkgs.duckdb
           pkgs.caddy
           pkgs.minio
+          pkgs.hivemind
           pkgs.imgproxy
           pkgs.minio-client
           pkgs.lima
