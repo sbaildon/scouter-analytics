@@ -8,8 +8,6 @@ RUN apt-get update && \
 	cmake \
 	make \
 	clang \
-	pkgconfig \
-	glib-dev \
 	&& rm -rf /var/lib/apt/lists/*
 RUN mkdir /app
 WORKDIR /app
