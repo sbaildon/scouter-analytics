@@ -2,8 +2,7 @@ FROM docker.io/library/elixir:1.18-slim AS base
 
 ENV MIX_ENV=prod
 
-RUN apt-get update && \
-	apt-get install -y --no-install-recommends \
+RUN apt-get install -y --no-install-recommends \
 	git \
 	cmake \
 	make \
