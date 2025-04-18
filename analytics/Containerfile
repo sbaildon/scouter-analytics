@@ -35,6 +35,6 @@ RUN mix release
 
 FROM docker.io/library/debian:12-slim AS release
 COPY --from=app /app/_build/prod/rel .
-ENTRYPOINT [ "/analytics/bin/analytics" ]
+ENTRYPOINT [ "/scouter/bin/scouter" ]
 CMD [ "start" ]
 
