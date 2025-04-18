@@ -10,7 +10,7 @@ proxy:
     nix run .#caddy -- run --watch
 
 olap:
-    nix shell nixpkgs#postgresql --command postgres -k $XDG_RUNTIME_DIR/scouter -D $XDG_STATE_HOME/scouter/event_db 
+    nix shell nixpkgs#postgresql --command postgres -k $XDG_RUNTIME_DIR/scouter -D $XDG_STATE_HOME/scouter/event_db
 
 storage:
     nix run .#minio -- server --address 127.0.0.1:${MINIO_API_PORT} --console-address 127.0.0.1:${MINIO_CONSOLE_PORT} ${XDG_DATA_HOME}/{{ otp_app }}
@@ -29,3 +29,18 @@ migrate repo=default_repo:
 
 rollback to repo=default_repo:
     mix ecto.rollback --no-compile -r {{ repo }} --to={{ to }}
+
+contain vm_name="builder":
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    limactl rm --force {{ vm_name }}
+    export BUILD_DIR=$(mktemp -d)
+    git clone . ${BUILD_DIR}
+    cat .ci/image.yaml \
+        | yq '.mounts = []' \
+        | yq '.mounts[0] = {"location": env(BUILD_DIR)}' \
+        | yq '.mounts[1] = {"location": env(XDG_CONFIG_HOME) + "/containers/", "mountPoint": "/run/containers/0/"}' \
+        | limactl create --name={{ vm_name }} -
+    limactl start {{ vm_name }}
+    limactl shell --workdir="${BUILD_DIR}" {{ vm_name }} .ci/build.sh
+    limactl rm --force {{ vm_name }}
