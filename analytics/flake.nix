@@ -17,18 +17,18 @@
       # https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/darwin/apple-sdk/frameworks.nix
       devShells.aarch64-darwin.default = pkgs.mkShell {
         buildInputs = with pkgs.darwin.apple_sdk.frameworks; [
+          AppKit
+          CoreServices
+          Foundation
           beamPkgs.elixir_1_18
-          pkgs.sqlite
-          pkgs.duckdb
           pkgs.caddy
-          pkgs.minio
+          pkgs.duckdb
           pkgs.hivemind
           pkgs.imgproxy
-          pkgs.minio-client
           pkgs.lima
-          Foundation
-          CoreServices
-          AppKit
+          pkgs.minio
+          pkgs.minio-client
+          pkgs.sqlite
         ];
       };
 
