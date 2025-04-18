@@ -1,8 +1,16 @@
-FROM docker.io/library/elixir:1.18-alpine AS base
+FROM docker.io/library/elixir:1.18-slim AS base
 
 ENV MIX_ENV=prod
 
-RUN apk add git cmake make clang pkgconfig glib-dev musl-dev
+RUN apt-get update && \
+	apt-get install -y --no-install-recommends \
+	git \
+	cmake \
+	make \
+	clang \
+	pkgconfig \
+	glib-dev \
+	&& rm -rf /var/lib/apt/lists/*
 RUN mkdir /app
 WORKDIR /app
 RUN mix local.hex --force
@@ -26,9 +34,8 @@ RUN mix compile
 COPY config/runtime.exs config/
 RUN mix release
 
-FROM docker.io/library/alpine:3.18 AS release
+FROM docker.io/library/debian:12-slim AS release
 COPY --from=app /app/_build/prod/rel .
-RUN apk add --no-cache ncurses-libs libstdc++ openssl
 ENTRYPOINT [ "/analytics/bin/analytics" ]
 CMD [ "start" ]
 
