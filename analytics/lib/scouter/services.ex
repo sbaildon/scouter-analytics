@@ -120,7 +120,7 @@ defmodule Scouter.Services do
     |> Service.with_primary_provider()
     |> service_query_opts(opts)
     |> EctoHelpers.preload()
-    |> Repo.list()
+    |> Repo.list(opts)
   end
 
   def list_published(opts \\ []) do
