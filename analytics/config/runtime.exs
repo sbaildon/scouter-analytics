@@ -107,10 +107,10 @@ config :scouter, Telemetry.Endpoint,
   ],
   secret_key_base: env!.("TELEMETRY_SECRET_KEY_BASE")
 
-config :stats, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
+config :scouter, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
 if config_env() == :prod do
-  config :stats, Stats.Mailer,
+  config :scouter, Scouter.Mailer,
     adapter: Swoosh.Adapters.Postmark,
     api_key: env!.("API_KEY_POSTMARK")
 end
