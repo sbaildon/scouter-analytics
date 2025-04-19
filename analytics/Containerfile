@@ -27,8 +27,9 @@ FROM deps AS app
 COPY priv ./priv
 COPY assets ./assets
 COPY lib ./lib
+RUN mix ua_inspector.download
+RUN mix ref_inspector.download
 RUN mix assets.deploy
-
 RUN mix compile
 COPY config/runtime.exs config/
 RUN mix release
