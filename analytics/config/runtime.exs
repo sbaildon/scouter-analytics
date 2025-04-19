@@ -13,13 +13,13 @@ convert = fn term, as ->
 end
 
 env! = fn var ->
-  System.fetch_env!(var)
-end
-
-env_lazy! = fn var, fallback_var ->
   case System.fetch_env(var) do
-    :error -> System.fetch_env!(fallback_var)
-    {:ok, value} -> value
+    {:ok, env} ->
+      env
+
+    :error ->
+      IO.puts(:stderr, "#{inspect(var)} envrionment is not set")
+      System.halt(1)
   end
 end
 
