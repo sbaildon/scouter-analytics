@@ -34,6 +34,10 @@ COPY config/runtime.exs config/
 RUN mix release
 
 FROM docker.io/library/debian:12-slim AS release
+RUN apt-get update && \
+	apt-get install -y --no-install-recommends \
+	openssl \
+	&& rm -rf /var/lib/apt/lists/*
 COPY --from=app /app/_build/prod/rel .
 ENTRYPOINT [ "/scouter/bin/scouter" ]
 CMD [ "start" ]
