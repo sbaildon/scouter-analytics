@@ -42,5 +42,7 @@ npm-debug.log
 *.duckdb.*
 
 /priv/mmdb/*
+/priv/ua_inspector/*
+/priv/ref_inspector/*
 *.sql
 *.js.map

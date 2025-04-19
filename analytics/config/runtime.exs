@@ -67,6 +67,12 @@ config :scouter, Dashboard.Endpoint,
   live_view: [signing_salt: env!.("DASHBOARD_SIGNING_SALT")],
   trusted_proxies: System.get_env("TRUSTED_PROXIES")
 
+config :ref_inspector,
+  init: {Scouter.Release, :configure_ref_inspector}
+
+config :ua_inspector,
+  init: {Scouter.Release, :configure_ua_inspector}
+
 config :scouter, Oban,
   plugins: [
     {Oban.Plugins.Cron,

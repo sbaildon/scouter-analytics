@@ -59,6 +59,14 @@ config :scouter, Telemetry.Endpoint,
   ],
   pubsub_server: Scouter.PubSub
 
+config :ref_inspector,
+  skip_download_readme: true,
+  database_path: "./priv/ref_inspector"
+
+config :ua_inspector,
+  skip_download_readme: true,
+  database_path: "./priv/ua_inspector"
+
 config :scouter,
   ecto_repos: [Scouter.Repo, Scouter.EventsRepo],
   app_name: "Scouter",
