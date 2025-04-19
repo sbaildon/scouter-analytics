@@ -13,6 +13,11 @@ defmodule Scouter.MixProject do
       listeners: [Phoenix.CodeReloader],
       elixirc_options: [
         warnings_as_errors: Mix.env() == :prod
+      ],
+      releases: [
+        scouter: [
+          include_executables_for: [:unix]
+        ]
       ]
     ]
   end
