@@ -2,9 +2,9 @@
 # Using the Alpine 3.18 aarch64 image with vmType=vz requires macOS Ventura 13.3 or later.
 
 images:
-  - location: "https://github.com/lima-vm/alpine-lima/releases/download/v0.2.30/alpine-lima-std-3.18.0-aarch64.iso"
+  - location: "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/cloud/nocloud_alpine-3.21.2-aarch64-uefi-cloudinit-r0.qcow2"
     arch: "aarch64"
-    digest: "sha512:48ca7c15ae66fc68d86b5e25a769c273e253aaba4fd9a70a4e7f21fdc420b53829ba9fe17b730922938941639c3ed93bf5a560b6ce4252f9df3200d9f8f73280"
+    digest: "sha512:08d340126b222abae651a20aa63c3ee3dc601d703de7879d2a6bc1fe82a3664d058a2c55ad0cf8a874327f7535e3af8a9384ce438217d6f32200cad1462a5b32"
 vmType: vz
 cpus: 2
 disk: "5GiB"
