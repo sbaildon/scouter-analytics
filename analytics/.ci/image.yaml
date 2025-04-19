@@ -14,7 +14,7 @@ provision:
       #!/bin/bash
       set -eux -o pipefail
       command -v podman >/dev/null 2>&1 && exit 0
-      apk add podman buildah
+      apk add podman buildah git
 containerd:
   system: false
   user: false
