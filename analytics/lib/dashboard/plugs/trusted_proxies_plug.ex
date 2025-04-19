@@ -12,9 +12,7 @@ defmodule Dashboard.TrustedProxiesPlug do
       {:ok, client_ip} = client_ip(conn)
 
       trusted_environment? =
-        Enum.any?(trusted_proxies, fn trusted ->
-          client_ip <= trusted.last && client_ip >= trusted.first
-        end)
+        Enum.any?(trusted_proxies, &trusted_client?(client_ip, &1))
 
       (trusted_environment? && trusted_environment(conn, trusted_proxies)) || untrusted_environment(conn)
     else
@@ -22,10 +20,22 @@ defmodule Dashboard.TrustedProxiesPlug do
     end
   end
 
+  defp trusted_client?(client_ip, trusted_proxy) do
+    client_ip <= trusted_proxy.last && client_ip >= trusted_proxy.first
+  end
+
   defp trusted_environment(conn, trusted_proxies),
     do: conn |> assign(:environment, :trusted) |> assign(:trusted_proxies, trusted_proxies)
 
-  defp untrusted_environment(conn), do: assign(conn, :environment, :untrusted)
+  defp untrusted_environment(conn) do
+    Logger.warning("connection received from a client other than a trusted proxy")
+
+    conn
+    |> assign(:environment, :untrusted)
+    |> send_resp(:internal_server_error, "internal server error")
+    |> halt()
+  end
+
   defp unspecified_environment(conn), do: assign(conn, :environment, :unspecified)
 
   defp client_ip(conn) do

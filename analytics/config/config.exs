@@ -49,8 +49,7 @@ config :scouter, Scouter.EventsRepo,
 
 config :scouter, Scouter.Repo,
   migration_primary_key: [name: :id, type: :uuid, null: false],
-  migration_timestamps: [type: :utc_datetime_usec],
-  service_queries_require_service_ids: true
+  migration_timestamps: [type: :utc_datetime_usec]
 
 config :scouter, Telemetry.Endpoint,
   adapter: Bandit.PhoenixAdapter,

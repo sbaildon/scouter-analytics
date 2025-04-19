@@ -27,7 +27,7 @@ defmodule Scouter.Repo do
   end
 
   defp ensure_explicit_service_query?({"services", Scouter.Service}) do
-    config()[:service_queries_require_service_ids] || false
+    System.get_env("TRUSTED_PROXIES")
   end
 
   defp ensure_explicit_service_query?(_) do
