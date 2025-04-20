@@ -38,6 +38,7 @@ FROM docker.io/library/debian:12-slim AS release
 ENV LANG=C.UTF-8
 RUN apt-get update && \
 	apt-get install -y --no-install-recommends \
+	ca-certificates \
 	openssl \
 	&& rm -rf /var/lib/apt/lists/*
 COPY --from=app /app/_build/prod/rel .
