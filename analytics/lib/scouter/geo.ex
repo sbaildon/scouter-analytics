@@ -48,8 +48,7 @@ defmodule Scouter.Geo do
       {:error, {:invalid_address, _address}} ->
         nil
 
-      {:error, reason} ->
-        Logger.warning(reason)
+      {:error, _reason} ->
         nil
     end
   end
