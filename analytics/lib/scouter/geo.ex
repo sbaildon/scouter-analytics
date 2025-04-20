@@ -10,11 +10,20 @@ defmodule Scouter.Geo do
 
   @impl true
   def init(opts) do
-    children = [
-      loader_child_spec(opts)
-    ]
+    case Keyword.fetch(opts, :database) do
+      {:ok, path} when is_binary(path) ->
+        children = [
+          loader_child_spec(opts)
+        ]
 
-    Supervisor.init(children, strategy: :one_for_one)
+        Supervisor.init(children, strategy: :one_for_one)
+
+      {:ok, nil} ->
+        :ignore
+
+      :error ->
+        :ignore
+    end
   end
 
   defp loader_child_spec(opts) do

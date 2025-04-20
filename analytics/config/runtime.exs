@@ -93,10 +93,7 @@ config :scouter, Scouter.EventsRepo,
   pool_size: 1
 
 config :scouter, Scouter.Geo,
-  database: Path.join([".", "/"] ++ Path.wildcard("./priv/mmdb/*.mmdb")),
-  maxmind_opts: [
-    license_key: env.("API_KEY_MAXMIND", nil)
-  ]
+  database: env.("MMDB_PATH", nil)
 
 config :scouter, Scouter.Repo,
   database: env!.("DATABASE_PATH"),
