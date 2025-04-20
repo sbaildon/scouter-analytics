@@ -28,8 +28,8 @@ COPY priv ./priv
 COPY assets ./assets
 COPY lib ./lib
 RUN mix assets.deploy
-RUN mix ua_inspector.download
-RUN mix ref_inspector.download
+RUN mix ua_inspector.download --force
+RUN mix ref_inspector.download --force
 RUN mix compile
 COPY config/runtime.exs config/
 RUN mix release
