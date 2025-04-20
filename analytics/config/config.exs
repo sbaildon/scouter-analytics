@@ -28,6 +28,10 @@ config :logger, :default_formatter,
 
 config :phoenix, :json_library, JSON
 
+config :ref_inspector,
+  skip_download_readme: true,
+  database_path: "./priv/ref_inspector"
+
 config :scouter, Dashboard.Endpoint,
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
@@ -59,14 +63,6 @@ config :scouter, Telemetry.Endpoint,
   ],
   pubsub_server: Scouter.PubSub
 
-config :ref_inspector,
-  skip_download_readme: true,
-  database_path: "./priv/ref_inspector"
-
-config :ua_inspector,
-  skip_download_readme: true,
-  database_path: "./priv/ua_inspector"
-
 config :scouter,
   ecto_repos: [Scouter.Repo, Scouter.EventsRepo],
   app_name: "Scouter",
@@ -84,5 +80,9 @@ config :tailwind,
 
 config :typeid_elixir,
   default_type: :uuid
+
+config :ua_inspector,
+  skip_download_readme: true,
+  database_path: "./priv/ua_inspector"
 
 import_config "#{config_env()}.exs"

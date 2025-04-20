@@ -57,6 +57,9 @@ httpfs_credentials = fn ->
   |> remove_prefix_and_group_by_name.()
 end
 
+config :ref_inspector,
+  init: {Scouter.Release, :configure_ref_inspector}
+
 config :scouter, Dashboard.Endpoint,
   url: [host: env!.("DASHBOARD_HOST"), port: 443, scheme: "https"],
   http: [
@@ -66,12 +69,6 @@ config :scouter, Dashboard.Endpoint,
   secret_key_base: env!.("DASHBOARD_SECRET_KEY_BASE"),
   live_view: [signing_salt: env!.("DASHBOARD_SIGNING_SALT")],
   trusted_proxies: System.get_env("TRUSTED_PROXIES")
-
-config :ref_inspector,
-  init: {Scouter.Release, :configure_ref_inspector}
-
-config :ua_inspector,
-  init: {Scouter.Release, :configure_ua_inspector}
 
 config :scouter, Oban,
   plugins: [
@@ -114,6 +111,9 @@ config :scouter, Telemetry.Endpoint,
   secret_key_base: env!.("TELEMETRY_SECRET_KEY_BASE")
 
 config :scouter, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
+
+config :ua_inspector,
+  init: {Scouter.Release, :configure_ua_inspector}
 
 if config_env() == :prod do
   config :scouter, Scouter.Mailer,

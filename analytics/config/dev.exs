@@ -30,6 +30,15 @@ config :scouter, Dashboard.Endpoint,
     ]
   ]
 
+config :scouter, Scouter.EventsRepo,
+  stacktrace: true,
+  show_sensitive_data_on_connection_error: true,
+  log: false
+
+config :scouter, Scouter.Repo,
+  stacktrace: true,
+  show_sensitive_data_on_connection_error: true
+
 config :scouter, Telemetry.Endpoint,
   check_origin: false,
   code_reloader: true,
@@ -43,15 +52,6 @@ config :scouter, Telemetry.Endpoint,
   ]
 
 config :scouter, dev_routes: true
-
-config :scouter, Scouter.EventsRepo,
-  stacktrace: true,
-  show_sensitive_data_on_connection_error: true,
-  log: false
-
-config :scouter, Scouter.Repo,
-  stacktrace: true,
-  show_sensitive_data_on_connection_error: true
 
 config :swoosh, :api_client, false
 
