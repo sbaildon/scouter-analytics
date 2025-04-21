@@ -80,7 +80,8 @@ defmodule Scouter.MixProject do
       {:broadway, "~> 1.2"},
       {:broadway_dashboard, "~> 0.4", only: [:dev, :test]},
       {:referrer_blocklist, git: "https://github.com/sbaildon/referrer-blocklist"},
-      {:cidr, "~> 1.2"}
+      {:cidr, "~> 1.2"},
+      {:systemd, "~> 0.6"}
     ]
   end
 
