@@ -7,24 +7,19 @@ defmodule Scouter.EventsRepo.BackupWorker do
     ],
     queue: :backups
 
+  import Ecto.Changeset
+
   alias Scouter.EventsRepo
 
-  def perform(_args) do
-    httpfs_credentials =
-      :scouter
-      |> Application.fetch_env!(Scouter.EventsRepo)
-      |> Keyword.fetch!(:httpfs_credentials)
+  defp bucket(name), do: System.fetch_env!("BACKUP_#{name}_BUCKET")
+  defp prefix(name), do: System.get_env("BACKUP_#{name}_PREFIX", "/")
 
-    bucket = System.fetch_env!("BACKUP_BUCKET")
-    prefix = System.get_env("BACKUP_PREFIX", "/")
-
-    root = Path.join(["s3://", bucket, prefix])
+  def perform(%{args: %{"name" => name}}) do
+    root = Path.join(["s3://", bucket(name), prefix(name)])
 
     EventsRepo.transaction(fn repo ->
-      Enum.each(httpfs_credentials, fn {name, credentials} ->
-        credentials_query = create_credentials_if_not_exists_query(name, credentials)
-        repo.query(credentials_query)
-      end)
+      credentials_query = create_credentials_if_not_exists_query(name)
+      repo.query(credentials_query)
 
       repo.query(migration_backup_query(root))
 
@@ -60,12 +55,39 @@ defmodule Scouter.EventsRepo.BackupWorker do
     """
   end
 
-  defp create_credentials_if_not_exists_query(name, opts) do
-    "CREATE TEMPORARY SECRET IF NOT EXISTS #{name} (" <> secret_options(opts) <> ");"
+  defp filter_backup_envs(envs) do
+    Enum.filter(envs, fn {k, _v} -> String.starts_with?(k, "BACKUP_") end)
   end
 
-  defp secret_options(options) do
-    secret_options(options, [])
+  defp remove_prefix_and_group_by_name(envs) do
+    Enum.reduce(envs, %{}, fn {k, v}, acc ->
+      %{"name" => name, "parameter" => parameter} =
+        Regex.named_captures(~r/^(?<prefix>BACKUP)_(?<name>[A-Za-z0-9]+)_(?<parameter>.+)$/, k)
+
+      Map.update(acc, name, %{parameter => v}, fn existing -> Map.put(existing, parameter, v) end)
+    end)
+  end
+
+  def config do
+    System.get_env()
+    |> filter_backup_envs()
+    |> remove_prefix_and_group_by_name()
+  end
+
+  def read_options!(name) do
+    Map.fetch!(config(), name)
+  end
+
+  defp create_credentials_if_not_exists_query(name) do
+    "CREATE TEMPORARY SECRET IF NOT EXISTS #{name} (" <> secret_options(name) <> ");"
+  end
+
+  defp secret_options(name) do
+    name
+    |> read_options!()
+    |> validate_duckdb_secret_parameters()
+    |> Enum.to_list()
+    |> secret_options([])
   end
 
   defp secret_options([], options) do
@@ -77,4 +99,13 @@ defmodule Scouter.EventsRepo.BackupWorker do
   end
 
   defp duplicate_if_state_is_any, do: [:retryable, :executing, :available, :scheduled]
+
+  defp validate_duckdb_secret_parameters(params) do
+    types = %{URL_STYLE: :string, ENDPOINT: :string, TYPE: :string, KEY_ID: :string, SECRET: :string, REGION: :string}
+
+    {%{}, types}
+    |> cast(params, Map.keys(types))
+    |> validate_required(Map.keys(types))
+    |> apply_action!(:validate)
+  end
 end

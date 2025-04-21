@@ -1,5 +1,7 @@
 import Config
 
+alias Scouter.EventsRepo.BackupWorker
+
 convert = fn term, as ->
   case as do
     :integer ->
@@ -40,23 +42,6 @@ end
 # s3_endpoint =
 #   Regex.named_captures(~r/^(?<proto>.+):\/\/(?<endpoint>.+):(?<port>\d+)$/, env!.("S3_ENDPOINT"))
 
-reject_unless_prefixed = fn enum ->
-  Enum.filter(enum, fn {k, _v} -> String.starts_with?(k, "HTTPFS_") end)
-end
-
-remove_prefix_and_group_by_name = fn enum ->
-  Enum.reduce(enum, %{}, fn {k, v}, acc ->
-    %{"name" => name, "rest" => rest} = Regex.named_captures(~r/^(?<prefix>HTTPFS)_(?<name>[A-Za-z0-9]+)_(?<rest>.+)$/, k)
-    Map.update(acc, name, [{rest, v}], fn existing -> [{rest, v} | existing] end)
-  end)
-end
-
-httpfs_credentials = fn ->
-  System.get_env()
-  |> reject_unless_prefixed.()
-  |> remove_prefix_and_group_by_name.()
-end
-
 config :ref_inspector,
   init: {Scouter.Release, :configure_ref_inspector}
 
@@ -73,14 +58,14 @@ config :scouter, Dashboard.Endpoint,
 config :scouter, Oban,
   plugins: [
     {Oban.Plugins.Cron,
-     crontab: [
-       {env.("BACKUP_SCHEDULE", "05 4 * * 2"), Scouter.EventsRepo.BackupWorker}
-     ]}
+     crontab:
+       Enum.map(BackupWorker.config(), fn {name, options} ->
+         {Map.fetch!(options, "SCHEDULE"), BackupWorker, args: %{name: name}}
+       end)}
   ]
 
 config :scouter, Scouter.EventsRepo,
   database: env.("EVENT_DATABASE_PATH", "/var/lib/scouter/events.duckdb"),
-  httpfs_credentials: httpfs_credentials.(),
   pool_size: 1
 
 # config :scouter, Objex,
