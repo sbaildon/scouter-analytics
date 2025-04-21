@@ -77,8 +77,7 @@ config :scouter, Scouter.EventsRepo,
 #   region: env.("AWS_REGION", "auto"),
 #   http_client: {Finch, name: Scouter.Finch}
 
-config :scouter, Scouter.Geo,
-  database: env.("MMDB_PATH", nil)
+config :scouter, Scouter.Geo, database: env.("MMDB_PATH", nil)
 
 config :scouter, Scouter.Repo,
   database: env.("DATABASE_PATH", "/var/lib/scouter/service.db"),
