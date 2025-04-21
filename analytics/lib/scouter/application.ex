@@ -5,13 +5,15 @@ defmodule Scouter.Application do
 
   use Application
 
+  require Logger
+
   @impl true
   def start(_type, _args) do
     children = [
       Scouter.Repo,
       Scouter.Writer,
       Scouter.EventsRepo,
-      {Oban, Application.fetch_env!(:scouter, Oban)},
+      {Oban, oban_config(:scouter)},
       {ReferrerBlocklist, [http_client: Req]},
       Scouter.Services,
       Telemetry,
@@ -36,6 +38,22 @@ defmodule Scouter.Application do
   def config_change(changed, new, removed) do
     Dashboard.changed(changed, new, removed)
     :ok
+  end
+
+  defp oban_config(otp_app) do
+    config = Application.fetch_env!(otp_app, Oban)
+
+    config
+    |> Keyword.fetch!(:plugins)
+    |> List.keyfind(Oban.Plugins.Cron, 0)
+    |> elem(1)
+    |> Keyword.get(:crontab)
+    |> case do
+      [] -> Logger.warning("backups disabled. no configuration provided")
+      _ -> nil
+    end
+
+    config
   end
 
   defp skip_migrations? do
