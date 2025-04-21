@@ -46,3 +46,4 @@ npm-debug.log
 /priv/ref_inspector/*
 *.sql
 *.js.map
+/bin/*
