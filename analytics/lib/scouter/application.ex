@@ -9,6 +9,7 @@ defmodule Scouter.Application do
   def start(_type, _args) do
     children = [
       Scouter.Repo,
+      Scouter.Writer,
       Scouter.EventsRepo,
       {Oban, Application.fetch_env!(:scouter, Oban)},
       {ReferrerBlocklist, [http_client: Req]},

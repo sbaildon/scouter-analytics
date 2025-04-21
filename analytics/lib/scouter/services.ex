@@ -6,6 +6,7 @@ defmodule Scouter.Services do
   alias Scouter.Repo
   alias Scouter.Service
   alias Scouter.Services
+  alias Scouter.Writer, as: WRepo
 
   def start_link(init_arg) do
     Supervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
@@ -33,7 +34,7 @@ defmodule Scouter.Services do
     |> Multi.delete_all(:provides, Services.Provider.where_service(service_id))
     |> Multi.one(:service, Service.where_id(service_id))
     |> Multi.delete(:delete, fn %{service: service} -> service end)
-    |> Repo.transaction()
+    |> WRepo.transaction()
     |> EctoHelpers.take_from_multi(:service)
   end
 
@@ -60,7 +61,7 @@ defmodule Scouter.Services do
       namespace: namespace
     }
     |> Services.Provider.changeset()
-    |> Repo.insert()
+    |> WRepo.insert()
   end
 
   def register(namespace, opts) do
@@ -74,7 +75,7 @@ defmodule Scouter.Services do
     |> Multi.update(:primary_provider, fn %{service: service, service_provider: service_provider} ->
       Service.set_primary_provider(service, service_provider.id)
     end)
-    |> Repo.transaction()
+    |> WRepo.transaction()
     |> EctoHelpers.take_from_multi(:service)
   end
 
@@ -99,7 +100,7 @@ defmodule Scouter.Services do
     |> Multi.one(:read_after_write, fn _ ->
       read_query
     end)
-    |> Repo.transaction()
+    |> WRepo.transaction()
     |> EctoHelpers.take_from_multi(:read_after_write)
   end
 
