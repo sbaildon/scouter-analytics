@@ -25,7 +25,12 @@ defmodule Scouter.EventsRepo.BackupWorker do
 
       events_table_name = "events"
       repo.query(events_backup_query(root, events_table_name), [events_table_name])
+      repo.query(delete_credentials_query(name))
     end)
+  end
+
+  defp delete_credentials_query(name) do
+    "DROP TEMPORARY SECRET #{name};"
   end
 
   def migration_backup_query(root) do
