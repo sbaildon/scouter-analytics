@@ -79,7 +79,7 @@ config :tailwind,
   ]
 
 config :typeid_elixir,
-  default_type: :uuid
+  default_type: :binary
 
 config :ua_inspector,
   skip_download_readme: true,
