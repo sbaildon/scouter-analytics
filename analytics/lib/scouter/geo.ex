@@ -18,10 +18,8 @@ defmodule Scouter.Geo do
 
         Supervisor.init(children, strategy: :one_for_one)
 
-      {:ok, nil} ->
-        :ignore
-
-      :error ->
+      _ ->
+        Logger.info(msg: "no maxmind database configured, geolocation service unavailable")
         :ignore
     end
   end
