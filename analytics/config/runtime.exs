@@ -42,6 +42,32 @@ end
 # s3_endpoint =
 #   Regex.named_captures(~r/^(?<proto>.+):\/\/(?<endpoint>.+):(?<port>\d+)$/, env!.("S3_ENDPOINT"))
 
+http = fn ->
+  case :systemd.listen_fds() do
+    [{fd, _name} | []] ->
+      :systemd.unset_env(:listen_fds)
+      [
+        thousand_island_options: [
+          port: 0,
+          transport_options: [
+            {:fd, fd},
+            :local
+          ]
+        ]
+      ]
+
+    [_ | _] = fds ->
+      IO.puts(:stderr, "expected only 1 fd for socket activation, got #{length(fds)}")
+      System.halt(1)
+
+    [] ->
+      [
+        ip: {0, 0, 0, 0, 0, 0, 0, 0},
+        port: env_as.("TELEMETRY_PORT", "4001", :integer)
+      ]
+  end
+end
+
 config :ref_inspector,
   init: {Scouter.Release, :configure_ref_inspector}
 
@@ -68,15 +94,6 @@ config :scouter, Scouter.EventsRepo,
   database: env.("EVENT_DATABASE_PATH", "/var/lib/scouter/events.duckdb"),
   pool_size: 1
 
-# config :scouter, Objex,
-#   access_key_id: env!.("AWS_ACCESS_KEY_ID"),
-#   secret_access_key: env!.("AWS_SECRET_KEY"),
-#   proto: Map.fetch!(s3_endpoint, "proto"),
-#   endpoint: Map.fetch!(s3_endpoint, "endpoint"),
-#   port: Map.fetch!(s3_endpoint, "port"),
-#   region: env.("AWS_REGION", "auto"),
-#   http_client: {Finch, name: Scouter.Finch}
-
 config :scouter, Scouter.Geo, database: env.("MMDB_PATH", nil)
 
 config :scouter, Scouter.Repo,
@@ -85,10 +102,7 @@ config :scouter, Scouter.Repo,
 
 config :scouter, Telemetry.Endpoint,
   url: [host: env!.("TELEMETRY_HOST"), port: 443, scheme: "https"],
-  http: [
-    ip: {0, 0, 0, 0, 0, 0, 0, 0},
-    port: env_as.("TELEMETRY_PORT", "4001", :integer)
-  ],
+  http: http.(),
   secret_key_base: env!.("TELEMETRY_SECRET_KEY_BASE")
 
 config :scouter, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
@@ -101,3 +115,12 @@ if config_env() == :prod do
     adapter: Swoosh.Adapters.Postmark,
     api_key: env!.("API_KEY_POSTMARK")
 end
+
+# config :scouter, Objex,
+#   access_key_id: env!.("AWS_ACCESS_KEY_ID"),
+#   secret_access_key: env!.("AWS_SECRET_KEY"),
+#   proto: Map.fetch!(s3_endpoint, "proto"),
+#   endpoint: Map.fetch!(s3_endpoint, "endpoint"),
+#   port: Map.fetch!(s3_endpoint, "port"),
+#   region: env.("AWS_REGION", "auto"),
+#   http_client: {Finch, name: Scouter.Finch}
