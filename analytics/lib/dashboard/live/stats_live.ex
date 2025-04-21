@@ -51,12 +51,12 @@ defmodule Dashboard.StatsLive do
     %{caveats: service_ids} = socket.assigns
 
     case Services.get_by_name(service, only: service_ids) do
-      nil ->
-        assign(socket, :services, [])
-
       {:ok, service} ->
         Logger.debug(service: service)
         assign(socket, :services, List.wrap(service))
+
+      :error ->
+        assign(socket, :services, [])
     end
   end
 
