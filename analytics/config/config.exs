@@ -6,7 +6,8 @@ config :ecto_sqlite3,
   binary_id_type: :binary,
   uuid_type: :binary,
   foreign_keys: :on,
-  journal_mode: :wal
+  journal_mode: :wal,
+  json_library: JSON
 
 config :esbuild,
   version: "0.17.11",
