@@ -7,7 +7,7 @@ defmodule Scouter.Application do
 
   require Logger
 
-  @impl true
+  @impl Application
   def start(_type, _args) do
     children = [
       Scouter.Repo,
@@ -32,9 +32,14 @@ defmodule Scouter.Application do
     Supervisor.start_link(children, opts)
   end
 
+  @impl Application
+  def start_phase(:post_start, :normal, _args) do
+    :systemd.unset_env(:listen_fds)
+  end
+
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.
-  @impl true
+  @impl Application
   def config_change(changed, new, removed) do
     Dashboard.changed(changed, new, removed)
     :ok

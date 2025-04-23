@@ -11,12 +11,23 @@ defmodule Dashboard do
   def init(_opts) do
     children = [
       Dashboard.Telemetry,
-      Dashboard.Endpoint,
+      {Dashboard.Endpoint, endpoint_config()},
       {Dashboard.RateLimit, clean_period: to_timeout(minute: 10)}
     ]
 
     opts = [strategy: :one_for_one]
     Supervisor.init(children, opts)
+  end
+
+  defp endpoint_config do
+    [http: http()]
+  end
+
+  defp http do
+    case :systemd.listen_fds() do
+      [] -> Socket.af_inet6("DASHBOARD_PORT", "4000")
+      fds -> Socket.socket_activation(fds, Socket.name!("DASHBOARD_SOCKET"))
+    end
   end
 
   def changed(changed, _new, removed) do

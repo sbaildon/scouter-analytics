@@ -42,41 +42,11 @@ end
 # s3_endpoint =
 #   Regex.named_captures(~r/^(?<proto>.+):\/\/(?<endpoint>.+):(?<port>\d+)$/, env!.("S3_ENDPOINT"))
 
-http = fn ->
-  case :systemd.listen_fds() do
-    [{fd, _name} | []] ->
-      :systemd.unset_env(:listen_fds)
-      [
-        thousand_island_options: [
-          port: 0,
-          transport_options: [
-            {:fd, fd},
-            :local
-          ]
-        ]
-      ]
-
-    [_ | _] = fds ->
-      IO.puts(:stderr, "expected only 1 fd for socket activation, got #{length(fds)}")
-      System.halt(1)
-
-    [] ->
-      [
-        ip: {0, 0, 0, 0, 0, 0, 0, 0},
-        port: env_as.("TELEMETRY_PORT", "4001", :integer)
-      ]
-  end
-end
-
 config :ref_inspector,
   init: {Scouter.Release, :configure_ref_inspector}
 
 config :scouter, Dashboard.Endpoint,
   url: [host: env!.("DASHBOARD_HOST"), port: 443, scheme: "https"],
-  http: [
-    ip: {0, 0, 0, 0, 0, 0, 0, 0},
-    port: env_as.("DASHBOARD_PORT", "4000", :integer)
-  ],
   secret_key_base: env!.("DASHBOARD_SECRET_KEY_BASE"),
   live_view: [signing_salt: env!.("DASHBOARD_SIGNING_SALT")],
   trusted_proxies: System.get_env("TRUSTED_PROXIES")
@@ -102,7 +72,6 @@ config :scouter, Scouter.Repo,
 
 config :scouter, Telemetry.Endpoint,
   url: [host: env!.("TELEMETRY_HOST"), port: 443, scheme: "https"],
-  http: http.(),
   secret_key_base: env!.("TELEMETRY_SECRET_KEY_BASE")
 
 config :scouter, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
