@@ -31,7 +31,7 @@ defmodule Dashboard.StylesheetController do
     |> String.split(";", trim: true)
   end
 
-  defp header, do: "x-custom-css"
+  defp header, do: "x-custom-stylesheets"
 
   defp no_content(conn), do: conn |> put_resp_content_type("text/css") |> send_resp(204, "")
 end
