@@ -33,5 +33,5 @@ defmodule Dashboard.StylesheetController do
 
   defp header, do: "x-custom-css"
 
-  defp no_content(conn), do: send_resp(conn, 204, "")
+  defp no_content(conn), do: conn |> put_resp_content_type("text/css") |> send_resp(204, "")
 end
