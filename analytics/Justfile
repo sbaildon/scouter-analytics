@@ -6,8 +6,8 @@ otp_app := "scouter"
 serve:
     iex -S mix phx.server
 
-proxy:
-    nix run .#caddy -- run --watch
+proxy config="Caddyfile":
+    nix run .#caddy -- run --config={{ config }} --watch
 
 olap:
     nix shell nixpkgs#postgresql --command postgres -k $XDG_RUNTIME_DIR/scouter -D $XDG_STATE_HOME/scouter/event_db
