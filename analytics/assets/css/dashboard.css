@@ -5,20 +5,15 @@
 @source "../../lib/dashboard";
 @source "./dashboard.css";
 @source "../../priv/static/css/*.css";
+@layer custom
+
 
 [data-phx-root-id] {
 	display: contents;
 }
 
-@font-face {
-	font-family: "Berkeley Mono";
-	src: url(/fonts/berkeley-mono-regular.woff2) format("woff2");
-}
-
 @theme {
 	--text-base: 14px;
-	--font-mono: ui-monospace, "Berkeley Mono", SFMono-Regular, Menlo, Monaco,
-		Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
 section[data-tabs] {
