@@ -39,8 +39,8 @@ env_as = fn var, default, as ->
   convert.(env, as)
 end
 
-# s3_endpoint =
-#   Regex.named_captures(~r/^(?<proto>.+):\/\/(?<endpoint>.+):(?<port>\d+)$/, env!.("S3_ENDPOINT"))
+s3_endpoint =
+  Regex.named_captures(~r/^(?<proto>.+):\/\/(?<endpoint>.+):(?<port>\d+)$/, env!.("S3_ENDPOINT"))
 
 config :ref_inspector,
   init: {Scouter.Release, :configure_ref_inspector}
@@ -85,11 +85,11 @@ if config_env() == :prod do
     api_key: env!.("API_KEY_POSTMARK")
 end
 
-# config :scouter, Objex,
-#   access_key_id: env!.("AWS_ACCESS_KEY_ID"),
-#   secret_access_key: env!.("AWS_SECRET_KEY"),
-#   proto: Map.fetch!(s3_endpoint, "proto"),
-#   endpoint: Map.fetch!(s3_endpoint, "endpoint"),
-#   port: Map.fetch!(s3_endpoint, "port"),
-#   region: env.("AWS_REGION", "auto"),
-#   http_client: {Finch, name: Scouter.Finch}
+config :scouter, Objex,
+  access_key_id: env!.("AWS_ACCESS_KEY_ID"),
+  secret_access_key: env!.("AWS_SECRET_KEY"),
+  proto: Map.fetch!(s3_endpoint, "proto"),
+  endpoint: Map.fetch!(s3_endpoint, "endpoint"),
+  port: Map.fetch!(s3_endpoint, "port"),
+  region: env.("AWS_REGION", "auto"),
+  http_client: {Finch, name: Scouter.Finch}

@@ -29,8 +29,8 @@ defmodule Dashboard.Endpoint do
   plug Dashboard.TrustedProxiesPlug
   plug Dashboard.RemoteIPPlug
 
-  # plug Objex.Plug,
-  #   paths: Dashboard.object_paths()
+  plug Objex.Plug,
+    paths: Dashboard.object_paths()
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
