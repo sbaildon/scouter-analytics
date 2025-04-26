@@ -1,0 +1,8 @@
+#!/usr/bin/env nix
+#! nix shell .#lima .#fish --command fish
+
+set -l image (limactl shell builder sudo podman images --noheading --format "{{.Repository}}:{{.Tag}}" | rg analytics)
+
+set -l size (limactl shell builder -- sudo podman image inspect $image --format='{{.Size}}')
+
+limactl shell builder sudo podman save $image | pv -s $size | limactl shell elixir sudo podman load

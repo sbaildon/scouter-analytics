@@ -68,5 +68,7 @@
       };
 
       packages.aarch64-darwin.default = beamPkgs.elixir_1_18;
+      packages.aarch64-darwin.lima = pkgs.lima;
+      packages.aarch64-darwin.fish = pkgs.fish;
     };
 }
