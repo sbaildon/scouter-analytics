@@ -15,6 +15,12 @@ olap:
 storage:
     nix run .#minio -- server --address 127.0.0.1:${MINIO_API_PORT} --console-address 127.0.0.1:${MINIO_CONSOLE_PORT} ${XDG_DATA_HOME}/{{ otp_app }}
 
+vm name='elixir' filename='elixir':
+    #!/usr/bin/env fish
+    cat dev/virtual_machines/{{ filename }}.yaml \
+        | yq '.mounts += {"location": "'$(pwd)'", "writeable": true}' \
+        | limactl start --name={{ name }} -
+
 reset-db repo=default_repo:
     mix ecto.drop -r {{ repo }}
     just setup-db {{ repo }}
