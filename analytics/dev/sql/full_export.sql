@@ -1,0 +1,1 @@
+EXPORT DATABASE 'out/events_db' (FORMAT parquet, OVERWRITE_OR_IGNORE,)
