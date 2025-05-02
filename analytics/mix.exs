@@ -4,7 +4,7 @@ defmodule Scouter.MixProject do
   def project do
     [
       app: :scouter,
-      version: "0.0.0-dev",
+      version: version(),
       elixir: "~> 1.15",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -21,6 +21,16 @@ defmodule Scouter.MixProject do
       ]
     ]
   end
+
+  defp version do
+    "0.0.0"
+    |> maybe_append_version_suffix(Mix.env())
+    |> to_string()
+  end
+
+  defp maybe_append_version_suffix(version, nil), do: version
+  defp maybe_append_version_suffix(version, :prod), do: version
+  defp maybe_append_version_suffix(version, suffix), do: "#{version}-#{suffix}"
 
   # Configuration for the OTP application.
   #
