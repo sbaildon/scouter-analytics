@@ -19,7 +19,7 @@ defmodule Dashboard.FromPlug do
   defp maybe_assign_from(conn) do
     case List.keyfind(conn.req_headers, "from", 0) do
       {_, from} ->
-        Logger.warning(from: from)
+        Logger.debug(from: from)
         conn |> put_session(:from, from) |> assign(:from, from)
 
       nil ->
