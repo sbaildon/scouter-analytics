@@ -106,7 +106,13 @@
 
 	// Get the endpoint to send requests to.
 	var get_endpoint = function () {
-		return document.currentScript.dataset.endpoint;
+		return document.currentScript.dataset.endpoint || default_endpoint();
+	};
+
+	var default_endpoint = function () {
+		const src = new URL(document.currentScript.src);
+
+		return new URL("/telemetry", src.href).href;
 	};
 
 	// Get current path.
