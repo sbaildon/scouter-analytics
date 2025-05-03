@@ -5,7 +5,7 @@ defmodule Socket do
   end
 
   defp fd!(fds, name) do
-    List.keyfind(fds, to_charlist(name), 1) || raise "#{name} was not passed as a named socket"
+    List.keyfind(fds, to_charlist(name), 1) || raise "#{name} was not passed as a named socket, received #{inspect(fds)}"
   end
 
   def socket_activation(fds, socket_name) do
