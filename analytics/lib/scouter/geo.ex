@@ -5,33 +5,31 @@ defmodule Scouter.Geo do
   require Logger
 
   def start_link(init_arg) do
-    Supervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
+    Supervisor.start_link(__MODULE__, Map.new(init_arg), name: __MODULE__)
   end
 
   @impl true
   def init(opts) do
-    case Keyword.fetch(opts, :database) do
-      {:ok, path} when is_binary(path) ->
-        children = [
-          loader_child_spec(opts)
-        ]
+    case resolve_loader(opts) do
+      {:ok, loader} ->
+        Supervisor.init([loader], strategy: :one_for_one)
 
-        Supervisor.init(children, strategy: :one_for_one)
-
-      _ ->
-        Logger.info(msg: "no maxmind database configured, geolocation service unavailable")
+      :ignore ->
+        Logger.info(msg: "no geoip database configured, geolocation service unavailable")
         :ignore
     end
   end
 
-  defp loader_child_spec(opts) do
-    case Keyword.fetch!(opts, :database) do
-      {:maxmind, _} = db ->
-        maxmind_opts = Keyword.fetch!(opts, :maxmind_opts)
-        :locus.loader_child_spec(:ipdb, db, maxmind_opts)
+  defp resolve_loader(opts) do
+    case opts do
+      %{database_path: nil, maxmind: {nil, _}} ->
+        :ignore
 
-      path ->
-        :locus.loader_child_spec(:ipdb, path)
+      %{maxmind: {api_key, edition}} when is_binary(api_key) ->
+        {:ok, :locus.loader_child_spec(:ipdb, {:maxmind, edition}, license_key: api_key)}
+
+      %{database_path: path} when is_binary(path) ->
+        {:ok, :locus.loader_child_spec(:ipdb, path)}
     end
   end
 
