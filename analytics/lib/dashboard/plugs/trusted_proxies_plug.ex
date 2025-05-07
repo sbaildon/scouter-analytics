@@ -13,12 +13,15 @@ defmodule Dashboard.TrustedProxiesPlug do
         |> get_req_header("x-forwarded-for")
         |> Enum.flat_map(&parse_header/1)
 
+      client_and_proxy_pairs =
+        for client <- forwarded_for, trusted_proxy <- trusted_proxies do
+          {client, trusted_proxy}
+        end
+
       trusted_environment? =
-        [trusted_proxies, forwarded_for]
-        |> Enum.zip()
-        |> Enum.any?(fn {proxy, forwarded} ->
-          Logger.debug(proxy: proxy, forwarded: forwarded)
-          trusted_client?(forwarded, proxy)
+        Enum.any?(client_and_proxy_pairs, fn {client, proxy} ->
+          Logger.debug(proxy: proxy, forwarded: client)
+          trusted_client?(client, proxy)
         end)
 
       (trusted_environment? && trusted_environment(conn)) || untrusted_environment(conn, forwarded_for, trusted_proxies)
