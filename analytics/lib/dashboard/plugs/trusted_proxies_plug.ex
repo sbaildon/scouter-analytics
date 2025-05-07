@@ -37,8 +37,7 @@ defmodule Dashboard.TrustedProxiesPlug do
     client_ip <= trusted_proxy.last && client_ip >= trusted_proxy.first
   end
 
-  defp trusted_environment(conn),
-    do: conn |> clear_session() |> assign(:environment, :trusted) |> put_session(:environment, :trusted)
+  defp trusted_environment(conn), do: conn |> assign(:environment, :trusted) |> put_session(:environment, :trusted)
 
   defp untrusted_environment(conn, forwarded_for, trusted_proxies) do
     Logger.warning(
