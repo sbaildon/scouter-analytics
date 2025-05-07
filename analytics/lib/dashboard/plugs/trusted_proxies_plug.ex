@@ -65,6 +65,9 @@ defmodule Dashboard.TrustedProxiesPlug do
   end
 
   def parse_cidr!("::ffff:" <> _ = network) do
+  def trusted_proxies_remote_ip do
+    Enum.map(trusted_proxies() || [], &to_string/1)
+  end
     case CIDR.parse(network) do
       {:error, reason} -> raise "#{inspect(reason)}"
       cidr -> cidr

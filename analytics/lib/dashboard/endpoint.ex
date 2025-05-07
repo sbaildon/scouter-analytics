@@ -27,7 +27,6 @@ defmodule Dashboard.Endpoint do
     only: Dashboard.static_paths()
 
   plug Dashboard.TrustedProxiesPlug
-  plug Dashboard.RemoteIPPlug
 
   plug Objex.Plug,
     paths: Dashboard.object_paths()
@@ -47,6 +46,10 @@ defmodule Dashboard.Endpoint do
 
   plug Plug.RequestId
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
+
+  plug RemoteIp,
+    headers: ["x-forwarded-for"],
+    proxies: {Dashboard.TrustedProxiesPlug, :trusted_proxies_remote_ip, []}
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
