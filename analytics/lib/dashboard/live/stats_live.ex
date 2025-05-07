@@ -25,7 +25,6 @@ defmodule Dashboard.StatsLive do
     socket
     |> authorized_services(query)
     |> available()
-    |> assign(:debug, %{query_time: 0, query_version: nil})
     |> assign(:version, version())
     |> assign(:edition, edition())
     |> configure_stream_for_aggregate_fields()
@@ -69,14 +68,9 @@ defmodule Dashboard.StatsLive do
   end
 
   defp update_aggregate_streams(stream) do
-    arg = fn ->
+    EventsRepo.transaction(fn ->
       version_b(stream)
-    end
-
-    {time, your_func_result} = :timer.tc(EventsRepo, :transaction, [arg])
-
-    send(self(), {:query_time, {time, :b}})
-    your_func_result
+    end)
   end
 
   def version_a(stream) do
@@ -133,11 +127,6 @@ defmodule Dashboard.StatsLive do
   end
 
   defp stream_empty_aggregates(socket), do: Enum.reduce(aggregate_fields(), socket, &stream(&2, &1, [], reset: true))
-
-  @impl true
-  def handle_info({:query_time, {time, version}}, socket) do
-    {:noreply, update(socket, :debug, fn debug -> %{debug | query_version: version, query_time: time} end)}
-  end
 
   @impl true
   def handle_info(:fetch_aggregates, socket) do
