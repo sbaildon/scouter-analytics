@@ -4,6 +4,7 @@ defmodule Dashboard.Router do
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
+    plug Dashboard.TrustedProxiesPlug
     plug :fetch_live_flash
     plug :put_root_layout, html: {Dashboard.Layouts, :root}
     plug :protect_from_forgery

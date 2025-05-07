@@ -1,6 +1,5 @@
 defmodule Dashboard.TrustedProxiesPlug do
   @moduledoc false
-  import Bitwise
   import Plug.Conn
 
   require Logger
@@ -9,23 +8,34 @@ defmodule Dashboard.TrustedProxiesPlug do
 
   def call(conn, _opts) do
     if trusted_proxies = trusted_proxies() do
-      {:ok, client_ip} = client_ip(conn)
+      forwarded_for =
+        conn
+        |> get_req_header("x-forwarded-for")
+        |> Enum.flat_map(&parse_header/1)
 
       trusted_environment? =
-        Enum.any?(trusted_proxies, &trusted_client?(client_ip, &1))
+        [trusted_proxies, forwarded_for]
+        |> Enum.zip()
+        |> Enum.any?(fn {proxy, forwarded} ->
+          Logger.debug(proxy: proxy, forwarded: forwarded)
+          trusted_client?(forwarded, proxy)
+        end)
 
-      (trusted_environment? && trusted_environment(conn, trusted_proxies)) || untrusted_environment(conn)
+      (trusted_environment? && trusted_environment(conn)) || untrusted_environment(conn)
     else
       unspecified_environment(conn)
     end
   end
 
+  defp parse_header("for=" <> _ = header), do: RemoteIp.Parsers.Forwarded.parse(header)
+  defp parse_header(header), do: RemoteIp.Parsers.Generic.parse(header)
+
   defp trusted_client?(client_ip, trusted_proxy) do
     client_ip <= trusted_proxy.last && client_ip >= trusted_proxy.first
   end
 
-  defp trusted_environment(conn, trusted_proxies),
-    do: conn |> assign(:environment, :trusted) |> assign(:trusted_proxies, trusted_proxies)
+  defp trusted_environment(conn),
+    do: conn |> clear_session() |> assign(:environment, :trusted) |> put_session(:environment, :trusted)
 
   defp untrusted_environment(conn) do
     Logger.warning("connection received from a client other than a trusted proxy")
@@ -36,21 +46,8 @@ defmodule Dashboard.TrustedProxiesPlug do
     |> halt()
   end
 
-  defp unspecified_environment(conn), do: assign(conn, :environment, :unspecified)
-
-  defp client_ip(conn) do
-    {:ok,
-     conn
-     |> Map.fetch!(:remote_ip)
-     |> to_ipv6()}
-  end
-
-  defp to_ipv6({_, _, _, _} = ipv4), do: map_v4_to_v6(ipv4)
-  defp to_ipv6({_, _, _, _, _, _, _, _} = ipv6), do: ipv6
-
-  defp map_v4_to_v6({a, b, c, d}), do: {0, 0, 0, 0, 0, 65_535, (a <<< 8) + b, (c <<< 8) + d}
-
-  defp ipv4_mapped_prefix, do: "::ffff:"
+  defp unspecified_environment(conn),
+    do: conn |> clear_session() |> assign(:environment, :unspecified) |> put_session(:environment, :unspecified)
 
   defp trusted_proxies do
     case Dashboard.Endpoint.config(:trusted_proxies) do
@@ -64,25 +61,14 @@ defmodule Dashboard.TrustedProxiesPlug do
     end
   end
 
-  def parse_cidr!("::ffff:" <> _ = network) do
   def trusted_proxies_remote_ip do
     Enum.map(trusted_proxies() || [], &to_string/1)
   end
+
+  defp parse_cidr!(network) do
     case CIDR.parse(network) do
       {:error, reason} -> raise "#{inspect(reason)}"
       cidr -> cidr
     end
   end
-
-  def parse_cidr!(network), do: network |> ipv4_network_to_ipv6() |> parse_cidr!()
-
-  defp ipv4_network_to_ipv6(network) do
-    [address, mask] = String.split(network, "/")
-
-    ipv6_mask = String.to_integer(mask) + mapped_ipv4_fixed_mask()
-
-    "#{ipv4_mapped_prefix()}#{address}/#{ipv6_mask}"
-  end
-
-  defp mapped_ipv4_fixed_mask, do: 96
 end
