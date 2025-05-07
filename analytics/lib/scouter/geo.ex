@@ -26,7 +26,8 @@ defmodule Scouter.Geo do
         :ignore
 
       %{maxmind: {api_key, edition}} when is_binary(api_key) ->
-        {:ok, :locus.loader_child_spec(:ipdb, {:maxmind, edition}, license_key: api_key)}
+        cache_dir = Path.join([System.get_env("STATE_DIRECTORY"), "ipdb.mmdb.gz"])
+        {:ok, :locus.loader_child_spec(:ipdb, {:maxmind, edition}, database_cache_file: cache_dir, license_key: api_key)}
 
       %{database_path: path} when is_binary(path) ->
         {:ok, :locus.loader_child_spec(:ipdb, path)}
