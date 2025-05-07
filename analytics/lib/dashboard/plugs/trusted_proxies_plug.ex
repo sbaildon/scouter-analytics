@@ -7,12 +7,12 @@ defmodule Dashboard.TrustedProxiesPlug do
   def init(opts), do: Map.new(opts)
 
   def call(conn, _opts) do
-    forwarded_for =
-      conn
-      |> get_req_header("x-forwarded-for")
-      |> Enum.flat_map(&parse_header/1)
-
     if trusted_proxies = trusted_proxies() do
+      forwarded_for =
+        conn
+        |> get_req_header("x-forwarded-for")
+        |> Enum.flat_map(&parse_header/1)
+
       trusted_environment? =
         [trusted_proxies, forwarded_for]
         |> Enum.zip()
@@ -21,9 +21,8 @@ defmodule Dashboard.TrustedProxiesPlug do
           trusted_client?(forwarded, proxy)
         end)
 
-      (trusted_environment? && trusted_environment(conn)) || untrusted_environment(conn)
+      (trusted_environment? && trusted_environment(conn)) || untrusted_environment(conn, forwarded_for, trusted_proxies)
     else
-      Logger.warning(forwarded_for: forwarded_for)
       unspecified_environment(conn)
     end
   end
@@ -38,8 +37,10 @@ defmodule Dashboard.TrustedProxiesPlug do
   defp trusted_environment(conn),
     do: conn |> clear_session() |> assign(:environment, :trusted) |> put_session(:environment, :trusted)
 
-  defp untrusted_environment(conn) do
-    Logger.warning("connection received from a client other than a trusted proxy")
+  defp untrusted_environment(conn, forwarded_for, trusted_proxies) do
+    Logger.warning(
+      "connection received from a client other than a trusted proxy, from #{inspect(forwarded_for)}, trusted #{inspect(trusted_proxies)}"
+    )
 
     conn
     |> assign(:environment, :untrusted)
