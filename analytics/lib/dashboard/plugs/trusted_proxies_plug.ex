@@ -7,12 +7,12 @@ defmodule Dashboard.TrustedProxiesPlug do
   def init(opts), do: Map.new(opts)
 
   def call(conn, _opts) do
-    if trusted_proxies = trusted_proxies() do
-      forwarded_for =
-        conn
-        |> get_req_header("x-forwarded-for")
-        |> Enum.flat_map(&parse_header/1)
+    forwarded_for =
+      conn
+      |> get_req_header("x-forwarded-for")
+      |> Enum.flat_map(&parse_header/1)
 
+    if trusted_proxies = trusted_proxies() do
       trusted_environment? =
         [trusted_proxies, forwarded_for]
         |> Enum.zip()
@@ -23,6 +23,7 @@ defmodule Dashboard.TrustedProxiesPlug do
 
       (trusted_environment? && trusted_environment(conn)) || untrusted_environment(conn)
     else
+      Logger.warning(forwarded_for: forwarded_for)
       unspecified_environment(conn)
     end
   end
