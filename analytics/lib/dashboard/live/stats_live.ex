@@ -29,13 +29,20 @@ defmodule Dashboard.StatsLive do
     |> assign(:edition, edition())
     |> configure_stream_for_aggregate_fields()
     |> assign(:query, query)
+    |> remote_ip()
     |> assign_new(:email, fn ->
       session["from"]
     end)
-    |> then(fn socket ->
+  end
+
+  defp remote_ip(socket) do
+    assign_new(socket, :client_ip, fn ->
       headers = get_connect_info(socket, :x_headers) || []
-      ip = RemoteIp.from(headers, clients: clients())
-      assign(socket, :client_ip, ip && :inet.ntoa(ip))
+
+      RemoteIp.from(headers,
+        proxies: {Dashboard.TrustedProxiesPlug, :trusted_proxies_remote_ip, []},
+        clients: clients()
+      )
     end)
   end
 
@@ -335,4 +342,8 @@ defmodule Dashboard.StatsLive do
   defp available?(socket) do
     socket.assigns.available
   end
+
+  defp render_ip({_, _, _, _} = ip), do: :inet.ntoa(ip)
+  defp render_ip({_, _, _, _, _, _, _, _} = ip), do: :inet.ntoa(ip)
+  defp render_ip(nil), do: nil
 end
