@@ -1,6 +1,7 @@
 defmodule Dashboard.Endpoint do
   use Phoenix.Endpoint, otp_app: :scouter
 
+  require Logger
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
   # Set :encryption_salt if you would also like to encrypt it.
@@ -45,6 +46,8 @@ defmodule Dashboard.Endpoint do
   plug Plug.RequestId
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 
+  plug :header_init
+
   plug RemoteIp,
     headers: ["x-forwarded-for"],
     proxies: {Dashboard.TrustedProxiesPlug, :trusted_proxies_remote_ip, []}
@@ -59,4 +62,14 @@ defmodule Dashboard.Endpoint do
   plug Plug.Session, @session_options
 
   plug Dashboard.Router
+
+  def header_init(conn, _opts) do
+    tap(conn, fn conn ->
+      conn
+      |> get_req_header("x-forwarded-for")
+      |> tap(fn header ->
+        Logger.info(x_forwarded_for: header)
+      end)
+    end)
+  end
 end
