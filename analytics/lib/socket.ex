@@ -16,8 +16,7 @@ defmodule Socket do
         port: 0,
         transport_options: [
           {:fd, fd},
-          :local,
-          exit_on_close: false
+          :local
         ]
       ]
     ]
