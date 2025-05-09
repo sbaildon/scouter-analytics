@@ -36,6 +36,7 @@ defmodule Scouter.Application do
   def start_phase(:post_start, :normal, _args) do
     :systemd.unset_env(:listen_fds)
     :systemd.notify(:ready)
+    Logger.info("systemd notify ready")
   end
 
   # Tell Phoenix to update the endpoint configuration
