@@ -64,6 +64,6 @@ defmodule Scouter.Application do
   end
 
   defp skip_migrations? do
-    if System.get_env("RUN_MIGRATIONS"), do: false, else: true
+    not Truthy.get_env("RUN_MIGRATIONS")
   end
 end
