@@ -19,13 +19,13 @@ defmodule Scouter.EventsRepo.BackupWorker do
 
     EventsRepo.transaction(fn repo ->
       credentials_query = create_credentials_if_not_exists_query(name)
-      repo.query(credentials_query)
+      repo.query!(credentials_query)
 
-      repo.query(migration_backup_query(root))
+      repo.query!(migration_backup_query(root))
 
       events_table_name = "events"
-      repo.query(events_backup_query(root, events_table_name), [events_table_name])
-      repo.query(delete_credentials_query(name))
+      repo.query!(events_backup_query(root, events_table_name), [events_table_name])
+      repo.query!(delete_credentials_query(name))
     end)
   end
 
