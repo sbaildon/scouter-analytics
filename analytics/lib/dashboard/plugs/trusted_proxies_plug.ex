@@ -6,6 +6,10 @@ defmodule Dashboard.TrustedProxiesPlug do
 
   def init(opts), do: Map.new(opts)
 
+  def call(%{remote_ip: {:local, _}} = conn, _opts) do
+    trusted_environment(conn)
+  end
+
   def call(conn, _opts) do
     if trusted_proxies = trusted_proxies() do
       forwarded_for =
