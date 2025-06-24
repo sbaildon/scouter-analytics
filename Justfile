@@ -4,7 +4,7 @@ default_repo := "Scouter.Repo"
 otp_app := "scouter"
 
 serve:
-    iex -S mix phx.server
+    iex --name analytics@127.0.0.1 --cookie $RELEASE_COOKIE -S mix phx.server
 
 proxy config="Caddyfile":
     nix run .#caddy -- run --config={{ config }} --watch
