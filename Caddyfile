@@ -1,9 +1,3 @@
-{
-	email {$USER}@{$HOSTNAME}
-	acme_ca https://ca.localhost:8448/acme/acme/directory
-	acme_ca_root {$XDG_DATA_HOME}/step/certs/root_ca.crt
-}
-
 {$DASHBOARD_HOST} {
 	log stdout {
 		format console
