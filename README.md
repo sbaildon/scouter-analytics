@@ -1,1 +1,1 @@
-# Scouter
+# Scouter Analytics
