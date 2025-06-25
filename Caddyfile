@@ -12,7 +12,7 @@
 	reverse_proxy "/telemetry" 127.0.0.1:{$TELEMETRY_PORT}
 
 	reverse_proxy 127.0.0.1:{$DASHBOARD_PORT} {
-		header_up x-stats-bucket {$ASSET_BUCKET}
+		header_up x-stats-bucket {$MEDIA_BUCKET}
 	}
 }
 
