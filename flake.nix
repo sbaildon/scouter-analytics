@@ -8,7 +8,7 @@
     }:
     let
       pkgs = nixpkgs.legacyPackages.aarch64-darwin;
-      beamPkgs = pkgs.beam.packages.erlang_27;
+      beamPkgs = pkgs.beam.packages.erlang_28;
     in
     {
       formatter.aarch64-darwin = pkgs.nixfmt;
