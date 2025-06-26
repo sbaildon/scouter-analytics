@@ -1,6 +1,7 @@
 import Config
 
 config :ecto_sqlite3,
+  binary_id_type: :string,
   uuid_type: :string
 
 config :logger, :default_formatter, format: "$metadata[$level] $message\n", metadata: [:module]

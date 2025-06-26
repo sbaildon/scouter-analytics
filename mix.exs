@@ -75,7 +75,7 @@ defmodule Scouter.MixProject do
       {:bandit, "~> 1.5"},
       {:styler, "~> 1.0", only: [:dev, :test], runtime: false},
       {:objex, git: "https://git.sr.ht/~sbaildon/objex", ref: "9c0e92ff38850b0b2ec2847afac004ea4f713540"},
-      {:typeid_elixir, git: "https://git.sr.ht/~sbaildon/typeid-elixir", ref: "7b1807e0bb2f"},
+      {:typeid_elixir, "~> 1.1"},
       {:ua_inspector, "~> 3.0"},
       {:locus, "~> 2.3"},
       {:ref_inspector, "~> 2.0"},
