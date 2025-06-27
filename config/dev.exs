@@ -54,8 +54,6 @@ config :scouter, Telemetry.Endpoint,
 
 config :scouter, dev_routes: true
 
-config :swoosh, :api_client, false
-
 config :typeid_elixir,
   default_type: :string
 

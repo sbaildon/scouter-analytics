@@ -45,8 +45,6 @@ defmodule Dashboard.Router do
         additional_pages: [
           broadway: {BroadwayDashboard, pipelines: [Telemetry.Broadway]}
         ]
-
-      forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
   end
 end

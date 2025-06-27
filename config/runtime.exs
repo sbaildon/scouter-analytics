@@ -82,9 +82,6 @@ config :ua_inspector,
   init: {Scouter.Release, :configure_ua_inspector}
 
 if config_env() == :prod do
-  config :scouter, Scouter.Mailer,
-    adapter: Swoosh.Adapters.Postmark,
-    api_key: env!.("API_KEY_POSTMARK")
 end
 
 config :scouter, Objex,

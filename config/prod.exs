@@ -7,6 +7,3 @@ config :scouter, Dashboard.Endpoint,
   server: true
 
 config :scouter, Telemetry.Endpoint, server: true
-
-config :swoosh, api_client: Swoosh.ApiClient.Req
-config :swoosh, local: false

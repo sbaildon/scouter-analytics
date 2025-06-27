@@ -14,7 +14,4 @@ config :phoenix_live_view,
 
 config :scouter, Dashboard.Endpoint, server: false
 config :scouter, Scouter.EventsRepo, pool: Sandbox
-config :scouter, Scouter.Mailer, adapter: Swoosh.Adapters.Test
 config :scouter, Scouter.Repo, pool: Sandbox
-
-config :swoosh, :api_client, false

@@ -45,7 +45,7 @@ config :scouter, Finch, name: Scouter.Finch
 
 config :scouter, Oban,
   engine: Oban.Engines.Lite,
-  queues: [default: 10, mailer: 10, backups: 1],
+  queues: [default: 10, backups: 1],
   repo: Scouter.Repo
 
 config :scouter, Scouter.EventsRepo,
