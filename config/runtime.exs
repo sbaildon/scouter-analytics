@@ -83,12 +83,3 @@ config :ua_inspector,
 
 if config_env() == :prod do
 end
-
-config :scouter, Objex,
-  access_key_id: env!.("AWS_ACCESS_KEY_ID"),
-  secret_access_key: env!.("AWS_SECRET_KEY"),
-  proto: Map.fetch!(s3_endpoint, "proto"),
-  endpoint: Map.fetch!(s3_endpoint, "endpoint"),
-  port: Map.fetch!(s3_endpoint, "port"),
-  region: env.("AWS_REGION", "auto"),
-  http_client: {Finch, name: Scouter.Finch}

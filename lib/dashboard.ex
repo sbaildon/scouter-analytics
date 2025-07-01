@@ -35,7 +35,6 @@ defmodule Dashboard do
   end
 
   def static_paths, do: ~w(assets js css images favicon.ico robots.txt)
-  def object_paths, do: ~w(fonts)
 
   def router do
     quote do

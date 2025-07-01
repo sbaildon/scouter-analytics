@@ -23,7 +23,6 @@ defmodule Scouter.Application do
       {Ecto.Migrator, repos: Application.fetch_env!(:scouter, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:scouter, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Scouter.PubSub},
-      {Objex, Application.fetch_env!(:scouter, Objex)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
