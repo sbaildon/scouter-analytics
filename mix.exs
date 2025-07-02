@@ -15,7 +15,8 @@ defmodule Scouter.MixProject do
         warnings_as_errors: Mix.env() == :prod
       ],
       releases: [
-        scouter: [
+        analytics: [
+          path: Path.join(["_build", System.get_env("MIX_ENV", "dev"), "rel", "scouter"]),
           include_executables_for: [:unix]
         ]
       ]
