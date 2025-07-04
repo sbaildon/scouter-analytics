@@ -2,7 +2,7 @@ defmodule Scouter.Repo.Migrations.CreateServiceProviders do
   use Ecto.Migration
 
   def change do
-    create table(:service_providers) do
+    create table(:service_providers, options: "STRICT") do
       add :service_id, references(:services, on_delete: :restrict), null: false
       add :namespace, :string, null: false
 
