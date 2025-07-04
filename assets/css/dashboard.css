@@ -7,13 +7,8 @@
 @source "../../priv/static/css/*.css";
 @layer custom
 
-
 [data-phx-root-id] {
 	display: contents;
-}
-
-@theme {
-	--text-base: 14px;
 }
 
 section[data-tabs] {
