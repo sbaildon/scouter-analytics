@@ -6,6 +6,7 @@
 	reverse_proxy "/telemetry" 127.0.0.1:{$TELEMETRY_PORT}
 
 	reverse_proxy 127.0.0.1:{$DASHBOARD_PORT} {
+		header_up x-custom-stylesheets https://{$IAM_HOST}/css/fx-202.css
 		header_up x-stats-bucket {$MEDIA_BUCKET}
 	}
 }
