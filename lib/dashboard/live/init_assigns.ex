@@ -50,7 +50,7 @@ defmodule Dashboard.InitAssigns do
     end
   end
 
-  defp signing_secret, do: System.fetch_env!("IAM_SECRET")
-  defp signing_salt, do: System.fetch_env!("IAM_SIGNING_SALT")
+  defp signing_secret, do: System.fetch_env!("BEARER_SECRET")
+  defp signing_salt, do: "bearer"
   defp token_max_age, do: 20
 end
