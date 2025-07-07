@@ -353,6 +353,6 @@ defmodule Dashboard.StatsLive do
   defp render_ip(nil), do: nil
 
   defp homepage() do
-    ~p"/"
+    System.get_env("HOMEPAGE", Dashboard.Endpoint.url())
   end
 end
