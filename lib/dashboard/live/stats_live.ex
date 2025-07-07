@@ -353,6 +353,10 @@ defmodule Dashboard.StatsLive do
   defp render_ip(nil), do: nil
 
   defp homepage() do
-    System.get_env("HOMEPAGE", Dashboard.Endpoint.url())
+    System.get_env("HOMEPAGE", fallback_homepage())
+  end
+
+  defp fallback_homepage() do
+    struct(URI, Dashboard.Endpoint.config(:url))
   end
 end
