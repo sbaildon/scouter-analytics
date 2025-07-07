@@ -112,7 +112,9 @@ defmodule Dashboard.StatsLive do
   end
 
   def to_atom(grouping_id) do
-    {:parameterized, {_, %{on_load: on_load}}} = Scouter.TypedAggregate.__schema__(:type, :grouping_id)
+    {:parameterized, {_, %{on_load: on_load}}} =
+      Scouter.TypedAggregate.__schema__(:type, :grouping_id)
+
     Map.fetch!(on_load, grouping_id)
   end
 
@@ -133,7 +135,8 @@ defmodule Dashboard.StatsLive do
     socket
   end
 
-  defp stream_empty_aggregates(socket), do: Enum.reduce(aggregate_fields(), socket, &stream(&2, &1, [], reset: true))
+  defp stream_empty_aggregates(socket),
+    do: Enum.reduce(aggregate_fields(), socket, &stream(&2, &1, [], reset: true))
 
   @impl true
   def handle_info(:fetch_aggregates, socket) do
@@ -168,7 +171,8 @@ defmodule Dashboard.StatsLive do
     {:noreply, patch(socket, query)}
   end
 
-  def handle_event("limit", %{"_target" => [target]} = params, socket) when target in ["to", "from"] do
+  def handle_event("limit", %{"_target" => [target]} = params, socket)
+      when target in ["to", "from"] do
     %{query: existing_query} = socket.assigns
 
     params = Map.put(params, "interval", nil)
@@ -323,7 +327,8 @@ defmodule Dashboard.StatsLive do
 
   # filter for the single /:namespace, ignoring query[:service] because it has no effect when :service
   # is provided
-  defp authorized_filters(%{service: service} = query, [authorized_service | []]) when not is_nil(service) do
+  defp authorized_filters(%{service: service} = query, [authorized_service | []])
+       when not is_nil(service) do
     filters = Query.to_filters(query)
 
     Keyword.replace(filters, :services, [TypeID.uuid(authorized_service.id)])
@@ -346,4 +351,8 @@ defmodule Dashboard.StatsLive do
   defp render_ip({_, _, _, _} = ip), do: :inet.ntoa(ip)
   defp render_ip({_, _, _, _, _, _, _, _} = ip), do: :inet.ntoa(ip)
   defp render_ip(nil), do: nil
+
+  defp homepage() do
+    ~p"/"
+  end
 end
