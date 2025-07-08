@@ -7,7 +7,7 @@ defmodule Dashboard.Endpoint do
   # Set :encryption_salt if you would also like to encrypt it.
   @session_options [
     store: :cookie,
-    key: "_scouter_key",
+    key: "_scouter",
     signing_salt: "AaPiaEsN",
     same_site: "Lax"
   ]
