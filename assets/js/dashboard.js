@@ -25,7 +25,8 @@ import topbar from "../vendor/topbar";
 const csrfToken = document
 	.querySelector("meta[name='csrf-token']")
 	.getAttribute("content");
-const liveSocket = new LiveSocket("/live", Socket, {
+const base = document.querySelector("base").getAttribute("href");
+const liveSocket = new LiveSocket(`${base}/live`, Socket, {
 	longPollFallbackMs: 2500,
 	params: { _csrf_token: csrfToken },
 });
@@ -85,4 +86,3 @@ if (process.env.NODE_ENV === "development") {
 		},
 	);
 }
-

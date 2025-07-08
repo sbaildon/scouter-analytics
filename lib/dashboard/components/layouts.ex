@@ -30,4 +30,14 @@ defmodule Dashboard.Layouts do
       }
     }
   end
+
+  attr :endpoint, :any, required: true
+
+  def base(assigns) do
+    assigns = assign(assigns, :href, struct(URI, apply(assigns.endpoint, :config, [:url])))
+
+    ~H"""
+    <base href={@href} />
+    """
+  end
 end
