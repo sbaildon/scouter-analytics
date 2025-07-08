@@ -44,4 +44,26 @@ defmodule Dashboard.Layouts do
     <base href={@href} />
     """
   end
+
+  attr :headers, :list, required: true
+  attr :stylesheets, :list, required: false
+
+  def stylesheets(assigns) do
+    {_, header} = List.keyfind(assigns.headers, stylesheet_header(), 0, {nil, ""})
+
+    assigns = assign(assigns, :stylesheets, stylesheet_urls(header))
+
+    ~H"""
+    <link :for={stylesheet <- @stylesheets} rel="stylesheet" href={stylesheet} >
+    """
+  end
+
+  defp stylesheet_header, do: "x-custom-stylesheets"
+
+  defp stylesheet_urls(header) do
+    header
+    |> String.trim()
+    |> String.trim(";")
+    |> String.split(";", trim: true)
+  end
 end

@@ -23,8 +23,6 @@ defmodule Dashboard.Router do
   scope "/", Dashboard do
     pipe_through [:browser, :authz]
 
-    get "/stylesheets.css", StylesheetController, :css
-
     live_session :default, on_mount: Dashboard.InitAssigns do
       live "/", StatsLive, :index
 
