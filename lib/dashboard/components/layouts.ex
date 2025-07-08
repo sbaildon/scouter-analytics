@@ -11,4 +11,23 @@ defmodule Dashboard.Layouts do
   use Dashboard, :html
 
   embed_templates "layouts/*"
+
+  def import_map(assigns) do
+    ~H"""
+    <script type="importmap">
+      <%= raw(Phoenix.json_library().encode_to_iodata!(imports())) %>
+    </script>
+    """
+  end
+
+  defp imports do
+    %{
+      "imports" => %{
+        "@hotwired/stimulus" => "#{Dashboard.Endpoint.url()}/js/@hotwired/stimulus@3.2.2.js",
+        "@github/hotkey" => "#{Dashboard.Endpoint.url()}/js/@github/hotkey@3.1.1/index.js",
+        "controllers/service" => "#{Dashboard.Endpoint.url()}/js/dashboard/service_controller.js",
+        "controllers/hotkey" => "#{Dashboard.Endpoint.url()}/js/dashboard/hotkey_controller.js"
+      }
+    }
+  end
 end
