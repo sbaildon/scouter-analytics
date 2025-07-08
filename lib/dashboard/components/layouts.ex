@@ -23,12 +23,16 @@ defmodule Dashboard.Layouts do
   defp imports do
     %{
       "imports" => %{
-        "@hotwired/stimulus" => "#{Dashboard.Endpoint.url()}/js/@hotwired/stimulus@3.2.2.js",
-        "@github/hotkey" => "#{Dashboard.Endpoint.url()}/js/@github/hotkey@3.1.1/index.js",
-        "controllers/service" => "#{Dashboard.Endpoint.url()}/js/dashboard/service_controller.js",
-        "controllers/hotkey" => "#{Dashboard.Endpoint.url()}/js/dashboard/hotkey_controller.js"
+        "@hotwired/stimulus" => "#{url()}/js/@hotwired/stimulus@3.2.2.js",
+        "@github/hotkey" => "#{url()}/js/@github/hotkey@3.1.1/index.js",
+        "controllers/service" => "#{url()}/js/dashboard/service_controller.js",
+        "controllers/hotkey" => "#{url()}/js/dashboard/hotkey_controller.js"
       }
     }
+  end
+
+  defp url() do
+    struct(URI, Dashboard.Endpoint.config(:url))
   end
 
   attr :endpoint, :any, required: true
