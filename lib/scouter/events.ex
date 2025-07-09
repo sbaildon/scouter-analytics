@@ -2,6 +2,7 @@ defmodule Scouter.Events do
   @moduledoc false
   alias Scouter.Event
   alias Scouter.EventsRepo
+  alias Scouter.EventsRepo.BackupWorker
   alias Scouter.Geo
 
   require Logger
@@ -213,9 +214,7 @@ defmodule Scouter.Events do
 
   defp subdivision1_code(_, _), do: nil
 
-  defp subdivision2_code(country_code, %{
-         "subdivisions" => [_first, %{"iso_code" => iso_code} | _rest]
-       })
+  defp subdivision2_code(country_code, %{"subdivisions" => [_first, %{"iso_code" => iso_code} | _rest]})
        when not is_nil(country_code) do
     country_code <> "-" <> iso_code
   end
@@ -228,10 +227,10 @@ defmodule Scouter.Events do
   defp ignore_unknown_country("T1"), do: nil
   defp ignore_unknown_country(country), do: country
 
-  def backup_now() do
-    Scouter.EventsRepo.BackupWorker.config()
-    |> Enum.map(fn {name, _options} ->
-      Scouter.EventsRepo.BackupWorker.new(%{name: name})
+  def backup_now do
+    Enum.map(BackupWorker.config(), fn {name, _options} ->
+      %{name: name}
+      |> BackupWorker.new()
       |> Oban.insert()
     end)
   end

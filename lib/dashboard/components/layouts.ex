@@ -31,7 +31,7 @@ defmodule Dashboard.Layouts do
     }
   end
 
-  defp url() do
+  defp url do
     struct(URI, Dashboard.Endpoint.config(:url))
   end
 
@@ -54,7 +54,7 @@ defmodule Dashboard.Layouts do
     assigns = assign(assigns, :stylesheets, stylesheet_urls(header))
 
     ~H"""
-    <link :for={stylesheet <- @stylesheets} rel="stylesheet" href={stylesheet} >
+    <link :for={stylesheet <- @stylesheets} rel="stylesheet" href={stylesheet} />
     """
   end
 
