@@ -64,6 +64,12 @@ defmodule Scouter.Services do
     |> WRepo.insert()
   end
 
+  def exists?(namespace) do
+    Services.Provider.query()
+    |> Services.Provider.where_ns(namespace)
+    |> Repo.fetch()
+  end
+
   def register(namespace, opts) do
     opts = Keyword.put_new(opts, :published, true)
 
