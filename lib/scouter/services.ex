@@ -68,7 +68,7 @@ defmodule Scouter.Services do
     opts = Keyword.put_new(opts, :published, true)
 
     Multi.new()
-    |> Multi.insert(:service, Service.changeset(%{name: namespace, published: opts[:published]}))
+    |> Multi.insert(:service, Service.changeset(%{published: opts[:published]}))
     |> Multi.insert(:service_provider, fn %{service: service} ->
       Services.Provider.changeset(%{service_id: service.id, namespace: namespace})
     end)
