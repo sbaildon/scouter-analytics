@@ -21,6 +21,13 @@ defmodule Scouter.Services do
     Supervisor.init(children, strategy: :one_for_one)
   end
 
+  def fetch_by_namespace(namespace) do
+    Service.query()
+    |> Service.with_providers()
+    |> Services.Provider.where_ns(namespace, from: :providers)
+    |> Repo.fetch(skip_service_id: true)
+  end
+
   def fetch(service_id) do
     Service.query()
     |> Service.where_id(service_id)
@@ -62,12 +69,6 @@ defmodule Scouter.Services do
     }
     |> Services.Provider.changeset()
     |> WRepo.insert()
-  end
-
-  def exists?(namespace) do
-    Services.Provider.query()
-    |> Services.Provider.where_ns(namespace)
-    |> Repo.fetch()
   end
 
   def register(namespace, opts) do
