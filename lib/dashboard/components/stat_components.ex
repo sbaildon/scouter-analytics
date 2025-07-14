@@ -138,7 +138,7 @@ defmodule Dashboard.StatComponents do
               <div class="grid grid-cols-1 grid-rows-1 isolate">
                 <meter
                   min="0"
-                  class="z-[-1] col-span-full absolute inset-0"
+                  class="z-[-1] w-full absolute inset-0"
                   value={Queryable.count(aggregate)}
                   max={aggregate(aggregate, :max)}
                 />
