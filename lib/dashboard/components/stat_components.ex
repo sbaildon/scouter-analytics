@@ -138,13 +138,13 @@ defmodule Dashboard.StatComponents do
               <div class="grid grid-cols-1 grid-rows-1 isolate">
                 <meter
                   min="0"
-                  class="w-full absolute inset-0"
+                  class="z-[-1] col-span-full absolute inset-0"
                   value={Queryable.count(aggregate)}
                   max={aggregate(aggregate, :max)}
                 />
-                <span class="flex flex-row justify-between px-[1ch] z-10">
-                  <span>{Queryable.present(aggregate)}</span>
-                  <span>{display_aggregate_count(aggregate)}</span>
+                <span class="px-[1ch] flex gap-x-[1ch]">
+                  <span class="flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap">{Queryable.present(aggregate)}</span>
+                  <span class="shrink-0">{display_aggregate_count(aggregate)}</span>
                 </span>
               </div>
               <label class="absolute inset-0">
