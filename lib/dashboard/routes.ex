@@ -7,7 +7,7 @@ defmodule Dashboard.Routes do
   end
 
   def root_url do
-    url(~p"/")
+    struct(URI, Dashboard.Endpoint.config(:url))
   end
 
   defdelegate host, to: Dashboard.Endpoint
