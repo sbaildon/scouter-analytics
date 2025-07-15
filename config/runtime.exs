@@ -7,6 +7,9 @@ convert = fn term, as ->
     :integer ->
       String.to_integer(term)
 
+    :boolean ->
+      Truthy.from_string(term)
+
     _ ->
       raise """
       unknown cast, #{as}, for #{term}
