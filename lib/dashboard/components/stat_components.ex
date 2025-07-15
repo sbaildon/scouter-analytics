@@ -85,8 +85,7 @@ defmodule Dashboard.StatComponents do
     """
   end
 
-  defp input_id(field, %TypedAggregate{} = typed_aggregate),
-    do: "#{field}-#{Scouter.Queryable.hash(typed_aggregate)}"
+  defp input_id(field, %TypedAggregate{} = typed_aggregate), do: "#{field}-#{Scouter.Queryable.hash(typed_aggregate)}"
 
   defp input_id(group_id, value), do: Queryable.hash({group_id, value})
 
@@ -143,7 +142,9 @@ defmodule Dashboard.StatComponents do
                   max={aggregate(aggregate, :max)}
                 />
                 <span class="px-[1ch] flex gap-x-[1ch]">
-                  <span class="flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap">{Queryable.present(aggregate)}</span>
+                  <span class="flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap">
+                    {Queryable.present(aggregate)}
+                  </span>
                   <span class="shrink-0">{display_aggregate_count(aggregate)}</span>
                 </span>
               </div>
@@ -362,8 +363,7 @@ defmodule Dashboard.StatComponents do
     """
   end
 
-  defp hr(assigns),
-    do: ~H|<hr class="h-px my-[calc(0.5em-0.5px)] mx-2 border-0 bg-zinc-500/60" />|
+  defp hr(assigns), do: ~H|<hr class="h-px my-[calc(0.5em-0.5px)] mx-2 border-0 bg-zinc-500/60" />|
 
   defp strftime(timestamp, :hh_mm), do: Calendar.strftime(timestamp, "%Y-%m-%d %H:%M")
 end
