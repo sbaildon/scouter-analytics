@@ -1,6 +1,8 @@
 defmodule Truthy do
   @moduledoc false
 
+  def from_string(string), do: cast(string)
+
   def cast("false"), do: false
   def cast("no"), do: false
   def cast("0"), do: false
