@@ -18,10 +18,7 @@
       # nix develop
       # https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/darwin/apple-sdk/frameworks.nix
       devShells.aarch64-darwin.default = pkgs.mkShell {
-        buildInputs = with pkgs.darwin.apple_sdk.frameworks; [
-          AppKit
-          CoreServices
-          Foundation
+        buildInputs = [
           beamPkgs.elixir_1_18
           pkgs.caddy
           pkgs.duckdb
