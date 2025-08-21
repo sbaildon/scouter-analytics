@@ -1,6 +1,8 @@
 {
   description = "Scouter";
 
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/fc8835d44a356d64953cb31f1b086fab1e25bb5b";
+
   outputs =
     {
       self,
