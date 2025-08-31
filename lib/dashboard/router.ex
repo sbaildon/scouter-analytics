@@ -9,6 +9,7 @@ defmodule Dashboard.Router do
     plug :put_root_layout, html: {Dashboard.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :static
   end
 
   pipeline :api do
@@ -44,5 +45,9 @@ defmodule Dashboard.Router do
           broadway: {BroadwayDashboard, pipelines: [Telemetry.Broadway]}
         ]
     end
+  end
+
+  def static(conn, _opts) do
+    put_static_url(conn, URI |> struct(Dashboard.Endpoint.config(:url)) |> URI.append_path("/static"))
   end
 end
