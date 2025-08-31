@@ -70,4 +70,13 @@ defmodule Dashboard.Layouts do
     |> String.trim(";")
     |> String.split(";", trim: true)
   end
+
+  attr :conn, Plug.Conn, required: true
+
+  if Application.compile_env(:scouter, :dev_routes) do
+    defp development_scripts(assigns),
+      do: ~H|<script phx-track-static defer src={static_url(@conn, "/js/development.js")}></script>|
+  else
+    def development_scripts(assigns), do: nil
+  end
 end
