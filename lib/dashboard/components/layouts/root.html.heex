@@ -16,6 +16,9 @@
     </script>
     <script phx-track-static defer src={url(~p"/static/js/phoenix_html.js")}>
     </script>
+
+    <.development_scripts conn={@conn} />
+
     <.stylesheets headers={@conn.req_headers} />
   </head>
   <body class="font-mono text-sm bg-zinc-100/30">
