@@ -26,13 +26,17 @@ defmodule Dashboard.Layouts do
         "@hotwired/stimulus" => "#{url()}/js/@hotwired/stimulus@3.2.2.js",
         "@github/hotkey" => "#{url()}/js/@github/hotkey@3.1.1/index.js",
         "controllers/service" => "#{url()}/js/dashboard/service_controller.js",
-        "controllers/hotkey" => "#{url()}/js/dashboard/hotkey_controller.js"
+        "controllers/hotkey" => "#{url()}/js/dashboard/hotkey_controller.js",
+        "phoenix_live_view" => "#{url()}/js/phoenix_live_view.esm.js",
+        "phoenix" => "#{url()}/js/phoenix.mjs",
+        "topbar" => "#{url()}/js/topbar.js"
       }
     }
   end
 
   defp url do
     struct(URI, Dashboard.Endpoint.config(:url))
+    |> URI.append_path("/static")
   end
 
   attr :endpoint, :any, required: true
