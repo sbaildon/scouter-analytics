@@ -12,37 +12,34 @@ defmodule Dashboard.Layouts do
 
   embed_templates "layouts/*"
 
+  attr :conn, Plug.Conn, required: true
+
   def import_map(assigns) do
     ~H"""
     <script type="importmap">
-      <%= raw(Phoenix.json_library().encode_to_iodata!(imports())) %>
+      <%= raw(Phoenix.json_library().encode_to_iodata!(imports(@conn))) %>
     </script>
     """
   end
 
-  defp imports do
+  defp imports(conn) do
     %{
       "imports" => %{
-        "@hotwired/stimulus" => "#{url()}/js/@hotwired/stimulus@3.2.2.js",
-        "@github/hotkey" => "#{url()}/js/@github/hotkey@3.1.1/index.js",
-        "controllers/service" => "#{url()}/js/dashboard/service_controller.js",
-        "controllers/hotkey" => "#{url()}/js/dashboard/hotkey_controller.js",
-        "phoenix_live_view" => "#{url()}/js/phoenix_live_view.esm.js",
-        "phoenix" => "#{url()}/js/phoenix.mjs",
-        "topbar" => "#{url()}/js/topbar.js"
+        "@hotwired/stimulus" => static_url(conn, "/js/@hotwired/stimulus@3.2.2.js"),
+        "@github/hotkey" => static_url(conn, "/js/@github/hotkey@3.1.1/index.js"),
+        "controllers/service" => static_url(conn, "/js/dashboard/service_controller.js"),
+        "controllers/hotkey" => static_url(conn, "/js/dashboard/hotkey_controller.js"),
+        "phoenix_live_view" => static_url(conn, "/js/phoenix_live_view.esm.js"),
+        "phoenix" => static_url(conn, "/js/phoenix.mjs"),
+        "topbar" => static_url(conn, "/js/topbar.js")
       }
     }
-  end
-
-  defp url do
-    struct(URI, Dashboard.Endpoint.config(:url))
-    |> URI.append_path("/static")
   end
 
   attr :endpoint, :any, required: true
 
   def base(assigns) do
-    assigns = assign(assigns, :href, struct(URI, apply(assigns.endpoint, :config, [:url])))
+    assigns = assign(assigns, :href, struct(URI, assigns.endpoint.config(:url)))
 
     ~H"""
     <base href={@href} />
