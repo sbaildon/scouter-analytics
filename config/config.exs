@@ -9,15 +9,6 @@ config :ecto_sqlite3,
   journal_mode: :wal,
   json_library: JSON
 
-config :esbuild,
-  version: "0.17.11",
-  dashboard: [
-    args:
-      ~w(js/dashboard.js --bundle --target=es2017 --outdir=../priv/static/assets/ --external:/fonts/* --external:/images/*),
-    cd: Path.expand("../assets", __DIR__),
-    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
-  ]
-
 config :ex_cldr,
   default_locale: "en",
   default_backend: Scouter.Cldr,

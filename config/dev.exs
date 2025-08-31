@@ -19,7 +19,6 @@ config :scouter, Dashboard.Endpoint,
   code_reloader: true,
   debug_errors: true,
   watchers: [
-    esbuild: {Esbuild, :install_and_run, [:dashboard, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:dashboard, ~w(--watch)]}
   ],
   live_reload: [
