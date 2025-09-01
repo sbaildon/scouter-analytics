@@ -51,7 +51,12 @@ config :ref_inspector,
 config :scouter, Admin.Endpoint, server: env_as.("ADMIN", "false", :boolean)
 
 config :scouter, Dashboard.Endpoint,
-  url: [host: env!.("DASHBOARD_HOST"), port: 443, scheme: "https", path: env.("DASHBOARD_PATH", "/")],
+  url: [
+    host: env!.("DASHBOARD_HOST"),
+    port: 443,
+    scheme: "https",
+    path: env.("DASHBOARD_PATH", "/")
+  ],
   secret_key_base: env!.("DASHBOARD_SECRET_KEY_BASE"),
   live_view: [signing_salt: env!.("DASHBOARD_SIGNING_SALT")],
   trusted_proxies: System.get_env("TRUSTED_PROXIES")
