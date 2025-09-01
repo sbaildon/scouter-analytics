@@ -8,7 +8,7 @@ convert = fn term, as ->
       String.to_integer(term)
 
     :boolean ->
-      Truthy.from_string(term)
+      String.to_existing_atom(term)
 
     _ ->
       raise """
@@ -47,6 +47,8 @@ s3_endpoint =
 
 config :ref_inspector,
   init: {Scouter.Release, :configure_ref_inspector}
+
+config :scouter, Admin.Endpoint, server: env_as.("ADMIN", "false", :boolean)
 
 config :scouter, Dashboard.Endpoint,
   url: [host: env!.("DASHBOARD_HOST"), port: 443, scheme: "https", path: env.("DASHBOARD_PATH", "/")],
