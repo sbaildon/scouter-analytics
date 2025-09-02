@@ -24,6 +24,8 @@ config :ref_inspector,
   skip_download_readme: true,
   database_path: "./priv/ref_inspector"
 
+config :scouter, Admin.Endpoint, adapter: Bandit.PhoenixAdapter
+
 config :scouter, Dashboard.Endpoint,
   adapter: Bandit.PhoenixAdapter,
   render_errors: [

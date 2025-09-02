@@ -14,6 +14,11 @@ config :phoenix_live_view,
   debug_heex_annotations: true,
   enable_expensive_runtime_checks: true
 
+config :scouter, Admin.Endpoint,
+  check_origin: false,
+  code_reloader: true,
+  debug_errors: true
+
 config :scouter, Dashboard.Endpoint,
   check_origin: false,
   code_reloader: true,

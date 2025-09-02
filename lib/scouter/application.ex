@@ -18,6 +18,7 @@ defmodule Scouter.Application do
       Scouter.Services,
       Telemetry,
       Dashboard,
+      Admin,
       {Scouter.Geo, Application.fetch_env!(:scouter, Scouter.Geo)},
       {Finch, Application.fetch_env!(:scouter, Finch)},
       {Ecto.Migrator, repos: Application.fetch_env!(:scouter, :ecto_repos), skip: skip_migrations?()},
