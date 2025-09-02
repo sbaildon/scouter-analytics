@@ -44,5 +44,4 @@ npm-debug.log
 /priv/mmdb/*
 /priv/ua_inspector/*
 /priv/ref_inspector/*
-*.js.map
 /bin/*
