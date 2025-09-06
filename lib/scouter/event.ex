@@ -225,7 +225,7 @@ defmodule Scouter.Event do
               ),
               :value
             ),
-          max: over(max(selected_as(:count)), partition_by: selected_as(:grouping_id))
+          max: selected_as(over(max(selected_as(:count)), partition_by: selected_as(:grouping_id)), :max)
         }
       )
     end)
