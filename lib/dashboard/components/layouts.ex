@@ -72,7 +72,8 @@ defmodule Dashboard.Layouts do
 
   if Application.compile_env(:scouter, :dev_routes) do
     defp development_scripts(assigns),
-      do: ~H|<script phx-track-static defer src={static_url(@conn, "/js/development.js")}></script>|
+      do: ~H|<script phx-track-static defer src={static_url(@conn, "/js/development.js")}>
+</script>|
   else
     def development_scripts(_assigns), do: nil
   end
