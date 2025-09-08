@@ -64,6 +64,6 @@ defmodule Scouter.Application do
   end
 
   defp skip_migrations? do
-    not (System.get_env("RUN_MIGRATIONS", "false") |> String.to_existing_atom())
+    not ("RUN_MIGRATIONS" |> System.get_env("false") |> String.to_existing_atom())
   end
 end

@@ -84,7 +84,13 @@ defmodule Scouter.Event do
 
   def range(query, count, interval) do
     from([{^named_binding(), event}] in query,
-      where: event.timestamp >= fragment("date_trunc('minute', current_localtimestamp()) - (? || ' ' || ?)::interval", ^count, ^Atom.to_string(interval))
+      where:
+        event.timestamp >=
+          fragment(
+            "date_trunc('minute', current_localtimestamp()) - (? || ' ' || ?)::interval",
+            ^count,
+            ^Atom.to_string(interval)
+          )
     )
   end
 

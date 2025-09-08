@@ -32,7 +32,7 @@ defmodule Scouter.Events do
     |> EventsRepo.arrow_stream()
   end
 
-  @spec arrow(keyword()) ::  %{non_neg_integer() => Explorer.DataFrame.t()} | nil
+  @spec arrow(keyword()) :: %{non_neg_integer() => Explorer.DataFrame.t()} | nil
   def arrow(filters \\ []) do
     {:ok, df} =
       Event.query()
