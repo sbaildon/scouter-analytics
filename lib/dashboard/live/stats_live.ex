@@ -2,14 +2,10 @@ defmodule Dashboard.StatsLive do
   @moduledoc false
   use Dashboard, :live_view
 
-  import Scouter.Event, only: [aggregate: 1, aggregate: 2]
+  import Scouter.Events.GroupingID
 
   alias Dashboard.RateLimit
   alias Dashboard.StatsLive.Query
-  alias Scouter.Aggregate
-  alias Scouter.Events
-  alias Scouter.EventsRepo
-  alias Scouter.Queryable
   alias Scouter.Services
 
   require Logger
@@ -27,7 +23,6 @@ defmodule Dashboard.StatsLive do
     |> available()
     |> assign(:version, version())
     |> assign(:edition, edition())
-    |> configure_stream_for_aggregate_fields()
     |> assign(:query, query)
     |> remote_ip()
     |> assign_new(:email, fn ->
@@ -66,76 +61,14 @@ defmodule Dashboard.StatsLive do
     end
   end
 
-  defp configure_stream_for_aggregate_fields(socket) do
-    Enum.reduce(aggregate_fields(), socket, fn field, socket ->
-      socket
-      |> stream_configure(field, dom_id: &dom_id/1)
-      |> stream(field, [])
-    end)
-  end
-
-  defp update_aggregate_streams(stream) do
-    EventsRepo.transaction(fn ->
-      version_b(stream)
-    end)
-  end
-
-  def version_a(stream) do
-    stream
-    |> EventsRepo.merge_columns()
-    |> Enum.to_list()
-    |> then(fn [%{data: counts}, %{data: grouping_ids}, %{data: values}, %{data: maxes}] ->
-      [counts, grouping_ids, values, maxes]
-      |> Enum.zip_with(fn [count, grouping_id, value, max] ->
-        aggregate(count: count, grouping_id: grouping_id, value: value, max: max)
-      end)
-      |> Enum.chunk_by(fn aggregate -> aggregate(aggregate, :grouping_id) end)
-      |> Enum.map(fn [aggregate | _] = aggregates ->
-        send(self(), {:aggregates, to_atom(aggregate(aggregate, :grouping_id)), aggregates})
-        aggregate(aggregate, :grouping_id)
-      end)
-    end)
-  end
-
-  defp version_b(stream) do
-    stream
-    |> Stream.flat_map(fn [%{data: counts}, %{data: grouping_ids}, %{data: values}, %{data: maxs}] ->
-      Enum.zip_with([counts, grouping_ids, values, maxs], fn [count, grouping_id, value, max] ->
-        aggregate(count: count, grouping_id: grouping_id, value: value, max: max)
-      end)
-    end)
-    |> Stream.chunk_by(fn aggregate -> aggregate(aggregate, :grouping_id) end)
-    |> Enum.map(fn [aggregate | _] = aggregates ->
-      send(self(), {:aggregates, to_atom(aggregate(aggregate, :grouping_id)), aggregates})
-      aggregate(aggregate, :grouping_id)
-    end)
-  end
-
-  def to_atom(grouping_id) do
-    {:parameterized, {_, %{on_load: on_load}}} =
-      Scouter.TypedAggregate.__schema__(:type, :grouping_id)
-
-    Map.fetch!(on_load, grouping_id)
-  end
-
   @impl true
-  def handle_async(:fetch_aggregates, {:ok, %Stream{} = stream}, socket) do
-    {:noreply,
-     stream
-     |> update_aggregate_streams()
-     |> post_handle_async(socket)
-     |> available()}
-  end
+  def handle_async(:fetch_aggregates, {:ok, dataframes}, socket) do
+    [{_pid, channel_pid}] = Registry.lookup(Dashboard.ArrowChannelRegistry, :erlang.phash2(socket.transport_pid))
 
-  defp post_handle_async({:ok, []}, socket) do
-    stream_empty_aggregates(socket)
-  end
+    GenServer.cast(channel_pid, {:push, dataframes})
 
-  defp post_handle_async({:ok, _}, socket) do
-    socket
+    {:noreply, available(socket)}
   end
-
-  defp stream_empty_aggregates(socket), do: Enum.reduce(aggregate_fields(), socket, &stream(&2, &1, [], reset: true))
 
   @impl true
   def handle_info(:fetch_aggregates, socket) do
@@ -148,18 +81,9 @@ defmodule Dashboard.StatsLive do
         {:noreply, fetch_aggregates(socket)}
 
       {:deny, ms_until_next_window} ->
-        schedule_fetch(ms_until_next_window)
+        Process.send_after(self(), :fetch_aggregates, ms_until_next_window)
         {:noreply, socket}
     end
-  end
-
-  @impl true
-  def handle_info({:aggregates, field, aggregates}, socket) do
-    {:noreply, stream(socket, field, aggregates, reset: true)}
-  end
-
-  defp schedule_fetch(in_ms) do
-    Process.send_after(self(), :fetch_aggregates, in_ms)
   end
 
   def handle_event("scale", params, socket) do
@@ -189,6 +113,26 @@ defmodule Dashboard.StatsLive do
       |> Map.put("to", nil)
 
     {:ok, query} = Query.validate(existing_query, params)
+
+    {:noreply, patch(socket, query)}
+  end
+
+  @impl true
+  def handle_event("filter", %{"group" => group, "value" => value}, socket) do
+    %{query: existing_query} = socket.assigns
+
+    {:ok, query} = Query.validate(existing_query, %{group => List.wrap(value)})
+
+    {:noreply, patch(socket, query)}
+  end
+
+  @impl true
+  def handle_event("unfilter", %{"group" => group, "value" => value}, socket) do
+    %{query: existing_query} = socket.assigns
+
+    dropped = existing_query |> Map.fetch!(String.to_existing_atom(group)) |> List.delete(value)
+
+    {:ok, query} = Query.validate(existing_query, %{group => dropped})
 
     {:noreply, patch(socket, query)}
   end
@@ -247,9 +191,6 @@ defmodule Dashboard.StatsLive do
     |> push_patch(to: request_uri)
   end
 
-  defp dom_id(aggregate), do: "aggregate-#{Queryable.hash(aggregate)}"
-  defp aggregate_fields, do: Aggregate.__schema__(:fields)
-
   embed_templates "stats_live_html/*", suffix: "_html"
 
   @impl true
@@ -277,16 +218,16 @@ defmodule Dashboard.StatsLive do
     Application.fetch_env!(:scouter, :edition)
   end
 
-  defp fetch_aggregates(socket) when is_connected(socket) do
+  def fetch_aggregates(socket) when is_connected(socket) do
     query = socket.assigns.query
     filters = authorized_filters(query, socket.assigns.services)
 
     start_async(socket, :fetch_aggregates, fn ->
-      Events.stream_aggregates(filters)
+      Scouter.Events.arrow(filters)
     end)
   end
 
-  defp fetch_aggregates(socket), do: socket
+  def fetch_aggregates(socket), do: socket
 
   # lists all authorized services because nothing has been filtered
   defp authorized_filters(%{services: nil, service: nil} = query, authorized_services) do

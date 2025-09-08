@@ -3,13 +3,9 @@ defmodule Dashboard.StatComponents do
   use Phoenix.Component
   use Gettext, backend: Dashboard.Gettext
 
-  import Scouter.Event, only: [aggregate: 1, aggregate: 2]
   import Scouter.Events.GroupingID
 
   alias Dashboard.StatsLive.Query
-  alias Scouter.Cldr.Number
-  alias Scouter.Queryable
-  alias Scouter.TypedAggregate
 
   require Logger
 
@@ -71,13 +67,16 @@ defmodule Dashboard.StatComponents do
             class="before:text-zinc-500/60 last-of-type:before:content-['└─'] before:content-['├─'] gap-x-[1ch] px-2 items-center hover:bg-zinc-200/70 flex flex-row hover:bg-zinc-200"
           >
             <span class="grow">
-              {Queryable.present(aggregate(grouping_id: group_id, value: filter))}
+              {Scouter.Event.present(group_id, filter)}
             </span>
-            <label class="group" for={input_id(group_id, filter)}>
-              <span class="tracking-[0.2ch] text-xs group-hover:border-black group-hover:bg-black group-hover:text-white border border-zinc-300 shadow-[2px_2px_0px_0px] shadow-zinc-400/40 bg-zinc-50 uppercase px-1.5">
-                remove
-              </span>
-            </label>
+            <span
+              phx-click="unfilter"
+              phx-value-group={param}
+              phx-value-value={filter}
+              class="tracking-[0.2ch] text-xs group-hover:border-black group-hover:bg-black group-hover:text-white border border-zinc-300 shadow-[2px_2px_0px_0px] shadow-zinc-400/40 bg-zinc-50 uppercase px-1.5"
+            >
+              remove
+            </span>
           </li>
         </ol>
       </section>
@@ -85,19 +84,15 @@ defmodule Dashboard.StatComponents do
     """
   end
 
-  defp input_id(field, %TypedAggregate{} = typed_aggregate), do: "#{field}-#{Scouter.Queryable.hash(typed_aggregate)}"
-
-  defp input_id(group_id, value), do: Queryable.hash({group_id, value})
-
   slot :tab, doc: "Tabs" do
     attr :title, :string, required: true
     attr :field, :string, required: true
-    attr :aggregates, :list, required: true, doc: "List of Scouter.Aggregate"
-    attr :filtered, :list, required: true
+    attr :filtered, :list, required: false
     attr :hotkey, :string, required: false
   end
 
   attr :class, :string, default: ""
+  attr :version, :integer, default: 1
 
   def tabbed_chart(assigns) do
     ~H"""
@@ -123,67 +118,11 @@ defmodule Dashboard.StatComponents do
         </header>
       </form>
       <section :for={tab <- @tab} data-tab class="pt-[1ch] hidden col-span-full row-start-2">
-        <form method="GET" action="/" phx-change="filter">
-          <ol
-            id={"#{tab.field}-stream"}
-            phx-update="stream"
-            class="overflow-y-scroll snap-y snap-mandatory h-[10lh]"
-          >
-            <li
-              :for={{dom_id, aggregate} <- tab.aggregates}
-              id={dom_id}
-              class="isolate snap-start relative"
-            >
-              <div class="grid grid-cols-1 grid-rows-1 isolate">
-                <meter
-                  min="0"
-                  class="z-[-1] w-full absolute inset-0"
-                  value={Queryable.count(aggregate)}
-                  max={aggregate(aggregate, :max)}
-                />
-                <span class="px-[1ch] flex gap-x-[1ch]">
-                  <span class="flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap">
-                    {Queryable.present(aggregate)}
-                  </span>
-                  <span class="shrink-0">{display_aggregate_count(aggregate)}</span>
-                </span>
-              </div>
-              <label class="absolute inset-0">
-                <input
-                  type="checkbox"
-                  class="hidden"
-                  id={"#{Queryable.hash(aggregate)}"}
-                  checked={is_aggregate_checked(Queryable.value(aggregate), tab.filtered)}
-                  name={"#{tab.field}[]"}
-                  value={Queryable.value(aggregate) || ""}
-                />
-              </label>
-            </li>
-          </ol>
-        </form>
+        {render_slot(tab, tab.field)}
       </section>
     </section>
     """
   end
-
-  defp display_aggregate_count(aggregate) do
-    {:ok, formatted} =
-      aggregate
-      |> Queryable.count()
-      |> then(fn count ->
-        if count >= 100_000 do
-          Number.to_string(count, format: :short)
-        else
-          Number.to_string(count)
-        end
-      end)
-
-    formatted
-  end
-
-  defp is_aggregate_checked(_, nil), do: false
-  defp is_aggregate_checked(nil, filtered), do: "" in filtered
-  defp is_aggregate_checked(value, filtered), do: value in filtered
 
   attr :query, Query, required: true
 
