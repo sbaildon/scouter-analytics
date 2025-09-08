@@ -11,10 +11,10 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
     {path, _opts} = Keyword.pop(opts, :database, ":memory:")
 
     {:ok, db} =
-      Adbc.Database.start_link(driver: :duckdb, path: path, process_options: [])
+      Adbc.Database.start_link(driver: :duckdb, path: path, process_options: [name: Scouter.Adbc.Database])
 
     {:ok, conn} =
-      Adbc.Connection.start_link(database: db, process_options: [])
+      Adbc.Connection.start_link(database: db, process_options: [name: Scouter.Adbc.Connection])
 
     setup(conn)
 
