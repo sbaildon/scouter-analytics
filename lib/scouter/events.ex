@@ -1,10 +1,14 @@
 defmodule Scouter.Events do
   @moduledoc false
+  import Scouter.Events.GroupingID
+
   alias Scouter.Event
   alias Scouter.EventsRepo
   alias Scouter.EventsRepo.BackupWorker
   alias Scouter.Geo
 
+  require Explorer.DataFrame, as: DF
+  require Explorer.Series, as: S
   require Logger
 
   def scale(scale, filters \\ []) do
@@ -26,6 +30,49 @@ defmodule Scouter.Events do
     |> Event.typed_aggregate_query()
     |> filter(filters)
     |> EventsRepo.arrow_stream()
+  end
+
+  def arrow(filters \\ []) do
+    Event.query()
+    |> filter(filters)
+    |> Event.typed_aggregate_query()
+    |> then(&Scouter.Repo.to_sql(:all, &1))
+    |> then(fn {sql, params} ->
+      DF.from_query!(Scouter.Adbc.Connection, sql, params)
+    end)
+    |> tap(fn _df ->
+      Logger.warning(
+        message:
+          "the next stage, group_by/2 will fail if the query returns no values, because the result set will be [] and that causes an error"
+      )
+    end)
+    |> DF.group_by(:grouping_id)
+    |> DF.head(300)
+    |> partition_by()
+    |> Map.drop([
+      group_id(:namespace),
+      group_id(:subdivision1_code),
+      group_id(:subdivision2_code),
+      group_id(:city_geoname_id)
+    ])
+    |> Map.new(&make_presentable/1)
+  end
+
+  defp make_presentable({grouping_id, df}) when grouping_id in [group_id(:referrer), group_id(:country_code)] do
+    series = S.transform(df[:value], fn v -> Scouter.Event.present(grouping_id, v) end)
+    {grouping_id, DF.put(df, :present, series)}
+  end
+
+  defp make_presentable({grouping_id, df}) do
+    {grouping_id, df}
+  end
+
+  defp partition_by(%Explorer.DataFrame{} = df) do
+    [column | []] = DF.groups(df)
+
+    for value <- df[column] |> S.distinct() |> S.to_list(), into: %{} do
+      {value, df |> DF.ungroup() |> DF.filter(col(^column) == ^value) |> DF.discard(column)}
+    end
   end
 
   # maybe take inspiration from the reduce statement here

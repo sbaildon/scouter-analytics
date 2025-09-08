@@ -82,6 +82,7 @@ defmodule Scouter.MixProject do
       {:ex_cldr, "~> 2.37"},
       {:ex_cldr_territories, "~> 2.9.0"},
       {:adbc, "~> 0.7"},
+      {:explorer, "~> 0.11"},
       {:oban, "~> 2.19"},
       {:remote_ip, "~> 1.2"},
       {:ex_cldr_numbers, "~> 2.33"},
