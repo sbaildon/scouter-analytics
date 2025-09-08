@@ -11,6 +11,7 @@ defmodule Dashboard do
   def init(_opts) do
     children = [
       Dashboard.Telemetry,
+      {Registry, [keys: :unique, name: Dashboard.ArrowChannelRegistry]},
       {Dashboard.Endpoint, endpoint_config()},
       {Dashboard.RateLimit, clean_period: to_timeout(minute: 10)}
     ]
