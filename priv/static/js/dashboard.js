@@ -40,6 +40,12 @@ arrow
 
 liveSocket.connect();
 
+arrow.on("empty", () => {
+	for (const group_id in groupIds) {
+		document.getElementById(`group_${group_id}`)?.replaceChildren();
+	}
+});
+
 arrow.on("receive", (payload) => {
 	const group_id = new DataView(payload).getUint32(0, false); // Get first 32 bits, the group_id
 

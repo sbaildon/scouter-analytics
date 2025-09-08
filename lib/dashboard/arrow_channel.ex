@@ -14,6 +14,11 @@ defmodule Dashboard.ArrowChannel do
     {:ok, group_id_to_input_map(), socket}
   end
 
+  def handle_cast({:push, nil}, socket) do
+    push(socket, "empty", %{})
+    {:noreply, socket}
+  end
+
   def handle_cast({:push, dataframes}, socket) do
     Enum.each(dataframes, fn {group_id, df} ->
       {:ok, arrow} = Explorer.DataFrame.dump_ipc_stream(df)

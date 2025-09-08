@@ -32,30 +32,32 @@ defmodule Scouter.Events do
     |> EventsRepo.arrow_stream()
   end
 
+  @spec arrow(keyword()) ::  %{non_neg_integer() => Explorer.DataFrame.t()} | nil
   def arrow(filters \\ []) do
-    Event.query()
-    |> filter(filters)
-    |> Event.typed_aggregate_query()
-    |> then(&Scouter.Repo.to_sql(:all, &1))
-    |> then(fn {sql, params} ->
-      DF.from_query!(Scouter.Adbc.Connection, sql, params)
-    end)
-    |> tap(fn _df ->
-      Logger.warning(
-        message:
-          "the next stage, group_by/2 will fail if the query returns no values, because the result set will be [] and that causes an error"
-      )
-    end)
-    |> DF.group_by(:grouping_id)
-    |> DF.head(300)
-    |> partition_by()
-    |> Map.drop([
-      group_id(:namespace),
-      group_id(:subdivision1_code),
-      group_id(:subdivision2_code),
-      group_id(:city_geoname_id)
-    ])
-    |> Map.new(&make_presentable/1)
+    {:ok, df} =
+      Event.query()
+      |> Event.typed_aggregate_query()
+      |> filter(filters)
+      |> then(&Scouter.Repo.to_sql(:all, &1))
+      |> then(fn {sql, params} ->
+        DF.from_query(Scouter.Adbc.Connection, sql, params)
+      end)
+
+    if DF.n_rows(df) == 0 do
+      nil
+    else
+      df
+      |> DF.group_by(:grouping_id)
+      |> DF.head("EVENT_LIMT" |> System.get_env("300") |> String.to_integer())
+      |> partition_by()
+      |> Map.drop([
+        group_id(:namespace),
+        group_id(:subdivision1_code),
+        group_id(:subdivision2_code),
+        group_id(:city_geoname_id)
+      ])
+      |> Map.new(&make_presentable/1)
+    end
   end
 
   defp make_presentable({grouping_id, df}) when grouping_id in [group_id(:referrer), group_id(:country_code)] do
