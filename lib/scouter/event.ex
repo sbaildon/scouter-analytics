@@ -262,6 +262,9 @@ defmodule Scouter.Event do
   end
 
   def present(_, nil), do: unknown()
+  def present(_, ""), do: unknown()
+
+  def present(group_id(:country_code), nil), do: unknown()
 
   def present(group_id(:country_code), country_code) do
     case Territory.from_territory_code(country_code) do
