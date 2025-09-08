@@ -42,7 +42,8 @@ defmodule Dashboard.Router do
       live_dashboard "/dashboard",
         metrics: Dashboard.Telemetry,
         additional_pages: [
-          broadway: {BroadwayDashboard, pipelines: [Telemetry.Broadway]}
+          broadway: {BroadwayDashboard, pipelines: [Telemetry.Broadway]},
+          flame_on: FlameOn.DashboardPage
         ]
     end
   end
