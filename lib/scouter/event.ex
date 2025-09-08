@@ -83,11 +83,8 @@ defmodule Scouter.Event do
   end
 
   def range(query, count, interval) do
-    # not using the ago() Ecto macro because it doesn't work with DuckDB SQL
-    ago = DateTime.shift(DateTime.utc_now(), [{interval, -count}])
-
     from([{^named_binding(), event}] in query,
-      where: event.timestamp > fragment("?::TIMESTAMP_S", ^ago)
+      where: event.timestamp >= fragment("date_trunc('minute', current_localtimestamp()) - (? || ' ' || ?)::interval", ^count, ^Atom.to_string(interval))
     )
   end
 
@@ -95,7 +92,7 @@ defmodule Scouter.Event do
     {:ok, normalized} = normalize_potential_iso_string(date, "00:00:00")
 
     from([{^named_binding(), event}] in query,
-      where: event.timestamp >= fragment("?::TIMESTAMP_S", ^normalized)
+      where: event.timestamp >= fragment("?::TIMESTAMP_S", ^NaiveDateTime.to_string(normalized))
     )
   end
 
@@ -103,7 +100,7 @@ defmodule Scouter.Event do
     {:ok, normalized} = normalize_potential_iso_string(date, "23:59:59")
 
     from([{^named_binding(), event}] in query,
-      where: event.timestamp <= fragment("?::TIMESTAMP_S", ^normalized)
+      where: event.timestamp <= fragment("?::TIMESTAMP_S", ^NaiveDateTime.to_string(normalized))
     )
   end
 
