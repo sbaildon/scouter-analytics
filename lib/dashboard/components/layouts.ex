@@ -31,7 +31,8 @@ defmodule Dashboard.Layouts do
         "controllers/hotkey" => static_url(conn, "/js/dashboard/hotkey_controller.js"),
         "phoenix_live_view" => static_url(conn, "/js/phoenix_live_view.esm.js"),
         "phoenix" => static_url(conn, "/js/phoenix.mjs"),
-        "topbar" => static_url(conn, "/js/topbar.js")
+        "topbar" => static_url(conn, "/js/topbar.js"),
+        "apache-arrow" => static_url(conn, "/js/@uwdata/flechette@2.2.0.mjs")
       }
     }
   end
