@@ -4,6 +4,9 @@ defmodule Scouter.Event do
 
   import Ecto.Changeset
   import Ecto.Query
+  import Scouter.Events.GroupingID
+
+  alias Scouter.Cldr.Territory
 
   require Record
 
@@ -260,6 +263,26 @@ defmodule Scouter.Event do
       )
     end)
   end
+
+  def present(_, nil), do: unknown()
+
+  def present(group_id(:country_code), country_code) do
+    case Territory.from_territory_code(country_code) do
+      {:ok, name} -> name
+      {:error, _} -> country_code
+    end
+  end
+
+  def present(group_id(:referrer), value) do
+    case value |> URI.parse() |> Map.fetch(:host) do
+      {:ok, nil} -> unknown()
+      {:ok, host} -> Regex.replace(~r/(www\.)/, host, "")
+    end
+  end
+
+  def present(_, value), do: value
+
+  defp unknown, do: "<Unknown>"
 
   # keep in mind
   # Note that that query will be pretty slow.
