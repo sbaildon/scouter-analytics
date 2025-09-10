@@ -9,9 +9,6 @@ serve:
 proxy config="Caddyfile":
     nix run .#caddy -- run --config={{ config }} --watch
 
-olap:
-    nix shell nixpkgs#postgresql --command postgres -k $XDG_RUNTIME_DIR/scouter -D $XDG_STATE_HOME/scouter/event_db
-
 storage:
     nix run .#minio -- server --address 127.0.0.1:${MINIO_API_PORT} --console-address 127.0.0.1:${MINIO_CONSOLE_PORT} ${XDG_DATA_HOME}/{{ otp_app }}
 
