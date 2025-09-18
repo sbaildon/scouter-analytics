@@ -11,21 +11,25 @@ defmodule Scouter.Writer do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 
-  def insert(queryable) do
-    GenServer.call(__MODULE__, {:insert, queryable})
+  def insert(queryable, opts \\ []) do
+    GenServer.call(__MODULE__, {:insert, queryable, opts})
   end
 
-  def transaction(multi) do
-    GenServer.call(__MODULE__, {:transaction, multi})
+  def transact(multi, opts \\ []) do
+    GenServer.call(__MODULE__, {:transact, multi, opts})
+  end
+
+  def transaction(multi, opts \\ []) do
+    GenServer.call(__MODULE__, {:transact, multi, opts})
   end
 
   @impl GenServer
-  def handle_call({:transaction, multi}, _from, state) do
-    {:reply, Repo.transaction(multi), state}
+  def handle_call({:transact, multi, opts}, _from, state) do
+    {:reply, Repo.transact(multi, opts), state}
   end
 
   @impl GenServer
-  def handle_call({:insert, queryable}, _from, state) do
-    {:reply, Repo.insert(queryable), state}
+  def handle_call({:insert, queryable, opts}, _from, state) do
+    {:reply, Repo.insert(queryable, opts), state}
   end
 end
