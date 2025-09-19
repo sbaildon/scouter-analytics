@@ -8,9 +8,9 @@ defmodule Schema do
 
       import Ecto.Changeset
 
-      @primary_key {:id, TypeID, prefix: unquote(prefix), autogenerate: true}
+      @primary_key {:id, Identifier, prefix: unquote(prefix), autogenerate: true}
 
-      @foreign_key_type TypeID
+      @foreign_key_type Identifier
       @timestamps_opts [type: :utc_datetime_usec]
 
       def inherit_account_id(child, %{account_id: nil}), do: child

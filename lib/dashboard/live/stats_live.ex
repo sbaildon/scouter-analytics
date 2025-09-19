@@ -235,7 +235,7 @@ defmodule Dashboard.StatsLive do
 
     services =
       Enum.map(authorized_services, fn domain ->
-        TypeID.uuid(domain.id)
+        Identifier.uuid(domain.id)
       end)
 
     Keyword.replace(filters, :services, services)
@@ -245,7 +245,7 @@ defmodule Dashboard.StatsLive do
   defp authorized_filters(%{service: nil, services: []} = query, authorized_services) do
     filters = Query.to_filters(query)
 
-    services = Enum.map(authorized_services, &TypeID.uuid(&1.id))
+    services = Enum.map(authorized_services, &Identifier.uuid(&1.id))
 
     Keyword.replace(filters, :services, services)
   end
@@ -257,7 +257,7 @@ defmodule Dashboard.StatsLive do
     services =
       Enum.reduce(authorized_services, [], fn authorized_service, acc ->
         if Scouter.Service.name(authorized_service) in query.services,
-          do: [TypeID.uuid(authorized_service.id) | acc],
+          do: [Identifier.uuid(authorized_service.id) | acc],
           else: acc
       end)
 
@@ -269,7 +269,7 @@ defmodule Dashboard.StatsLive do
   defp authorized_filters(%{service: service} = query, [authorized_service | []]) when not is_nil(service) do
     filters = Query.to_filters(query)
 
-    Keyword.replace(filters, :services, [TypeID.uuid(authorized_service.id)])
+    Keyword.replace(filters, :services, [Identifier.uuid(authorized_service.id)])
   end
 
   defp authorized_filters(_, _), do: []

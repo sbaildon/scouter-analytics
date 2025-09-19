@@ -84,7 +84,7 @@ defmodule Telemetry.EventController do
 
     {:ok,
      %Event{
-       service_id: TypeID.uuid(context.service.id),
+       service_id: Identifier.uuid(context.service.id),
        namespace: context.count.o.host,
        path: context.count.p,
        referrer: referrer(context.count.r),
