@@ -94,7 +94,7 @@ defmodule Scouter.Event do
     end
   end
 
-  defmacro current_localtimestamp()  do
+  defmacro current_localtimestamp() do
     quote do
       fragment("current_localtimestamp()")
     end
@@ -102,8 +102,8 @@ defmodule Scouter.Event do
 
   def range(query, count, interval) do
     from([{^named_binding(), event}] in query,
-      where:
-        event.timestamp >= date_trunc("minute", current_localtimestamp()) - interval(^count, interval))
+      where: event.timestamp >= date_trunc("minute", current_localtimestamp()) - interval(^count, interval)
+    )
   end
 
   def starting(query, date) do
