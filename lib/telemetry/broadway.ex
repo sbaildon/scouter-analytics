@@ -2,6 +2,7 @@ defmodule Telemetry.Broadway do
   @moduledoc false
   use Broadway
 
+  alias Scouter.Event
   alias Scouter.Events
 
   require Logger
@@ -38,8 +39,10 @@ defmodule Telemetry.Broadway do
     {params, headers} = data
 
     case Telemetry.EventController.transform(params, headers) do
-      {:ok, data} ->
-        Broadway.Message.put_data(message, data)
+      {:ok, %Event{service_id: service_id} = event} ->
+        message
+        |> Broadway.Message.put_data(event)
+        |> Broadway.Message.put_batch_key(service_id)
 
       {:error, reason} ->
         Logger.info("couldn't transform event #{inspect(reason)}")
@@ -48,10 +51,12 @@ defmodule Telemetry.Broadway do
   end
 
   @impl Broadway
-  def handle_batch(_batcher, messages, _batch_info, _context) do
+  def handle_batch(_batcher, messages, %{batch_key: batch_key}, _context) do
     messages
     |> Enum.map(&Events.prepare_record_all(&1.data))
-    |> Events.record_all()
+    |> then(fn events ->
+      Events.record_all(batch_key, events)
+    end)
 
     messages
   end
