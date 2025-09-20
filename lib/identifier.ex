@@ -16,13 +16,13 @@ defmodule Identifier do
 
   def cast(nil, _params), do: {:ok, nil}
 
-  def cast(id, params) do
+  def cast(id, _params) do
     {:ok, id}
   end
 
   def dump(nil, _dumper, _params), do: {:ok, nil}
 
-  def dump(id, dumper, %{type: type} = params) do
+  def dump(id, _dumper, %{type: type} = params) do
     {:ok, tid} = TypeID.from_string(id)
     prefix = find_prefix(params)
 
