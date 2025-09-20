@@ -51,11 +51,11 @@ defmodule Telemetry.Broadway do
   end
 
   @impl Broadway
-  def handle_batch(_batcher, messages, %{batch_key: batch_key}, _context) do
+  def handle_batch(_batcher, messages, %{batch_key: _batch_key}, _context) do
     messages
     |> Enum.map(&Events.prepare_record_all(&1.data))
     |> then(fn events ->
-      Events.record_all(batch_key, events)
+      Events.record_all(events)
     end)
 
     messages
