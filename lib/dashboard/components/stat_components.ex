@@ -73,7 +73,7 @@ defmodule Dashboard.StatComponents do
               phx-click="unfilter"
               phx-value-group={param}
               phx-value-value={filter}
-              class="tracking-[0.2ch] text-xs group-hover:border-black group-hover:bg-black group-hover:text-white border border-zinc-300 shadow-[2px_2px_0px_0px] shadow-zinc-400/40 bg-zinc-50 uppercase px-1.5"
+              class="cursor-default tracking-[0.2ch] text-xs group-hover:border-black group-hover:bg-black group-hover:text-white border border-zinc-300 shadow-[2px_2px_0px_0px] shadow-zinc-400/40 bg-zinc-50 uppercase px-1.5"
             >
               remove
             </span>
