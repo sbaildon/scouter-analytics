@@ -219,7 +219,8 @@ defmodule Dashboard.StatsLive do
   end
 
   def fetch_aggregates(socket) when is_connected(socket) do
-    query = socket.assigns.query
+    %{query: query} = socket.assigns
+
     filters = authorized_filters(query, socket.assigns.services)
 
     start_async(socket, :fetch_aggregates, fn ->
