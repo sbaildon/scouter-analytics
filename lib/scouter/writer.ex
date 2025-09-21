@@ -25,11 +25,11 @@ defmodule Scouter.Writer do
 
   @impl GenServer
   def handle_call({:transact, multi, opts}, _from, state) do
-    {:reply, Repo.transact(multi, Keyword.put_new(opts, :mode, :immediate)), state}
+    {:reply, Repo.with_shard(multi, &Repo.transact/2, Keyword.put(opts, :mode, :immediate)), state}
   end
 
   @impl GenServer
   def handle_call({:insert, queryable, opts}, _from, state) do
-    {:reply, Repo.insert(queryable, opts), state}
+    {:reply, Repo.with_shard(queryable, &Repo.insert/2, opts), state}
   end
 end
