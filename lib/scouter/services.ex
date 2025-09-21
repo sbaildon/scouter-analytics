@@ -143,8 +143,8 @@ defmodule Scouter.Services do
 
   defp service_query_opts(query, opts) do
     Enum.reduce(opts, query, fn
-      {:only, []}, query -> query
-      {:only, service_ids}, query -> Service.where_id(query, service_ids)
+      {:ids, []}, query -> query
+      {:ids, service_ids}, query -> Service.where_id(query, service_ids)
       {:shared, true}, query -> Service.where_shared(query)
       _, query -> query
     end)
