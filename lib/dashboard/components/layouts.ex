@@ -76,6 +76,6 @@ defmodule Dashboard.Layouts do
       do: ~H|<script phx-track-static defer src={static_url(@conn, "/js/development.js")}>
 </script>|
   else
-    def development_scripts(_assigns), do: nil
+    def development_scripts(assigns), do: ~H""
   end
 end
