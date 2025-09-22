@@ -149,11 +149,14 @@ defmodule Dashboard.StatsLive do
 
   @impl true
   def handle_params(params, _url, socket) do
-    case socket.assigns.services do
+    case Map.get(socket.assigns, :services) do
       [_ | _] ->
         {:noreply, apply_action(socket, socket.assigns.live_action, params)}
 
       [] ->
+        {:noreply, socket}
+
+      nil ->
         {:noreply, socket}
     end
   end
