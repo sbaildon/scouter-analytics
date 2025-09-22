@@ -15,8 +15,10 @@ import { tableFromIPC, RowIndex } from "apache-arrow";
 const csrfToken = document
 	.querySelector("meta[name='csrf-token']")
 	.getAttribute("content");
-const base = document.querySelector("base").getAttribute("href");
-const liveSocket = new LiveSocket(`${base}/live`, Socket, {
+const path = document
+	.querySelector("meta[name='path']")
+	.getAttribute("content");
+const liveSocket = new LiveSocket(`${path}/live`, Socket, {
 	longPollFallbackMs: 2500,
 	params: { _csrf_token: csrfToken },
 });
