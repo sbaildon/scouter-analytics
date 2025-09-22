@@ -72,10 +72,13 @@ defmodule Dashboard.Layouts do
   attr :conn, Plug.Conn, required: true
 
   if Application.compile_env(:scouter, :dev_routes) do
-    defp development_scripts(assigns),
-      do: ~H|<script phx-track-static defer src={static_url(@conn, "/js/development.js")}>
-</script>|
+    defp development_scripts(assigns) do
+      ~H"""
+      <script phx-track-static defer src={static_url(@conn, "/js/development.js")}>
+      </script>
+      """
+    end
   else
-    def development_scripts(assigns), do: ~H""
+    defp development_scripts(assigns), do: ~H""
   end
 end
