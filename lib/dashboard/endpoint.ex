@@ -16,6 +16,7 @@ defmodule Dashboard.Endpoint do
     signing_salt: "AaPiaEsN",
     same_site: "Lax"
   ]
+
   socket "/live", Dashboard.ArrowSocket, websocket: [connect_info: [:x_headers, session: @session_options]]
 
   # Serve at "/" the static files from "priv/static" directory.
