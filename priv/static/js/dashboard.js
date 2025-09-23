@@ -18,7 +18,10 @@ const path = document
 	.getAttribute("content");
 const liveSocket = new LiveSocket(`${path}/live`, Socket, {
 	longPollFallbackMs: 2500,
-	params: { _csrf_token: csrfToken },
+	params: {
+		_csrf_token: csrfToken,
+		time_zone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+	},
 });
 
 // Show progress bar on live navigation and form submits
