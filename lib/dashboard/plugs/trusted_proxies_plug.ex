@@ -8,7 +8,6 @@ defmodule Dashboard.TrustedProxiesPlug do
 
   # local unix socket are always trusted
   def call(%{remote_ip: {:local, name}} = conn, _opts) do
-    Logger.info(socket: name)
     trusted_environment(conn)
   end
 
