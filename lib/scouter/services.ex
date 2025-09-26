@@ -86,7 +86,7 @@ defmodule Scouter.Services do
     |> EctoHelpers.take_from_multi(:service)
   end
 
-  def change(service_id, params) do
+  def change(service_id, params, opts \\ []) do
     read_query =
       service_id
       |> Service.where_id()
