@@ -38,7 +38,10 @@
 	var get_data = function (vars) {
 		var data = {
 			p: vars.path === undefined ? goatcounter.path : vars.path,
-			r: vars.referrer === undefined ? goatcounter.referrer : vars.referrer,
+			r:
+				vars.referrer === undefined
+					? goatcounter.referrer
+					: vars.referrer,
 			t: vars.title === undefined ? goatcounter.title : vars.title,
 			e: !!(vars.event || goatcounter.event),
 			s: [
@@ -79,7 +82,11 @@
 			d = document;
 		if (w.callPhantom || w._phantom || w.phantom) return 150;
 		if (w.__nightmare) return 151;
-		if (d.__selenium_unwrapped || d.__webdriver_evaluate || d.__driver_evaluate)
+		if (
+			d.__selenium_unwrapped ||
+			d.__webdriver_evaluate ||
+			d.__driver_evaluate
+		)
 			return 152;
 		if (navigator.webdriver) return 153;
 		return 0;
@@ -187,7 +194,8 @@
 		var f = goatcounter.filter();
 		if (f) return warn("not counting because of: " + f);
 		var url = goatcounter.url(vars);
-		if (!url) return warn("not counting because path callback returned null");
+		if (!url)
+			return warn("not counting because path callback returned null");
 
 		navigator.sendBeacon(url);
 	};
@@ -210,7 +218,11 @@
 			return function () {
 				goatcounter.count({
 					event: true,
-					path: elem.dataset.goatcounterClick || elem.name || elem.id || "",
+					path:
+						elem.dataset.goatcounterClick ||
+						elem.name ||
+						elem.id ||
+						"",
 					title:
 						elem.dataset.goatcounterTitle ||
 						elem.title ||
@@ -248,7 +260,12 @@
 			};
 
 			opt.attr["src"] =
-				get_endpoint() + "er/" + enc(opt.path) + "." + enc(opt.type) + "?";
+				get_endpoint() +
+				"er/" +
+				enc(opt.path) +
+				"." +
+				enc(opt.type) +
+				"?";
 			if (opt.no_branding) opt.attr["src"] += "&no_branding=1";
 			if (opt.style) opt.attr["src"] += "&style=" + enc(opt.style);
 			if (opt.start) opt.attr["src"] += "&start=" + enc(opt.start);
