@@ -60,7 +60,6 @@ config :scouter, Telemetry.Endpoint,
 config :scouter,
   ecto_repos: [Scouter.Repo, Scouter.EventsRepo],
   app_name: "Scouter",
-  edition: :commercial,
   generators: [timestamp_type: :utc_datetime, binary_id: true]
 
 config :tailwind,

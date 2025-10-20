@@ -26,10 +26,6 @@ defmodule Dashboard.Router do
 
     live_session :default, on_mount: Dashboard.InitAssigns do
       live "/", StatsLive, :index
-
-      if Application.compile_env(:scouter, :edition) == :commercial do
-        live "/:service", StatsLive, :service
-      end
     end
   end
 
