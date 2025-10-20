@@ -7,7 +7,7 @@ defmodule Dashboard.TrustedProxiesPlug do
   def init(opts), do: Map.new(opts)
 
   # local unix socket are always trusted
-  def call(%{remote_ip: {:local, name}} = conn, _opts) do
+  def call(%{remote_ip: {:local, _name}} = conn, _opts) do
     trusted_environment(conn)
   end
 
