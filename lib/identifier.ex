@@ -33,6 +33,8 @@ defmodule Identifier do
     end
   end
 
+  def load(nil, _, _params), do: {:ok, nil}
+
   def load(id, loader, params) do
     with {:ok, type_id} <- TypeID.Ecto.load(id, loader, params),
          do: {:ok, TypeID.to_string(type_id)}
