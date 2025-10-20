@@ -14,6 +14,7 @@ defmodule Scouter.MixProject do
       elixirc_options: [
         warnings_as_errors: Mix.env() == :prod
       ],
+      prune_code_paths: Mix.env() == :prod,
       releases: [
         analytics: [
           path: Path.join(["_build", System.get_env("MIX_ENV", "dev"), "rel", "scouter"]),
