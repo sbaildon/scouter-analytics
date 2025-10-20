@@ -63,5 +63,5 @@ defmodule Ecto.Adapters.DuckDB.Connection do
   defdelegate update(prefix, table, fields, filters, returning), to: SQLite3
 
   def ddl_logs(_), do: []
-  defdelegate execute_ddl(command), to: Postgres
+  defdelegate execute_ddl(command), to: SQLite3
 end
