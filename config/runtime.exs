@@ -71,16 +71,16 @@ config :scouter, Oban,
   ]
 
 config :scouter, Scouter.EventsRepo,
-  database: env.("EVENT_DATABASE_PATH", "/var/lib/scouter/events.duckdb"),
-  pool_size: 1
+  database: env.("EVENT_DATABASE_PATH", "/var/lib/scouter/analytics/events.duckdb"),
+  pool_size: env_as.("EVENT_POOL_SIZE", "10", :integer)
 
 config :scouter, Scouter.Geo,
   maxmind: {env.("MAXMIND_API_KEY", nil), env.("MAXMIND_EDITION", "GeoLite2-City")},
   database_path: env.("MMDB_PATH", nil)
 
 config :scouter, Scouter.Repo,
-  database: env.("DATABASE_PATH", "/var/lib/scouter/service.db"),
-  pool_size: env_as.("POOL_SIZE", "1", :integer)
+  database: env.("DATABASE_PATH", "/var/lib/scouter/analytics/domain.db"),
+  pool_size: env_as.("POOL_SIZE", "10", :integer)
 
 config :scouter, Telemetry.Endpoint,
   url: [host: env!.("TELEMETRY_HOST"), port: 443, scheme: "https"],
