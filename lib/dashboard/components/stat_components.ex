@@ -229,7 +229,7 @@ defmodule Dashboard.StatComponents do
                   value={Scouter.Service.name(service)}
                   name="services[]"
                   type="checkbox"
-                  checked={Scouter.Service.name(service) in (@query.services || [])}
+                  checked={Scouter.Service.name(service) in (@query.service || [])}
                 />
                 <span>{Scouter.Service.name(service)}</span>
               </div>
