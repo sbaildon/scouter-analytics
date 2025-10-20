@@ -1,11 +1,17 @@
 defmodule Scouter.Repo do
   use Ecto.Repo,
     otp_app: :scouter,
-    adapter: Ecto.Adapters.SQLite3
+    adapter: Ecto.Adapters.SQLite3,
+    default_dynamic_repo: nil
 
   use EctoHelpers
 
   require Ecto.Query
+  require Logger
+
+  def basename do
+    config() |> Keyword.fetch!(:database) |> Path.basename()
+  end
 
   @impl Ecto.Repo
   def prepare_query(_operation, query, opts) do

@@ -52,6 +52,7 @@
 			b: is_bot(),
 			o: window.location.origin,
 			q: location.search,
+			i: document.currentScript.dataset.scouterService,
 		};
 
 		var rcb, pcb, tcb; // Save callbacks to apply later.

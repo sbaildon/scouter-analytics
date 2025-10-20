@@ -11,53 +11,34 @@ defmodule Scouter.Events do
   require Explorer.Series, as: S
   require Logger
 
-  def scale(scale, filters \\ []) do
-    Event.query()
-    |> Event.scale(scale)
-    |> filter(filters)
-    |> EventsRepo.arrow_query()
-  end
+  @spec arrow(instance :: any(), filters :: keyword()) :: %{non_neg_integer() => Explorer.DataFrame.t()} | nil
+  def arrow(instance, filters \\ []) do
+    Scouter.with_instance(instance, fn %{repo: repo} ->
+      {:ok, df} =
+        Event.query()
+        |> Event.typed_aggregate_query()
+        |> filter(filters)
+        |> then(&Ecto.Adapters.SQL.to_sql(:all, repo, &1))
+        |> then(fn {sql, params} ->
+          Scouter.EventsRepo.query(sql, params, df: true)
+        end)
 
-  def retrieve(count_by, filters \\ []) do
-    Event.query()
-    |> Event.count_by(count_by)
-    |> filter(filters)
-    |> EventsRepo.arrow_query()
-  end
-
-  def stream_aggregates(filters \\ []) do
-    Event.query()
-    |> Event.typed_aggregate_query()
-    |> filter(filters)
-    |> EventsRepo.arrow_stream()
-  end
-
-  @spec arrow(keyword()) :: %{non_neg_integer() => Explorer.DataFrame.t()} | nil
-  def arrow(filters \\ []) do
-    {:ok, df} =
-      Event.query()
-      |> Event.typed_aggregate_query()
-      |> filter(filters)
-      |> then(&Scouter.Repo.to_sql(:all, &1))
-      |> then(fn {sql, params} ->
-        DF.from_query(Scouter.Adbc.Connection, sql, params)
-      end)
-
-    if DF.n_rows(df) == 0 do
-      nil
-    else
-      df
-      |> DF.group_by(:grouping_id)
-      |> DF.head("EVENT_LIMT" |> System.get_env("300") |> String.to_integer())
-      |> partition_by()
-      |> Map.drop([
-        group_id(:namespace),
-        group_id(:subdivision1_code),
-        group_id(:subdivision2_code),
-        group_id(:city_geoname_id)
-      ])
-      |> Map.new(&make_presentable/1)
-    end
+      if DF.n_rows(df) == 0 do
+        nil
+      else
+        df
+        |> DF.group_by(:grouping_id)
+        |> DF.head(event_limit())
+        |> partition_by()
+        |> Map.drop([
+          group_id(:namespace),
+          group_id(:subdivision1_code),
+          group_id(:subdivision2_code),
+          group_id(:city_geoname_id)
+        ])
+        |> Map.new(&make_presentable/1)
+      end
+    end)
   end
 
   defp make_presentable({grouping_id, df}) when grouping_id in [group_id(:referrer), group_id(:country_code)] do
@@ -217,8 +198,10 @@ defmodule Scouter.Events do
     |> then(&EventsRepo.insert_all(Event, &1))
   end
 
-  def record_all(maps) when is_list(maps) do
-    EventsRepo.insert_all(Event, maps)
+  def record_all(instance, maps) when is_list(maps) do
+    Scouter.with_instance(instance, fn _ ->
+      EventsRepo.insert_all(Event, maps)
+    end)
   end
 
   def prepare_record_all(%Event{} = event) do
@@ -282,5 +265,9 @@ defmodule Scouter.Events do
       |> BackupWorker.new()
       |> Oban.insert()
     end)
+  end
+
+  defp event_limit do
+    "EVENT_LIMIT" |> System.get_env("300") |> String.to_integer()
   end
 end

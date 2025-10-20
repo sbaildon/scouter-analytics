@@ -4,12 +4,21 @@ defmodule Telemetry.Context do
 
   alias UAInspector.Result, as: UserAgent
 
-  @primary_key false
-  embedded_schema do
-    embeds_one :count, Telemetry.Count
-    embeds_one :service, Scouter.Service
-    embeds_one :user_agent, UserAgent
-    embeds_one :geo, :map
-    field :headers, {:array, :string}
-  end
+  defstruct [
+    :instance,
+    :count,
+    :service,
+    :user_agent,
+    :geo,
+    :headers
+  ]
+
+  @type t :: %__MODULE__{
+          instance: atom(),
+          count: %Telemetry.Count{},
+          service: %Scouter.Service{},
+          user_agent: UserAgent.t(),
+          geo: Map.t(),
+          headers: [String.t()]
+        }
 end

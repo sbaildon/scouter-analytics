@@ -4,7 +4,7 @@ config :ecto_sqlite3,
   binary_id_type: :string,
   uuid_type: :string
 
-config :logger, :default_formatter, format: "$metadata[$level] $message\n", metadata: [:module]
+config :logger, :default_formatter, format: "$metadata[$level] $message\n", metadata: [:module, :instance]
 
 config :phoenix,
   plug_init_mode: :runtime,

@@ -2,12 +2,10 @@ defmodule Dashboard.Routes do
   @moduledoc false
   use Dashboard, :verified_routes
 
-  def service_url(service) do
-    url(~p"/#{service}")
-  end
-
-  def root_url do
-    struct(URI, Dashboard.Endpoint.config(:url))
+  def root_url(query \\ []) do
+    URI
+    |> struct(Dashboard.Endpoint.config(:url))
+    |> URI.append_query(URI.encode_query(query, :rfc3986))
   end
 
   defdelegate host, to: Dashboard.Endpoint

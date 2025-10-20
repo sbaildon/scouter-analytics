@@ -8,19 +8,19 @@ defmodule Telemetry.EventController do
 
   require Logger
 
-  def record(conn, params) do
+  def call(conn, _params) do
     :ok =
-      params
+      conn.params
       |> Map.put("u", NaiveDateTime.utc_now())
-      |> Telemetry.Sink.push(conn.req_headers)
+      |> Telemetry.Sink.push(conn.req_headers, conn.private.scouter_instance)
 
     resp(conn, :ok, "ok")
   end
 
-  def transform(params, headers) do
+  def transform(instance, params, headers) do
     case Telemetry.Count.validate(params) do
       {:ok, count} ->
-        context = %Context{}
+        context = %Context{instance: instance}
         continue_unless_bot(%{context | count: count, headers: headers})
 
       {:error, changeset} ->
@@ -57,9 +57,9 @@ defmodule Telemetry.EventController do
   end
 
   defp continue_unless_invalid_service(context) when is_map(context.count.o) do
-    case Services.get_for_namespace(context.count.o.host) do
-      {:ignore, nil} -> {:error, :service_not_registered}
-      {_, service} -> geo_step(%{context | service: service})
+    case Services.fetch(context.instance, context.count.i) do
+      {:ok, service} -> geo_step(%{context | service: service})
+      :error -> {:error, :service_not_registered}
     end
   end
 

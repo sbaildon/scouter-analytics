@@ -14,10 +14,11 @@ defmodule Telemetry.Count do
     field :r, Ecto.URI
     field :o, Ecto.URI
     field :u, :naive_datetime
+    field :i, Identifier, prefix: "service"
   end
 
   def changeset(count, params) do
-    cast(count, params, [:b, :p, :q, :r, :o, :u])
+    cast(count, params, [:b, :p, :q, :r, :o, :u, :i])
   end
 
   def validate(params) do

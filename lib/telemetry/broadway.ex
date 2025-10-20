@@ -2,16 +2,23 @@ defmodule Telemetry.Broadway do
   @moduledoc false
   use Broadway
 
-  alias Scouter.Event
   alias Scouter.Events
 
   require Logger
 
-  def start_link(_opts) do
-    Broadway.start_link(__MODULE__, [{:name, __MODULE__} | config()])
+  def start_link(opts) do
+    {name, _opts} = Keyword.pop!(opts, :name)
+    Broadway.start_link(__MODULE__, [{:name, name} | config(name: name)])
   end
 
-  defp config do
+  @impl Broadway
+  def process_name({:via, module, {registry_name, key}}, basename) do
+    {:via, module, {registry_name, {key, basename}}}
+  end
+
+  defp config(opts) do
+    {:via, Registry, {instance, _}} = Keyword.fetch!(opts, :name)
+
     [
       producer: [
         module: {Telemetry.Sink, []},
@@ -23,7 +30,8 @@ defmodule Telemetry.Broadway do
       ],
       batchers: [
         default: [batch_size: batch_size(), batch_timeout: batch_timeout_ms()]
-      ]
+      ],
+      context: %{instance: instance}
     ]
   end
 
@@ -35,14 +43,12 @@ defmodule Telemetry.Broadway do
   end
 
   @impl Broadway
-  def handle_message(_processor, %{data: data} = message, _context) do
+  def handle_message(_processor, %{data: data} = message, %{instance: instance}) do
     {params, headers} = data
 
-    case Telemetry.EventController.transform(params, headers) do
-      {:ok, %Event{service_id: service_id} = event} ->
-        message
-        |> Broadway.Message.put_data(event)
-        |> Broadway.Message.put_batch_key(service_id)
+    case Telemetry.EventController.transform(instance, params, headers) do
+      {:ok, event} ->
+        Broadway.Message.put_data(message, event)
 
       {:error, reason} ->
         Logger.info("couldn't transform event #{inspect(reason)}")
@@ -51,11 +57,11 @@ defmodule Telemetry.Broadway do
   end
 
   @impl Broadway
-  def handle_batch(_batcher, messages, %{batch_key: _batch_key}, _context) do
+  def handle_batch(_batcher, messages, _batch_info, %{instance: instance}) do
     messages
     |> Enum.map(&Events.prepare_record_all(&1.data))
     |> then(fn events ->
-      Events.record_all(events)
+      Events.record_all(instance, events)
     end)
 
     messages

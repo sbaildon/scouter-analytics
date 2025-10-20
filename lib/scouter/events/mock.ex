@@ -321,7 +321,7 @@ defmodule Scouter.Events.Mock do
   end
 
   def add_site_and_namespace(event) do
-    service = Enum.random(Scouter.Services.list_published())
+    service = Enum.random(Scouter.Services.list_published(:main))
 
     event
     |> Map.replace(:namespace, service.name)

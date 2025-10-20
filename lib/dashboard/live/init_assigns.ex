@@ -27,7 +27,17 @@ defmodule Dashboard.InitAssigns do
   defp decode_bearer_token(token) do
     token
     |> verify!()
-    |> decode_plain_text()
+    |> decode_standard_field_value()
+  end
+
+  defp decode_standard_field_value(field_value) do
+    field_value
+    |> String.split("=", parts: 2)
+    |> List.to_tuple()
+    |> then(fn {instance, services} ->
+      {String.to_existing_atom(instance),
+       services |> String.trim_leading("(") |> String.trim_trailing(")") |> String.split(" ")}
+    end)
   end
 
   defp decode_plain_text(plain_text) do
@@ -39,7 +49,7 @@ defmodule Dashboard.InitAssigns do
 
   defp decode_authorization(scheme_and_parameters) do
     scheme_and_parameters
-    |> String.split(" ")
+    |> String.split(" ", parts: 2)
     |> List.to_tuple()
   end
 

@@ -16,7 +16,7 @@ config :ex_cldr,
 
 config :logger, :default_formatter,
   format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id]
+  metadata: [:request_id, :instance]
 
 config :phoenix, :json_library, JSON
 
@@ -58,7 +58,6 @@ config :scouter, Telemetry.Endpoint,
   pubsub_server: Scouter.PubSub
 
 config :scouter,
-  ecto_repos: [Scouter.Repo, Scouter.EventsRepo],
   app_name: "Scouter",
   generators: [timestamp_type: :utc_datetime, binary_id: true]
 

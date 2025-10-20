@@ -45,8 +45,8 @@ defmodule Telemetry.Sink do
     dispatch_events(events, buffer_size, pending_demand)
   end
 
-  def push(params, headers) do
-    Telemetry.Broadway
+  def push(params, headers, instance) do
+    {:via, Registry, {instance, :broadway}}
     |> Broadway.producer_names()
     |> Enum.random()
     |> GenStage.cast({:push, params, headers})

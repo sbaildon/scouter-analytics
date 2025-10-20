@@ -2,33 +2,38 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
   @moduledoc false
   use DBConnection
 
+  require Explorer.DataFrame, as: DF
+  require Explorer.Series, as: S
   require Logger
 
   defstruct [:conn, :db, transaction_status: :idle]
 
   @impl DBConnection
   def connect(opts) do
-    {path, _opts} = Keyword.pop(opts, :database, ":memory:")
+    with {path, _opts} <- Keyword.pop!(opts, :database),
+         {:ok, db} <- Adbc.Database.start_link(driver: :duckdb, path: path),
+         {:ok, conn} <- Adbc.Connection.start_link(database: db),
+         {:ok, _} <- Adbc.Connection.query(conn, "PRAGMA enable_checkpoint_on_shutdown;"),
+         {:ok, _} <- run_custom_schema_migrations_table(conn) do
+      state = %__MODULE__{
+        db: db,
+        conn: conn
+      }
 
-    {:ok, db} =
-      Adbc.Database.start_link(driver: :duckdb, path: path, process_options: [name: Scouter.Adbc.Database])
-
-    {:ok, conn} =
-      Adbc.Connection.start_link(database: db, process_options: [name: Scouter.Adbc.Connection])
-
-    setup(conn)
-
-    state = %__MODULE__{
-      db: db,
-      conn: conn
-    }
-
-    {:ok, state}
+      {:ok, state}
+    end
   end
 
-  defp setup(conn) do
-    {:ok, _} = Adbc.Connection.query(conn, "PRAGMA enable_checkpoint_on_shutdown;")
-    :ok
+  # because there's some sort of race condition when pool_size >1, the
+  # repo will start claiming there's no schema_migrations table,
+  # but after inspecting the db immediately after the crash the table exists.
+  # one theory is the table is made but the process running the migrations runs before the
+  # create schema_migrations table is commited
+  defp run_custom_schema_migrations_table(conn) do
+    Adbc.Connection.query(
+      conn,
+      "CREATE TABLE IF NOT EXISTS schema_migrations (version bigint not null primary key, inserted_at text not null)"
+    )
   end
 
   @impl DBConnection
@@ -67,8 +72,13 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
   end
 
   @impl DBConnection
-  def handle_status(_opts, _state) do
-    raise "handle_status/2 not impl"
+  def handle_status(_opts, %{transaction_status: :transaction} = state) do
+    {:transaction, state}
+  end
+
+  @impl DBConnection
+  def handle_status(_opts, state) do
+    {:idle, state}
   end
 
   @impl DBConnection
@@ -84,9 +94,13 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
 
   @impl DBConnection
   def handle_prepare(query, _opts, state) do
-    {:ok, ref} = Adbc.Connection.prepare(state.conn, query.statement)
+    case Adbc.Connection.prepare(state.conn, query.statement) do
+      {:ok, ref} ->
+        {:ok, %{query | ref: ref}, state}
 
-    {:ok, %{query | ref: ref}, state}
+      {:error, %{message: message}} ->
+        {:error, message, state}
+    end
   end
 
   @impl DBConnection
@@ -95,7 +109,24 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
   end
 
   @impl DBConnection
-  def handle_execute(query, params, _opts, state) do
+  def handle_execute(query, params, opts, state) do
+    case Keyword.fetch(opts, :df) do
+      {:ok, true} ->
+        handle_df_query(query, params, opts, state)
+
+      :error ->
+        handle_traditional_query(query, params, opts, state)
+    end
+  end
+
+  defp handle_df_query(query, params, _opts, state) do
+    case DF.from_query(state.conn, query.statement, params) do
+      {:ok, result} -> {:ok, query, result, state}
+      _ -> {:error, :bad}
+    end
+  end
+
+  defp handle_traditional_query(query, params, _opts, state) do
     case Adbc.Connection.query(state.conn, query.ref, params) do
       {:ok, result} ->
         {:ok, query, result, state}

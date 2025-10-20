@@ -4,12 +4,22 @@ defmodule Socket do
       raise "socket activation enabled, requires #{env} to be set, and is usually named after your socket unit, eg: analytics-dashboard.socket"
   end
 
-  defp fd!(fds, name) do
-    List.keyfind(fds, to_charlist(name), 1) || raise "#{name} was not passed as a named socket, received #{inspect(fds)}"
+  def systemd(fds, socket_name) do
+    socket_activation(fds, socket_name)
+  end
+
+  def fd(fds, socket_name) do
+    {fd, _} =
+      List.keyfind(fds, to_charlist(socket_name), 1) ||
+        raise "#{socket_name} was not passed as a named socket, received #{inspect(fds)}"
+
+    fd
   end
 
   def socket_activation(fds, socket_name) do
-    {fd, _name} = fd!(fds, socket_name)
+    {fd, _} =
+      List.keyfind(fds, to_charlist(socket_name), 1) ||
+        raise "#{socket_name} was not passed as a named socket, received #{inspect(fds)}"
 
     [
       thousand_island_options: [

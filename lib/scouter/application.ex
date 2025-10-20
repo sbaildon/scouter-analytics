@@ -10,18 +10,13 @@ defmodule Scouter.Application do
   @impl Application
   def start(_type, _args) do
     children = [
-      Scouter.Repo,
-      Scouter.Writer,
-      Scouter.EventsRepo,
-      {Oban, oban_config(:scouter)},
       {ReferrerBlocklist, [http_client: Req]},
+      Scouter.Instances,
       Scouter.Services,
-      Telemetry,
       Dashboard,
       Admin,
       {Scouter.Geo, Application.fetch_env!(:scouter, Scouter.Geo)},
       {Finch, Application.fetch_env!(:scouter, Finch)},
-      {Ecto.Migrator, repos: Application.fetch_env!(:scouter, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:scouter, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Scouter.PubSub}
     ]
@@ -36,7 +31,7 @@ defmodule Scouter.Application do
   def start_phase(:post_start, :normal, _args) do
     :systemd.unset_env(:listen_fds)
     :systemd.notify(:ready)
-    Logger.info("systemd notify ready")
+    Logger.info("notified systemd")
   end
 
   # Tell Phoenix to update the endpoint configuration
@@ -45,25 +40,5 @@ defmodule Scouter.Application do
   def config_change(changed, new, removed) do
     Dashboard.changed(changed, new, removed)
     :ok
-  end
-
-  defp oban_config(otp_app) do
-    config = Application.fetch_env!(otp_app, Oban)
-
-    config
-    |> Keyword.fetch!(:plugins)
-    |> List.keyfind(Oban.Plugins.Cron, 0)
-    |> elem(1)
-    |> Keyword.get(:crontab)
-    |> case do
-      [] -> Logger.warning("backups disabled. no configuration provided")
-      _ -> nil
-    end
-
-    config
-  end
-
-  defp skip_migrations? do
-    not ("RUN_MIGRATIONS" |> System.get_env("false") |> String.to_existing_atom())
   end
 end

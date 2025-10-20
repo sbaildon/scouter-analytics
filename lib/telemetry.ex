@@ -4,30 +4,17 @@ defmodule Telemetry do
   use Supervisor
 
   def start_link(opts) do
-    Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
+    Supervisor.start_link(__MODULE__, opts)
   end
 
   @impl true
   def init(_opts) do
     children = [
-      Telemetry.Telemetry,
-      {Telemetry.Endpoint, endpoint_config()},
-      Telemetry.Broadway
+      Telemetry.Telemetry
     ]
 
     opts = [strategy: :one_for_one]
     Supervisor.init(children, opts)
-  end
-
-  defp endpoint_config do
-    [http: http()]
-  end
-
-  defp http do
-    case :systemd.listen_fds() do
-      [] -> Socket.af_inet6("TELEMETRY_PORT", "4001")
-      fds -> Socket.socket_activation(fds, Socket.name!("TELEMETRY_SOCKET"))
-    end
   end
 
   def router do

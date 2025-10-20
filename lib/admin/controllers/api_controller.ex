@@ -6,8 +6,8 @@ defmodule Admin.APIController do
   alias Scouter.Services
 
   def service(conn, params) do
-    with {:ok, %{service: namespace}} <- service_params(params),
-         {:ok, service} <- Services.register(namespace, []) do
+    with {:ok, %{service: namespace, instance: instance}} <- service_params(params),
+         {:ok, service} <- Services.register(instance, namespace, []) do
       text(conn, service.id)
     else
       _ ->
@@ -15,10 +15,10 @@ defmodule Admin.APIController do
     end
   end
 
-  defp service_params(params) do
-    types = %{service: :string}
+  def service_params(params) do
+    types = %{service: :string, instance: :string}
 
-    {%{}, types}
+    {%{instance: "main"}, types}
     |> cast(params, Map.keys(types))
     |> validate_required([:service])
     |> validate_change(:service, &validate_host/2)

@@ -11,23 +11,26 @@ defmodule Dashboard.StatsLive do
   require Logger
 
   @impl true
-  def mount(params, session, socket) do
-    {:ok, handle_mount(socket.assigns.live_action, params, session, socket)}
+  def mount(_params, session, socket) do
+    {:ok, handle_mount(socket.assigns.live_action, session, socket)}
   end
 
-  def handle_mount(_live_action, params, session, socket) do
-    {:ok, query} = Query.validate(params)
+  def handle_mount(_live_action, session, socket) do
+    {:ok, query} =
+      socket.private
+      |> get_in([:connect_params, "query"])
+      |> parse_query()
+      |> Query.validate()
 
     socket
     |> authorized_services(query)
-    |> available()
     |> assign(:version, version())
-    |> assign(:edition, edition())
     |> assign(:query, query)
     |> remote_ip()
     |> assign_new(:email, fn ->
       session["from"]
     end)
+    |> fetch_aggregates()
   end
 
   defp remote_ip(socket) do
@@ -42,8 +45,8 @@ defmodule Dashboard.StatsLive do
   end
 
   defp authorized_services(socket, %{service: nil}) do
-    with %{caveats: service_ids} <- socket.assigns,
-         {:ok, services} <- Services.list_published(only: service_ids) do
+    with %{caveats: {instance, service_ids}} <- socket.assigns,
+         {:ok, services} <- Services.list_published(instance, ids: service_ids) do
       assign(socket, :services, services)
     end
   end
@@ -67,23 +70,12 @@ defmodule Dashboard.StatsLive do
 
     GenServer.cast(channel_pid, {:push, dataframes})
 
-    {:noreply, available(socket)}
+    {:noreply, socket}
   end
 
   @impl true
   def handle_info(:fetch_aggregates, socket) do
-    key = socket.id
-    scale = to_timeout(millisecond: 750)
-    limit = 1
-
-    case RateLimit.hit(key, scale, limit) do
-      {:allow, _current_count} ->
-        {:noreply, fetch_aggregates(socket)}
-
-      {:deny, ms_until_next_window} ->
-        Process.send_after(self(), :fetch_aggregates, ms_until_next_window)
-        {:noreply, socket}
-    end
+    {:noreply, fetch_aggregates(socket)}
   end
 
   def handle_event("scale", params, socket) do
@@ -147,29 +139,6 @@ defmodule Dashboard.StatsLive do
     {:noreply, patch(socket, query)}
   end
 
-  @impl true
-  def handle_params(params, _url, socket) do
-    case Map.get(socket.assigns, :services) do
-      [_ | _] ->
-        {:noreply, apply_action(socket, socket.assigns.live_action, params)}
-
-      [] ->
-        {:noreply, socket}
-
-      nil ->
-        {:noreply, socket}
-    end
-  end
-
-  defp apply_action(socket, _, _params) do
-    if available?(socket) do
-      send(self(), :fetch_aggregates)
-      unavailable(socket)
-    else
-      socket
-    end
-  end
-
   defp query_struct_to_query_params(%Query{} = query) do
     query
     |> Map.from_struct()
@@ -184,14 +153,12 @@ defmodule Dashboard.StatsLive do
   end
 
   defp patch(socket, %Query{} = query) do
-    {path, query_params} = query_struct_to_query_params(query)
-
-    request_uri =
-      (path && ~p"/#{path}?#{query_params}") || ~p"/?#{query_params}"
+    {_path, query_params} = query_struct_to_query_params(query)
 
     socket
     |> assign(:query, query)
-    |> push_patch(to: request_uri)
+    |> push_event("query", Map.new(query_params))
+    |> fetch_aggregates()
   end
 
   embed_templates "stats_live_html/*", suffix: "_html"
@@ -217,18 +184,25 @@ defmodule Dashboard.StatsLive do
     :scouter |> Application.spec(:vsn) |> to_string()
   end
 
-  defp edition do
-    Application.fetch_env!(:scouter, :edition)
-  end
-
   def fetch_aggregates(socket) when is_connected(socket) do
-    %{query: query} = socket.assigns
+    %{query: query, caveats: {instance, _}} = socket.assigns
 
     filters = authorized_filters(query, socket.assigns.services)
 
-    start_async(socket, :fetch_aggregates, fn ->
-      Scouter.Events.arrow(filters)
-    end)
+    key = socket.id
+    scale = to_timeout(millisecond: 750)
+    limit = 1
+
+    case RateLimit.hit(key, scale, limit) do
+      {:allow, _current_count} ->
+        start_async(socket, :fetch_aggregates, fn ->
+          Scouter.Events.arrow(instance, filters)
+        end)
+
+      {:deny, ms_until_next_window} ->
+        Process.send_after(self(), :fetch_aggregates, ms_until_next_window)
+        socket
+    end
   end
 
   def fetch_aggregates(socket), do: socket
@@ -278,18 +252,6 @@ defmodule Dashboard.StatsLive do
 
   defp authorized_filters(_, _), do: []
 
-  defp available(socket) do
-    assign(socket, :available, true)
-  end
-
-  defp unavailable(socket) do
-    assign(socket, :available, false)
-  end
-
-  defp available?(socket) do
-    socket.assigns.available
-  end
-
   defp render_ip({_, _, _, _} = ip), do: :inet.ntoa(ip)
   defp render_ip({_, _, _, _, _, _, _, _} = ip), do: :inet.ntoa(ip)
   defp render_ip(nil), do: nil
@@ -303,5 +265,16 @@ defmodule Dashboard.StatsLive do
 
   defp fallback_homepage do
     struct(URI, Dashboard.Endpoint.config(:url))
+  end
+
+  defp parse_query(nil), do: parse_query("")
+
+  defp parse_query(query_string) do
+    query_string
+    |> URI.query_decoder(:rfc3986)
+    |> Enum.reduce(%{}, fn
+      {key, value}, acc when key in ["interval", "from", "to", "service"] -> Map.put(acc, key, value)
+      {key, value}, acc -> Map.update(acc, key, [value], fn values -> [value | values] end)
+    end)
   end
 end
