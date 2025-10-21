@@ -70,7 +70,7 @@ defmodule Telemetry.Broadway do
   @impl Broadway
   def handle_failed([message | _] = messages, _context) do
     {:failed, reason} = message.status
-    Logger.info("failed #{Enum.count(messages)} message(s), first failed for #{inspect(reason)}")
+    Logger.info("failed #{Enum.count(messages)} message(s), first failed for reason: #{inspect(reason)}")
 
     messages
   end
