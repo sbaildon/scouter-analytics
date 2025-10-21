@@ -48,6 +48,7 @@ defmodule Scouter.Services do
           Service.query()
           |> Service.where_id(service_id)
           |> Service.with_primary_provider()
+          |> Service.with_matchers()
           |> EctoHelpers.preload()
           |> repo.fetch(opts)
         end,
@@ -120,6 +121,18 @@ defmodule Scouter.Services do
         end,
         [{:mode, :immediate} | opts]
       )
+    end)
+  end
+
+  def add_pattern(instance, service_id, pattern) when is_binary(pattern) do
+    with {:ok, regex} <- Regex.compile(pattern) do
+      add_pattern(instance, service_id, regex)
+    end
+  end
+
+  def add_pattern(instance, service_id, pattern) do
+    Scouter.with_instance(instance, fn _ ->
+      Repo.insert(%Scouter.Services.Matcher{service_id: service_id, pattern: pattern})
     end)
   end
 

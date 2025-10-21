@@ -41,6 +41,7 @@ defmodule Scouter.Instance do
     children = [
       {Registry, name: name, keys: :unique},
       {Telemetry.Broadway, name: {:via, Registry, {name, :broadway}}},
+      {ConCache, name: {:via, Registry, {name, :cache}}, ttl_check_interval: false},
       {Scouter.Repo, repo_config(name)},
       {Oban,
        [

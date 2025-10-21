@@ -8,6 +8,7 @@ defmodule Scouter.Service do
 
   schema "services" do
     field :published, :boolean, default: true
+    has_many :matchers, Services.Matcher
     has_many :providers, Services.Provider
     belongs_to :primary_provider, Services.Provider
 
@@ -71,6 +72,21 @@ defmodule Scouter.Service do
 
   def with_primary_provider(query, opts \\ []) do
     assoc = :primary_provider
+    as = Keyword.get(opts, :as, assoc)
+    from = Keyword.get(opts, :from, named_binding())
+
+    if has_named_binding?(query, as) do
+      query
+    else
+      from([{^from, struct}] in query,
+        left_join: assoc(struct, ^assoc),
+        as: ^as
+      )
+    end
+  end
+
+  def with_matchers(query, opts \\ []) do
+    assoc = :matchers
     as = Keyword.get(opts, :as, assoc)
     from = Keyword.get(opts, :from, named_binding())
 

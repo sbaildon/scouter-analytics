@@ -58,13 +58,26 @@ defmodule Telemetry.EventController do
 
   defp continue_unless_invalid_service(context) when is_map(context.count.o) do
     case Services.fetch(context.instance, context.count.i) do
-      {:ok, service} -> geo_step(%{context | service: service})
-      :error -> {:error, :service_not_registered}
+      {:ok, service} -> continue_if_pattern_match(%{context | service: service})
+      :error -> {:error, :service_not_found}
     end
   end
 
   defp continue_unless_invalid_service(_context) do
-    {:error, :service_not_registered}
+    {:error, :no_origin}
+  end
+
+  defp continue_if_pattern_match(%{instance: instance, service: service, count: count} = context) do
+    callback = fn ->
+      Enum.find_value(service.matchers, {:ok, nil}, fn matcher ->
+        Regex.match?(matcher.pattern, count.o.host) && {:ok, matcher.id}
+      end)
+    end
+
+    case ConCache.fetch_or_store({:via, Registry, {instance, :cache}}, count.o.host, callback) do
+      {:ok, nil} -> {:error, :no_pattern_match}
+      {:ok, _} -> geo_step(context)
+    end
   end
 
   def geo_step(context) do
