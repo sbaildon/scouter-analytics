@@ -114,14 +114,20 @@ defmodule Scouter.Services do
 
           {:ok, update} = repo.update(Service.set_primary_provider(service, service_provider.id))
 
-          :ok = service.id |> service_socket() |> Path.dirname() |> File.mkdir_p()
-          :ok = File.ln_s(instance_socket(instance), service_socket(service))
+          :ok = create_socket(instance, service.id)
 
           {:ok, update}
         end,
         [{:mode, :immediate} | opts]
       )
     end)
+  end
+
+  def create_socket(instance, service_id) do
+    :ok = service_id |> service_socket() |> Path.dirname() |> File.mkdir_p()
+    :ok = File.ln_s(instance_socket(instance), service_socket(service_id))
+
+    :ok
   end
 
   def add_pattern(instance, service_id, pattern) when is_binary(pattern) do
