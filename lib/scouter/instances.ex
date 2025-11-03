@@ -55,7 +55,7 @@ defmodule Scouter.Instances do
   end
 
   defp maybe_enable_dynamic_instances do
-    case System.fetch_env("DYNAMIC_INSTANCE_MANAGER_SOCKET") do
+    case System.fetch_env("INSTANCE_MANAGER_SOCKET") do
       {:ok, path} ->
         [
           {DynamicSupervisor, name: Scouter.InstanceSupervisor, strategy: :one_for_one},
