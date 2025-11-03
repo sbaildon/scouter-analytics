@@ -36,6 +36,7 @@ defmodule Dashboard.StatComponents do
 
   defp filters do
     [
+      {:namespaces, group_id(:namespace), "Namespaces"},
       {:browsers, group_id(:browser), "Browsers"},
       {:browser_versions, group_id(:browser_version), "Browser Vers."},
       {:operating_systems, group_id(:operating_system), "Operating Systems"},
@@ -89,6 +90,7 @@ defmodule Dashboard.StatComponents do
     attr :field, :string, required: true
     attr :filtered, :list, required: false
     attr :hotkey, :string, required: false
+    attr :checked, :boolean, required: false
   end
 
   attr :class, :string, default: ""
@@ -109,7 +111,7 @@ defmodule Dashboard.StatComponents do
                 data-hotkey={Map.get(tab, :hotkey)}
                 id={tab.field}
                 value={tab.field}
-                checked={index == 0}
+                checked={tab[:checked] || index == 0}
                 phx-update="ignore"
                 class="hidden"
               />
@@ -206,7 +208,7 @@ defmodule Dashboard.StatComponents do
         <ul class="flex flex-col pb-1.25">
           <li :for={service <- @services} class="px-2">
             <span class="flex flex-row justify-between">
-              <span>{Scouter.Service.name(service)}</span>
+              <span>{service.name}</span>
             </span>
           </li>
         </ul>
@@ -226,31 +228,27 @@ defmodule Dashboard.StatComponents do
                 <input
                   data-controller="hotkey"
                   data-hotkey={i}
-                  value={Scouter.Service.name(service)}
+                  value={service.id}
                   name="services[]"
                   type="checkbox"
-                  checked={Scouter.Service.name(service) in (@query.service || [])}
+                  checked={service.id in (@query.services || [])}
                 />
-                <span>{Scouter.Service.name(service)}</span>
+                <span>{service.name}</span>
               </div>
               <.hotkey keybind={i} />
             </label>
-            <ol class="pl-8 pr-2 text-zinc-400">
-              <li :for={provider <- drop_primary_provider(service)}>
-                <div>
-                  <span>{provider.namespace}</span>
-                </div>
-              </li>
-            </ol>
+            <!-- <ol class="pl-8 pr-2 text-zinc-400"> -->
+            <!--   <li :for={provider <- drop_primary_provider(service)}> -->
+            <!--     <div> -->
+            <!--       <span>{provider.namespace}</span> -->
+            <!--     </div> -->
+            <!--   </li> -->
+            <!-- </ol> -->
           </li>
         </ul>
       </form>
     </.controls>
     """
-  end
-
-  defp drop_primary_provider(service) do
-    for provider <- service.providers, provider.id != service.primary_provider_id, do: provider
   end
 
   attr :action, :string, required: false

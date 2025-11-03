@@ -4,9 +4,12 @@ defmodule Dashboard.StatsLive.Query do
 
   import Ecto.Changeset
 
+  # TODO: delete :service, but doing so cuases the checkboxes not to work.
+  # debug why
   @primary_key false
   embedded_schema do
     field :services, {:array, :string}
+    field :namespaces, {:array, :string}
     field :browsers, {:array, :string}
     field :browser_versions, {:array, :string}
     field :paths, {:array, :string}

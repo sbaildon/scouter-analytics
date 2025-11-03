@@ -30,13 +30,16 @@ defmodule Dashboard.InitAssigns do
     |> decode_standard_field_value()
   end
 
-  defp decode_standard_field_value(field_value) do
+  def decode_standard_field_value(field_value) do
     field_value
-    |> String.split("=", parts: 2)
-    |> List.to_tuple()
-    |> then(fn {instance, services} ->
-      {String.to_existing_atom(instance),
-       services |> String.trim_leading("(") |> String.trim_trailing(")") |> String.split(" ")}
+    |> String.split(",", trim: true)
+    |> Enum.map(fn item -> item |> String.trim() |> String.split(";", trim: true) end)
+    |> Enum.map(fn
+      [services, "instance=" <> instance] ->
+        {String.to_atom(instance), services |> String.trim_leading("(") |> String.trim_trailing(")") |> String.split(" ")}
+
+      [services | []] ->
+        {:main, services |> String.trim_leading("(") |> String.trim_trailing(")") |> String.split(" ")}
     end)
   end
 

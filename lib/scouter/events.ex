@@ -31,7 +31,6 @@ defmodule Scouter.Events do
         |> DF.head(event_limit())
         |> partition_by()
         |> Map.drop([
-          group_id(:namespace),
           group_id(:subdivision1_code),
           group_id(:subdivision2_code),
           group_id(:city_geoname_id)
@@ -125,6 +124,10 @@ defmodule Scouter.Events do
 
   defp filter(query, [{:utm_terms, values} | rest]) do
     filter(Event.where_in(query, :utm_term, values), rest)
+  end
+
+  defp filter(query, [{:namespaces, values} | rest]) do
+    filter(Event.where_in(query, :namespace, values), rest)
   end
 
   defp filter(query, [{:country_codes, values} | rest]) do

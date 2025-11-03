@@ -10,7 +10,6 @@ defmodule Scouter.Instance do
     :runtime_dir,
     :state_dir,
     :repo,
-    :adbc_connection,
     :events_repo
   ]
 
@@ -18,8 +17,7 @@ defmodule Scouter.Instance do
           runtime_dir: Path.t(),
           state_dir: Path.t(),
           repo: pid(),
-          events_repo: pid(),
-          adbc_connection: pid()
+          events_repo: pid()
         }
 
   # opts is [local: path], [fd: fd], or [port: port]
@@ -90,7 +88,7 @@ defmodule Scouter.Instance do
   end
 
   def build(name) do
-    with {:ok, %{repo: _repo} = registered_pids} <- Scouter.Instance.registered_pids(name) do
+    with {:ok, %{repo: _repo} = registered_pids} <- registered_pids(name) do
       paths = paths(name)
       {:ok, struct(__MODULE__, Enum.reduce([paths, registered_pids, %{name: name}], %{}, &Map.merge/2))}
     end
@@ -198,4 +196,6 @@ defmodule Scouter.Instance do
 
     config
   end
+
+
 end

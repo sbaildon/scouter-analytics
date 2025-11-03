@@ -5,6 +5,7 @@ defmodule Scouter.Services do
   alias Scouter.Repo
   alias Scouter.Service
   alias Scouter.Services
+  alias Scouter.Services.Matcher
 
   require Logger
 
@@ -21,47 +22,60 @@ defmodule Scouter.Services do
     Supervisor.init(children, strategy: :one_for_one)
   end
 
-  def fetch_by_namespace(instance, namespace, opts \\ [])
-
-  def fetch_by_namespace(_, nil, _opts) do
-    :error
-  end
-
-  def fetch_by_namespace(instance, namespace, opts) do
-    Scouter.with_instance(instance, fn _ ->
-      Repo.transact(
-        fn repo ->
-          Service.query()
-          |> Service.with_providers()
-          |> Services.Provider.where_ns(namespace, from: :providers)
-          |> repo.fetch([{:skip_service_id, true} | opts])
-        end,
-        opts
-      )
-    end)
-  end
-
   def fetch(instance, service_id, opts \\ []) do
     Scouter.with_instance(instance, fn _ ->
       Repo.transact(
         fn repo ->
           Service.query()
           |> Service.where_id(service_id)
-          |> Service.with_primary_provider()
           |> Service.with_matchers()
           |> EctoHelpers.preload()
           |> repo.fetch(opts)
+          |> then(fn
+              {:ok, service} -> {:ok, calculate_matchers(service)}
+              other -> other
+          end)
         end,
         opts
       )
     end)
   end
 
+  defp calculate_matchers(%{matchers: matchers} = service) do
+    %{service | matchers: for(matcher <- matchers, do: calculate_matcher(matcher))}
+  end
+
+  defp calculate_matcher(%{type: :regex, value: pattern} = matcher) do
+    with {:ok, regex} <- Regex.compile(pattern) do
+      %{matcher | regex: regex}
+    end
+  end
+
+  defp calculate_matcher(%{type: :wildcard, value: wildcard} = matcher) do
+    with {:ok, regex} <- wildcard |> wildcard_to_regex() |> Regex.compile() do
+      %{matcher | regex: regex}
+    end
+  end
+
+  defp wildcard_to_regex(value) do
+    value
+    |> String.graphemes()
+    |> Enum.map(fn
+      "*" -> "(?!-)[A-Za-z0-9-]{1,63}(?<!-)"
+      other -> other
+    end)
+    |> Enum.join()
+    |> then(fn pattern ->
+      [?^, pattern, ?$]
+    end)
+    |> IO.iodata_to_binary()
+  end
+
   def delete(instance, service_id, opts \\ []) do
     Scouter.with_instance(instance, fn _ ->
       Repo.transact(
         fn repo ->
-          {_, _providers} = repo.delete_all(Services.Provider.where_service(service_id))
+          {_, _matchers} = repo.delete_all(Services.Matcher.where_service(service_id))
           {:ok, service} = repo.fetch(Service.where_id(service_id))
           {:ok, _} = repo.delete(service)
 
@@ -82,41 +96,17 @@ defmodule Scouter.Services do
     end)
   end
 
-  def get_for_namespace(instance, namespace, opts \\ []) do
-    {_, result} =
-      Cachex.fetch(service_cache(), {instance, namespace}, fn ->
-        Scouter.with_instance(instance, fn _ ->
-          Service.query()
-          |> Service.with_providers()
-          |> Services.Provider.where_ns(namespace, from: :providers)
-          |> EctoHelpers.preload()
-          |> Repo.fetch([{:skip_service_id, true} | opts])
-          |> case do
-            {:ok, service} -> {:commit, {:ok, service}, expire: to_timeout(second: 30)}
-            :error -> {:ignore, :error}
-          end
-        end)
-      end)
-
-    result
-  end
-
-  def register(instance, namespace, data \\ [], opts \\ []) do
-    data = Keyword.put_new(data, :published, true)
+  def register(instance, params, opts \\ []) do
+    params = Map.put_new(params, :published, true)
 
     Scouter.with_instance(instance, fn %{state_dir: _state_dir} ->
       Repo.transact(
         fn repo ->
-          {:ok, service} = repo.insert(Service.changeset(%{published: data[:published]}))
-
-          {:ok, service_provider} =
-            repo.insert(Services.Provider.changeset(%{service_id: service.id, namespace: namespace}))
-
-          {:ok, update} = repo.update(Service.set_primary_provider(service, service_provider.id))
+          {:ok, service} = repo.insert(Service.changeset(params))
 
           :ok = create_socket(instance, service.id)
 
-          {:ok, update}
+          {:ok, service}
         end,
         [{:mode, :immediate} | opts]
       )
@@ -130,15 +120,14 @@ defmodule Scouter.Services do
     :ok
   end
 
-  def add_pattern(instance, service_id, pattern) when is_binary(pattern) do
-    with {:ok, regex} <- Regex.compile(pattern) do
-      add_pattern(instance, service_id, regex)
-    end
-  end
-
-  def add_pattern(instance, service_id, pattern) do
+  def add_matcher(instance, service_id, type, value) do
     Scouter.with_instance(instance, fn _ ->
-      Repo.insert(%Scouter.Services.Matcher{service_id: service_id, pattern: pattern})
+      %Scouter.Services.Matcher{
+        service_id: service_id,
+        type: type,
+        value: value
+      }
+      |> Repo.insert()
     end)
   end
 
@@ -156,68 +145,44 @@ defmodule Scouter.Services do
     read_query =
       service_id
       |> Service.where_id()
-      |> Service.with_providers()
-      |> Service.with_primary_provider()
+      |> Service.with_matchers()
       |> EctoHelpers.preload()
 
     Scouter.with_instance(instance, fn _ ->
       Repo.transact(
         fn repo ->
-          {:ok, service} = repo.one(read_query)
+          {:ok, service} = repo.fetch(read_query)
 
-          {:ok, _} = repo.update(Service.changeset(service, params))
-          {:ok, _} = repo.update(Services.Provider.changeset(service.primary_provider, params))
+          {:ok, _service} = repo.update(Service.changeset(service, params))
 
-          repo.one(read_query)
+          repo.fetch(read_query)
         end,
         [{:mode, :immediate} | opts]
       )
     end)
   end
 
-  def get_by_name(instance, name, opts \\ []) do
+  def fetch_by_name(instance, name, opts \\ []) do
     Scouter.with_instance(instance, fn _ ->
-      Repo.transact(
-        fn repo ->
-          Service.query()
-          |> Service.where_published()
-          |> Service.with_providers()
-          |> Service.with_primary_provider()
-          |> Services.Provider.where_ns(name, from: :primary_provider)
-          |> service_query_opts(opts)
-          |> EctoHelpers.preload()
-          |> repo.fetch([{:skip_service_id, true} | opts])
-        end,
-        opts
-      )
+      fn repo ->
+        Service.query()
+        |> Service.where_published()
+        |> Service.with_matchers()
+        |> Service.where_name(name)
+        |> service_query_opts(opts)
+        |> EctoHelpers.preload()
+        |> repo.fetch([{:skip_service_id, true} | opts])
+        |> case do
+          {:ok, service} -> {:ok, service}
+          :error -> {:error, nil}
+        end
+      end
+      |> Repo.transact(opts)
+      |> case do
+        {:ok, service} -> {:ok, service}
+        {:error, nil} -> :error
+      end
     end)
-  end
-
-  @doc """
-  Scouter makes no promises that namespaces are unique across instances. That's your respnsibility.
-  This function runs async queries across all instances and the first one wins.
-  """
-  def get_instance_for_primary_namespace(namespace) do
-    query =
-      Service.query()
-      |> Service.with_providers()
-      |> Service.with_primary_provider()
-      |> Services.Provider.where_ns(namespace, from: :primary_provider)
-      |> EctoHelpers.preload()
-
-    Scouter.list_instances()
-    |> Task.async_stream(
-      fn instance ->
-        Scouter.with_instance(instance, fn _ ->
-          case Repo.fetch(query, skip_service_id: true) do
-            {:ok, _service} -> instance
-            :error -> false
-          end
-        end)
-      end,
-      ordered: false
-    )
-    |> Enum.find(fn {:ok, value} -> value end)
   end
 
   def list(instance, opts \\ []) do
@@ -225,8 +190,6 @@ defmodule Scouter.Services do
       Repo.transact(
         fn repo ->
           Service.query()
-          |> Service.with_providers()
-          |> Service.with_primary_provider()
           |> service_query_opts(opts)
           |> EctoHelpers.preload()
           |> repo.list(opts)
@@ -242,8 +205,6 @@ defmodule Scouter.Services do
         fn repo ->
           Service.query()
           |> Service.where_published()
-          |> Service.with_providers()
-          |> Service.with_primary_provider()
           |> service_query_opts(opts)
           |> EctoHelpers.preload()
           |> repo.list(opts)

@@ -71,7 +71,17 @@
     </.tabbed_chart>
 
     <.tabbed_chart version={2}>
-      <:tab title={gettext("Path")} field="paths">
+      <:tab title={gettext("Namespace")} field="namespaces">
+        <form method="GET" action="/" phx-change="filter">
+          <div
+            id={"group_#{group_id(:namespace)}"}
+            phx-update="ignore"
+            class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
+          >
+          </div>
+        </form>
+      </:tab>
+      <:tab checked={true} title={gettext("Path")} field="paths">
         <form method="GET" action="/" phx-change="filter">
           <div
             id={"group_#{group_id(:path)}"}

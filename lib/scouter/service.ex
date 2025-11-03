@@ -7,18 +7,18 @@ defmodule Scouter.Service do
   alias Scouter.Services
 
   schema "services" do
+    field :name, :string
     field :published, :boolean, default: true
-    has_many :matchers, Services.Matcher
-    has_many :providers, Services.Provider
-    belongs_to :primary_provider, Services.Provider
+    has_many :matchers, Services.Matcher, defaults: :inherit_account_id, on_replace: :delete
 
     timestamps()
   end
 
   def changeset(service, params) do
     service
-    |> cast(params, [:published])
-    |> validate_required([:published])
+    |> cast(params, [:name, :published])
+    |> validate_required([:name, :published])
+    |> cast_assoc(:matchers)
   end
 
   defp named_binding, do: :service
@@ -55,34 +55,10 @@ defmodule Scouter.Service do
     )
   end
 
-  def with_providers(query, opts \\ []) do
-    assoc = :providers
-    as = Keyword.get(opts, :as, assoc)
-    from = Keyword.get(opts, :from, named_binding())
-
-    if has_named_binding?(query, as) do
-      query
-    else
-      from([{^from, struct}] in query,
-        left_join: assoc(struct, ^assoc),
-        as: ^as
-      )
-    end
-  end
-
-  def with_primary_provider(query, opts \\ []) do
-    assoc = :primary_provider
-    as = Keyword.get(opts, :as, assoc)
-    from = Keyword.get(opts, :from, named_binding())
-
-    if has_named_binding?(query, as) do
-      query
-    else
-      from([{^from, struct}] in query,
-        left_join: assoc(struct, ^assoc),
-        as: ^as
-      )
-    end
+  def where_name(query, name) do
+    from([{^named_binding(), service}] in query,
+      where: service.name == ^name
+    )
   end
 
   def with_matchers(query, opts \\ []) do
@@ -100,17 +76,13 @@ defmodule Scouter.Service do
     end
   end
 
-  def name(%{primary_provider: provider}) do
-    provider.namespace
-  end
-
   def set_primary_provider(service, provider_id) do
     Ecto.Changeset.change(service, primary_provider_id: provider_id)
   end
 
   defimpl Phoenix.Param do
     def to_param(service) do
-      Scouter.Service.name(service)
+      service.id
     end
   end
 end

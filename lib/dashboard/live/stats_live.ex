@@ -23,7 +23,7 @@ defmodule Dashboard.StatsLive do
       |> Query.validate()
 
     socket
-    |> authorized_services(query)
+    |> authorized_services()
     |> assign(:version, version())
     |> assign(:query, query)
     |> remote_ip()
@@ -44,23 +44,10 @@ defmodule Dashboard.StatsLive do
     end)
   end
 
-  defp authorized_services(socket, %{service: nil}) do
-    with %{caveats: {instance, service_ids}} <- socket.assigns,
+  defp authorized_services(socket) do
+    with %{caveats: [{instance, service_ids}]} <- socket.assigns,
          {:ok, services} <- Services.list_published(instance, ids: service_ids) do
       assign(socket, :services, services)
-    end
-  end
-
-  defp authorized_services(socket, %{service: service}) do
-    %{caveats: service_ids} = socket.assigns
-
-    case Services.get_by_name(service, only: service_ids) do
-      {:ok, service} ->
-        Logger.debug(service: service)
-        assign(socket, :services, List.wrap(service))
-
-      :error ->
-        assign(socket, :services, [])
     end
   end
 
@@ -185,7 +172,7 @@ defmodule Dashboard.StatsLive do
   end
 
   def fetch_aggregates(socket) when is_connected(socket) do
-    %{query: query, caveats: {instance, _}} = socket.assigns
+    %{query: query, caveats: [{instance, _}]} = socket.assigns
 
     filters = authorized_filters(query, socket.assigns.services)
 
@@ -234,7 +221,7 @@ defmodule Dashboard.StatsLive do
 
     services =
       Enum.reduce(authorized_services, [], fn authorized_service, acc ->
-        if Scouter.Service.name(authorized_service) in query.services,
+        if authorized_service.id in query.services,
           do: [Identifier.uuid(authorized_service.id) | acc],
           else: acc
       end)

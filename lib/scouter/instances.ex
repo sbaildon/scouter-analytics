@@ -3,6 +3,7 @@ defmodule Scouter.Instances do
   use Supervisor
 
   alias Scouter.Instances.SCMEndpoint
+
   require Logger
 
   def start_link(opts) do

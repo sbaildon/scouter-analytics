@@ -40,10 +40,11 @@ defmodule Scouter do
   end
 
   def start_instance(name, {:fd, fd}) do
-    {:ok, _pid} = DynamicSupervisor.start_child(
-      Scouter.InstanceSupervisor,
-      {Scouter.Instance, name: {:via, Registry, {Scouter.InstanceRegistry, name}}, fd: fd}
-    )
+    {:ok, _pid} =
+      DynamicSupervisor.start_child(
+        Scouter.InstanceSupervisor,
+        {Scouter.Instance, name: {:via, Registry, {Scouter.InstanceRegistry, name}}, fd: fd}
+      )
   end
 
   def stop_instances do
