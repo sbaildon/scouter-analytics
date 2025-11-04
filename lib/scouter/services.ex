@@ -32,8 +32,8 @@ defmodule Scouter.Services do
           |> EctoHelpers.preload()
           |> repo.fetch(opts)
           |> then(fn
-              {:ok, service} -> {:ok, calculate_matchers(service)}
-              other -> other
+            {:ok, service} -> {:ok, calculate_matchers(service)}
+            other -> other
           end)
         end,
         opts
@@ -60,11 +60,10 @@ defmodule Scouter.Services do
   defp wildcard_to_regex(value) do
     value
     |> String.graphemes()
-    |> Enum.map(fn
+    |> Enum.map_join(fn
       "*" -> "(?!-)[A-Za-z0-9-]{1,63}(?<!-)"
       other -> other
     end)
-    |> Enum.join()
     |> then(fn pattern ->
       [?^, pattern, ?$]
     end)
@@ -122,12 +121,7 @@ defmodule Scouter.Services do
 
   def add_matcher(instance, service_id, type, value) do
     Scouter.with_instance(instance, fn _ ->
-      %Scouter.Services.Matcher{
-        service_id: service_id,
-        type: type,
-        value: value
-      }
-      |> Repo.insert()
+      Repo.insert(%Scouter.Services.Matcher{service_id: service_id, type: type, value: value})
     end)
   end
 
