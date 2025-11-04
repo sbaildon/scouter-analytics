@@ -16,19 +16,19 @@ defmodule Scouter.Instances do
       [
         {Registry, name: Scouter.InstanceRegistry, keys: :unique},
         {Scouter.Instance, main_instance_opts()}
-      ] ++ maybe_enable_dynamic_instances()
+      ] ++ maybe_enable_instance_manager()
 
     Supervisor.init(children, strategy: :one_for_one)
   end
 
   defp main_instance_opts do
     case :systemd.listen_fds() do
-      [] -> put_name(raw_process())
-      fds -> fds |> managed_by_systemd() |> put_name()
+      [] -> put_name(self_managed())
+      fds -> fds |> systemd_managed() |> put_name()
     end
   end
 
-  defp managed_by_systemd(fds) do
+  defp systemd_managed(fds) do
     with {:ok, socket_name} <- System.fetch_env("TELEMETRY_SOCKET"),
          {fd, _} <- List.keyfind(fds, to_charlist(socket_name), 1) do
       [fd: fd]
@@ -38,7 +38,7 @@ defmodule Scouter.Instances do
     end
   end
 
-  defp raw_process do
+  defp self_managed() do
     cond do
       socket = System.get_env("TELEMETRY_SOCKET") ->
         [local: socket]
@@ -54,17 +54,37 @@ defmodule Scouter.Instances do
     Keyword.put(opts, :name, {:via, Registry, {Scouter.InstanceRegistry, :main}})
   end
 
-  defp maybe_enable_dynamic_instances do
-    case System.fetch_env("INSTANCE_MANAGER_SOCKET") do
-      {:ok, path} ->
-        [
-          {DynamicSupervisor, name: Scouter.InstanceSupervisor, strategy: :one_for_one},
-          {Task.Supervisor, name: Scouter.Instances.SCMReceiver},
-          Supervisor.child_spec({Task, fn -> SCMEndpoint.start(path: path) end}, restart: :permanent)
-        ]
+  defp maybe_enable_instance_manager do
+    case :systemd.listen_fds() do
+      [] -> maybe_start_self_managed_instance_manager()
+      fds -> maybe_start_systemd_managed_instance_manager(fds)
+    end
+  end
 
-      :error ->
+  defp maybe_start_self_managed_instance_manager do
+    case System.fetch_env("INSTANCE_MANAGER_SOCKET") do
+      {:ok, path} -> instance_manager_processes(path: path)
+      :error -> []
+    end
+  end
+
+  def maybe_start_systemd_managed_instance_manager(fds) do
+    with {:ok, socket_name} <- System.fetch_env("INSTANCE_MANAGER_SOCKET"),
+         {fd, name} <- List.keyfind(fds, to_charlist(socket_name), 1) do
+      Logger.info("starting instance manager with fd #{fd}, #{name}")
+      instance_manager_processes(fd: fd)
+    else
+      _ ->
         []
     end
+  end
+
+  # manager_opts expects [fd: fd] or [path: path]
+  defp instance_manager_processes(manager_opts) do
+    [
+      {DynamicSupervisor, name: Scouter.InstanceSupervisor, strategy: :one_for_one},
+      {Task.Supervisor, name: Scouter.Instances.SCMReceiver},
+      Supervisor.child_spec({Task, fn -> SCMEndpoint.start(manager_opts) end}, restart: :permanent)
+    ]
   end
 end

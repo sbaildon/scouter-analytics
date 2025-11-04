@@ -3,15 +3,38 @@ defmodule Scouter.Instances.SCMEndpoint do
   require Logger
 
   def start(opts) do
-    with {:ok, path} <- Keyword.fetch(opts, :path),
-         {:ok, _path} <- clean_socket(path),
+    case socket(opts) do
+      {:ok, socket} ->
+        Logger.info("listening for instance requests")
+        accept_connection(socket)
+
+      other ->
+        Logger.warning("failed to start #{inspect(other)}")
+    end
+  end
+
+  defp socket(opts) do
+    cond do
+      path = Keyword.get(opts, :path) -> self_managed_socket(path)
+      fd = Keyword.get(opts, :fd) -> systemd_managed_socket(fd)
+      true -> raise "scm socket neeeds :path or :fd"
+    end
+  end
+
+  defp self_managed_socket(path) do
+    with {:ok, _path} <- clean_socket(path),
          {:ok, socket} <- :socket.open(:local, :stream, :default),
          :ok <- :socket.bind(socket, %{family: :local, path: path}),
          :ok <- :socket.listen(socket) do
-      Logger.info("listening for instance requests at #{inspect(path)}")
-      accept_connection(socket)
-    else
-      other -> Logger.warning("failed to start #{inspect(other)}")
+        Logger.info("listening for instances from #{path}")
+      {:ok, socket}
+    end
+  end
+
+  defp systemd_managed_socket(fd) do
+    with {:ok, socket} <- :socket.open(fd),
+         :ok <- :socket.listen(socket) do
+      {:ok, socket}
     end
   end
 
