@@ -60,7 +60,7 @@ defmodule Scouter.Instance do
         {Migrator, skip: skip_migrations?(), repos: [Scouter.EventsRepo], process: {name, :events_repo}},
         id: :events_repo_migrator
       ),
-      bandit([{:instance, name} | opts]),
+      bandit([{:instance, name} | opts])
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
@@ -158,7 +158,7 @@ defmodule Scouter.Instance do
     |> then(&Path.join([&1, "instances", name]))
   end
 
-  defp default_state_directory(), do: "/var/lib/scouter/analytics"
+  defp default_state_directory, do: "/var/lib/scouter/analytics"
 
   def runtime_directory(name) do
     ["RUNTIME_DIRECTORY", "XDG_RUNTIME_DIR"]
@@ -166,7 +166,7 @@ defmodule Scouter.Instance do
     |> then(&Path.join([&1, "instances", name]))
   end
 
-  defp default_runtime_directory(), do: "/run/scouter/analytics"
+  defp default_runtime_directory, do: "/run/scouter/analytics"
 
   def database_path(name) when is_atom(name), do: name |> Atom.to_string() |> database_path()
 
@@ -196,6 +196,4 @@ defmodule Scouter.Instance do
 
     config
   end
-
-
 end
