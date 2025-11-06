@@ -128,8 +128,7 @@ defmodule Scouter.Services do
 
   defp service_socket(service) when is_struct(service), do: service_socket(service.id)
 
-  defp service_socket(service_id),
-    do: Path.join([System.fetch_env!("RUNTIME_DIRECTORY"), "scouter", "analytics", "services", service_id, "socket"])
+  defp service_socket(runtime_directory, service_id), do: Path.join([runtime_directory, "services", service_id, "socket"])
 
   defp instance_socket(instance) when is_atom(instance), do: instance |> to_string() |> instance_socket()
 
