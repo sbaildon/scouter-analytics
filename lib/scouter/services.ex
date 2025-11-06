@@ -33,6 +33,7 @@ defmodule Scouter.Services do
           |> repo.fetch(opts)
           |> then(fn
             {:ok, service} -> {:ok, calculate_matchers(service)}
+            :error -> {:error, :not_found}
             other -> other
           end)
         end,

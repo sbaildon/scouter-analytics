@@ -59,7 +59,7 @@ defmodule Telemetry.EventController do
   defp continue_unless_invalid_service(context) when is_map(context.count.o) do
     case Services.fetch(context.instance, context.count.i) do
       {:ok, service} -> continue_if_pattern_match(%{context | service: service})
-      :error -> {:error, :service_not_found}
+      {:error, :not_found} -> {:error, :service_not_found}
     end
   end
 
