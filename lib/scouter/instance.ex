@@ -57,7 +57,8 @@ defmodule Scouter.Instance do
         id: :repo_migrator
       ),
       Supervisor.child_spec(
-        {Migrator, skip: skip_migrations?(), repos: [Scouter.EventsRepo], process: {name, :events_repo}},
+        {Migrator,
+         skip_table_creation: true, skip: skip_migrations?(), repos: [Scouter.EventsRepo], process: {name, :events_repo}},
         id: :events_repo_migrator
       ),
       bandit([{:instance, name} | opts])
