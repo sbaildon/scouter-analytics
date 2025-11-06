@@ -26,7 +26,7 @@ defmodule Scouter.Instances.SCMEndpoint do
          {:ok, socket} <- :socket.open(:local, :stream, :default),
          :ok <- :socket.bind(socket, %{family: :local, path: path}),
          :ok <- :socket.listen(socket) do
-        Logger.info("listening for instances from #{path}")
+      Logger.info("listening for instances from #{path}")
       {:ok, socket}
     end
   end
