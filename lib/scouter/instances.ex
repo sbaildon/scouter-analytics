@@ -38,7 +38,7 @@ defmodule Scouter.Instances do
     end
   end
 
-  defp self_managed() do
+  defp self_managed do
     cond do
       socket = System.get_env("TELEMETRY_SOCKET") ->
         [local: socket]
