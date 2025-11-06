@@ -32,7 +32,7 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
   defp run_custom_schema_migrations_table(conn) do
     Adbc.Connection.query(
       conn,
-      "CREATE TABLE IF NOT EXISTS schema_migrations (version bigint not null primary key, inserted_at text not null)"
+      "CREATE TABLE IF NOT EXISTS schema_migrations (version UINT64 not null primary key, inserted_at text not null);"
     )
   end
 
