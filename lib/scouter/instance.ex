@@ -52,13 +52,20 @@ defmodule Scouter.Instance do
            repo
          end
        ]},
+      {Adbc.Database,
+       [driver: :duckdb, path: events_database_path(name), process_options: [name: {:via, Registry, {name, :adbc_db}}]]},
       {Scouter.EventsRepo, events_repo_config(name)},
       Supervisor.child_spec({Migrator, skip: skip_migrations?(), repos: [Scouter.Repo], process: {name, :repo}},
         id: :repo_migrator
       ),
       Supervisor.child_spec(
-        {Migrator,
-         skip_table_creation: true, skip: skip_migrations?(), repos: [Scouter.EventsRepo], process: {name, :events_repo}},
+        {Scouter.Instances.EventsMigrator,
+         instance: name,
+         pool_size: 1,
+         skip_table_creation: true,
+         skip: skip_migrations?(),
+         repos: [Scouter.EventsRepo],
+         process: {name, :events_repo}},
         id: :events_repo_migrator
       ),
       bandit([{:instance, name} | opts])
@@ -79,13 +86,16 @@ defmodule Scouter.Instance do
   end
 
   defp events_repo_config(:main = name) do
-    Keyword.put(Scouter.EventsRepo.config(), :name, {:via, Registry, {name, :events_repo}})
+    Scouter.EventsRepo.config()
+    |> Keyword.put(:name, {:via, Registry, {name, :events_repo}})
+    |> Keyword.put(:instance, name)
   end
 
   defp events_repo_config(name) do
     Scouter.EventsRepo.config()
     |> Keyword.put(:name, {:via, Registry, {name, :events_repo}})
     |> Keyword.replace(:database, events_database_path(name))
+    |> Keyword.put(:instance, name)
   end
 
   def build(name) do

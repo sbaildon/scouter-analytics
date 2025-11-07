@@ -6,17 +6,16 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
   require Explorer.Series, as: S
   require Logger
 
-  defstruct [:conn, :db, transaction_status: :idle]
+  defstruct [:conn, transaction_status: :idle]
 
   @impl DBConnection
   def connect(opts) do
-    with {path, _opts} <- Keyword.pop!(opts, :database),
-         {:ok, db} <- Adbc.Database.start_link(driver: :duckdb, path: path),
+    with {instance, opts} <- Keyword.pop!(opts, :instance),
+         [{db, _}] <- Registry.lookup(instance, :adbc_db),
+         {path, _opts} <- Keyword.pop!(opts, :database),
          {:ok, conn} <- Adbc.Connection.start_link(database: db),
-         {:ok, _} <- Adbc.Connection.query(conn, "PRAGMA enable_checkpoint_on_shutdown;"),
-         {:ok, _} <- run_custom_schema_migrations_table(conn) do
+         {:ok, _} <- Adbc.Connection.query(conn, "PRAGMA enable_checkpoint_on_shutdown;") do
       state = %__MODULE__{
-        db: db,
         conn: conn
       }
 
@@ -24,23 +23,10 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
     end
   end
 
-  # because there's some sort of race condition when pool_size >1, the
-  # repo will start claiming there's no schema_migrations table,
-  # but after inspecting the db immediately after the crash the table exists.
-  # one theory is the table is made but the process running the migrations runs before the
-  # create schema_migrations table is commited
-  defp run_custom_schema_migrations_table(conn) do
-    Adbc.Connection.query(
-      conn,
-      "CREATE TABLE IF NOT EXISTS schema_migrations (version UINT64 not null primary key, inserted_at text not null);"
-    )
-  end
-
   @impl DBConnection
   def disconnect(_err, state) do
-    %{db: db, conn: conn} = state
+    %{conn: conn} = state
     :ok = GenServer.stop(conn)
-    :ok = GenServer.stop(db)
     :ok
   end
 
