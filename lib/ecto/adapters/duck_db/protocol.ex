@@ -10,9 +10,8 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
 
   @impl DBConnection
   def connect(opts) do
-    with {instance, opts} <- Keyword.pop!(opts, :instance),
+    with {instance, _opts} <- Keyword.pop!(opts, :instance),
          [{db, _}] <- Registry.lookup(instance, :adbc_db),
-         {path, _opts} <- Keyword.pop!(opts, :database),
          {:ok, conn} <- Adbc.Connection.start_link(database: db),
          {:ok, _} <- Adbc.Connection.query(conn, "PRAGMA enable_checkpoint_on_shutdown;") do
       state = %__MODULE__{

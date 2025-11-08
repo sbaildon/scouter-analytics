@@ -94,7 +94,6 @@ defmodule Scouter.Instance do
   defp events_repo_config(name) do
     Scouter.EventsRepo.config()
     |> Keyword.put(:name, {:via, Registry, {name, :events_repo}})
-    |> Keyword.replace(:database, events_database_path(name))
     |> Keyword.put(:instance, name)
   end
 
