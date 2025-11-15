@@ -47,6 +47,23 @@ defmodule Scouter do
       )
   end
 
+  def stop_instance(name) when is_binary(name) do
+    name |> String.to_atom() |> stop_instance()
+  end
+
+  def stop_instance(name) do
+    Logger.info("stopping instance #{name} by request")
+
+    case Registry.lookup(Scouter.InstanceRegistry, name) do
+      [{pid, _}] ->
+        :ok = DynamicSupervisor.terminate_child(Scouter.InstanceSupervisor, pid)
+        Logger.info("stopped instance #{name} by request")
+
+      _ ->
+        Logger.info("cannot stop #{name} because it's not running")
+    end
+  end
+
   def stop_instances do
     Logger.info("stopping all instances")
 
