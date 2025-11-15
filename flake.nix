@@ -24,7 +24,6 @@
           pkgs.duckdb
           pkgs.hivemind
           pkgs.imgproxy
-          pkgs.lima
           pkgs.minio
           pkgs.minio-client
           pkgs.sqlite
@@ -67,7 +66,6 @@
       };
 
       packages.aarch64-darwin.default = beamPkgs.elixir_1_18;
-      packages.aarch64-darwin.lima = pkgs.lima;
       packages.aarch64-darwin.fish = pkgs.fish;
     };
 }
