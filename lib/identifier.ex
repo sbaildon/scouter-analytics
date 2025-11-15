@@ -37,6 +37,7 @@ defmodule Identifier do
 
   def load(id, loader, params) do
     prefix = find_prefix(params)
+
     with {:ok, type_id} <- TypeID.Ecto.load(id, loader, %{params | prefix: prefix}),
          do: {:ok, TypeID.to_string(type_id)}
   end
