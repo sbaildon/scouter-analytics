@@ -81,8 +81,12 @@ defmodule Scouter.Instances.EventsMigrator do
     end
   end
 
-  defp load_migration!({version, _, file}) when is_binary(file) do
-    loaded_modules = file |> Code.compile_file() |> Enum.map(&elem(&1, 0))
+  defp load_migration!({version, name, file}) when is_binary(file) do
+    loaded_modules =
+      case migration_loaded(name) do
+        {:module, module} -> List.wrap(module)
+        nil -> file |> Code.compile_file() |> Enum.map(&elem(&1, 0))
+      end
 
     if mod = Enum.find(loaded_modules, &migration?/1) do
       {version, mod}
@@ -90,6 +94,23 @@ defmodule Scouter.Instances.EventsMigrator do
       raise Ecto.MigrationError,
             "file #{Path.relative_to_cwd(file)} does not define an Ecto.Migration"
     end
+  end
+
+  defp migration_loaded(name) do
+    module = Module.concat([Scouter.EventsRepo.Migrations, name_to_module(name)])
+    if Code.loaded?(module) do
+      {:module, module}
+    else
+      nil
+    end
+  end
+
+  # something like "create_events" to "CreateEvents"
+  defp name_to_module(name) do
+    name
+    |> String.split("_")
+    |> Enum.map(&String.capitalize/1)
+    |> Enum.join()
   end
 
   defp migration?(mod) do
