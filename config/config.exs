@@ -49,14 +49,6 @@ config :scouter, Scouter.Repo,
   migration_primary_key: [name: :id, type: :uuid, null: false],
   migration_timestamps: [type: :utc_datetime_usec]
 
-config :scouter, Telemetry.Endpoint,
-  adapter: Bandit.PhoenixAdapter,
-  render_errors: [
-    formats: [json: Telemetry.ErrorJSON],
-    layout: false
-  ],
-  pubsub_server: Scouter.PubSub
-
 config :scouter,
   app_name: "Scouter",
   generators: [timestamp_type: :utc_datetime, binary_id: true]

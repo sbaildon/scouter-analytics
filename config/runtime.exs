@@ -82,10 +82,6 @@ config :scouter, Scouter.Repo,
   database: env.("DATABASE_PATH", "/var/lib/scouter/analytics/domain.db"),
   pool_size: env_as.("POOL_SIZE", "10", :integer)
 
-config :scouter, Telemetry.Endpoint,
-  url: [host: env!.("TELEMETRY_HOST"), port: 443, scheme: "https"],
-  secret_key_base: env!.("TELEMETRY_SECRET_KEY_BASE")
-
 config :scouter, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
 config :ua_inspector,

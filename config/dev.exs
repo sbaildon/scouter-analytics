@@ -44,18 +44,6 @@ config :scouter, Scouter.Repo,
   stacktrace: true,
   show_sensitive_data_on_connection_error: true
 
-config :scouter, Telemetry.Endpoint,
-  check_origin: false,
-  code_reloader: true,
-  debug_errors: true,
-  live_reload: [
-    web_console_logger: true,
-    patterns: [
-      ~r"priv/gettext/.*(po)$",
-      ~r"lib/api/(controllers|components)/.*(ex|heex)$"
-    ]
-  ]
-
 config :scouter, dev_routes: true
 
 config :typeid_elixir,
