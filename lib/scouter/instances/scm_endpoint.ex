@@ -47,8 +47,12 @@ defmodule Scouter.Instances.SCMEndpoint do
   def serve(socket) do
     case :socket.recvmsg(socket) do
       {:ok, %{iov: [message], ctrl: [%{type: :rights, data: <<fd::native-integer-size(32)>>}]}} ->
-        Logger.info("starting instance #{message} via fd #{inspect(fd)}")
+        Logger.info("Received start instance #{message} request via fd #{inspect(fd)}")
         Scouter.start_instance(message, {:fd, fd})
+
+      {:ok, %{iov: [message]}} ->
+        Logger.info("Received stop instance request")
+        Scouter.stop_instance(message)
 
       {:error, reason} ->
         Logger.info("error receiving message #{inspect(reason)}")
