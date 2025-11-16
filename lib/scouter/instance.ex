@@ -112,7 +112,7 @@ defmodule Scouter.Instance do
   end
 
   def paths(name) do
-    %{runtime_dir: runtime_directory(to_string(name)), state_dir: state_directory(to_string(name))}
+    %{runtime_dir: runtime_directory(), state_dir: state_directory()}
   end
 
   defp bandit(opts) do
@@ -162,13 +162,13 @@ defmodule Scouter.Instance do
     [ip: {0, 0, 0, 0, 0, 0, 0, 0}, port: port]
   end
 
-  def state_directory(name) do
+  def state_directory() do
     Enum.find_value(["STATE_DIRECTORY", "XDG_DATA_HOME"], default_state_directory(), &System.get_env/1)
   end
 
   defp default_state_directory, do: "/var/lib/scouter/analytics"
 
-  def runtime_directory(name) do
+  def runtime_directory() do
     Enum.find_value(["RUNTIME_DIRECTORY", "XDG_RUNTIME_DIR"], default_runtime_directory(), &System.get_env/1)
   end
 
@@ -176,11 +176,11 @@ defmodule Scouter.Instance do
 
   def database_path(name) when is_atom(name), do: name |> Atom.to_string() |> database_path()
 
-  def database_path(name), do: Path.join([state_directory(name), "#{name}@domain.db"])
+  def database_path(name), do: Path.join([state_directory(), "#{name}@domain.db"])
 
   def events_database_path(name) when is_atom(name), do: name |> Atom.to_string() |> events_database_path()
 
-  def events_database_path(name), do: Path.join([state_directory(name), "#{name}@events.duckdb"])
+  def events_database_path(name), do: Path.join([state_directory(), "#{name}@events.duckdb"])
 
   defp skip_migrations? do
     value = System.get_env("RUN_MIGRATIONS", "false")
