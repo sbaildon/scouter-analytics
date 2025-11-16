@@ -15,10 +15,25 @@ defmodule Scouter.Instances do
     children =
       [
         {Registry, name: Scouter.InstanceRegistry, keys: :unique},
-        {Scouter.Instance, main_instance_opts()}
-      ] ++ maybe_enable_instance_manager()
+      ] ++ maybe_main_instance() ++ maybe_enable_instance_manager()
 
     Supervisor.init(children, strategy: :one_for_one)
+  end
+
+  defp maybe_main_instance() do
+    socket = System.get_env("TELEMETRY_SOCKET")
+    port = System.get_env("TELEMETRY_PORT")
+    instance_manager = System.get_env("INSTANCE_MANAGER_SOCKET")
+
+    cond do
+      !socket && !port && !instance_manager ->
+        raise "set TELEMETRY_PORT or TELEMETRY_SOCKET"
+      !socket && !port ->
+        Logger.info("main instance not configured")
+        []
+      true ->
+        [{Scouter.Instance, main_instance_opts()}]
+    end
   end
 
   defp main_instance_opts do
