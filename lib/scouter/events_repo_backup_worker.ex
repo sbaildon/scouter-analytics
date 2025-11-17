@@ -21,11 +21,11 @@ defmodule Scouter.EventsRepo.BackupWorker do
       credentials_query = create_credentials_if_not_exists_query(name)
       repo.query!(credentials_query, [], log: false)
 
-      repo.query!(migration_backup_query(root), [], log: false)
+        repo.query!("COPY schema_migrations TO $1;", [Path.join([root, "schema_migrations.parquet"])], log: false)
 
-      events_table_name = "events"
-      repo.query!(events_backup_query(root, events_table_name), [events_table_name], log: false)
-      repo.query!(delete_credentials_query(name), [], log: false)
+        repo.query!(events_backup_query(), ["events", Path.join([root, "events.parquet.d"])], log: false)
+        repo.query!(delete_credentials_query(name), [], log: false)
+      end)
     end)
   end
 
@@ -33,17 +33,7 @@ defmodule Scouter.EventsRepo.BackupWorker do
     "DROP TEMPORARY SECRET #{name};"
   end
 
-  def migration_backup_query(root) do
-    to = Path.join([root, "schema_migrations.parquet"])
-
-    """
-    COPY schema_migrations TO '#{to}'
-    """
-  end
-
-  def events_backup_query(root, table_name) do
-    to = Path.join([root, table_name <> ".parquet.d"])
-
+  def events_backup_query() do
     """
     COPY (
     SELECT
@@ -52,7 +42,7 @@ defmodule Scouter.EventsRepo.BackupWorker do
       MONTH(timestamp) AS 'month'
     FROM
       query_table($1)
-    ) TO '#{to}' (
+    ) TO $2 (
     FORMAT parquet,
     OVERWRITE_OR_IGNORE true,
     PARTITION_BY ('service_id', 'year', 'month')
