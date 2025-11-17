@@ -17,7 +17,6 @@ defmodule Scouter.MixProject do
       prune_code_paths: Mix.env() == :prod,
       releases: [
         analytics: [
-          path: Path.join(["_build", System.get_env("MIX_ENV", "dev"), "rel", "scouter"]),
           include_executables_for: [:unix]
         ]
       ]
