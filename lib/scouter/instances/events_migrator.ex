@@ -109,8 +109,7 @@ defmodule Scouter.Instances.EventsMigrator do
   defp name_to_module(name) do
     name
     |> String.split("_")
-    |> Enum.map(&String.capitalize/1)
-    |> Enum.join()
+    |> Enum.map_join(&String.capitalize/1)
   end
 
   defp migration?(mod) do
