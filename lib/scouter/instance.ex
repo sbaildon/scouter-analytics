@@ -42,16 +42,14 @@ defmodule Scouter.Instance do
       {ConCache, name: {:via, Registry, {name, :cache}}, ttl_check_interval: false},
       {Scouter.Repo, repo_config(name)},
       {Oban,
-       [
-         engine: Oban.Engines.Lite,
-         queues: [default: 10, backups: 1],
-         repo: Scouter.Repo,
-         name: {:via, Registry, {name, :oban}},
-         get_dynamic_repo: fn ->
-           {:ok, %{repo: repo}} = Scouter.Instance.registered_pids(name)
-           repo
-         end
-       ]},
+       oban_config(:scouter) ++
+         [
+           name: {:via, Registry, {name, :oban}},
+           get_dynamic_repo: fn ->
+             [{pid, _}] = Registry.lookup(name, :repo)
+             pid
+           end
+         ]},
       {Adbc.Database,
        [driver: :duckdb, path: events_database_path(name), process_options: [name: {:via, Registry, {name, :adbc_db}}]]},
       {Scouter.EventsRepo, events_repo_config(name)},
