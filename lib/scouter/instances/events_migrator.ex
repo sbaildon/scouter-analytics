@@ -98,10 +98,9 @@ defmodule Scouter.Instances.EventsMigrator do
 
   defp migration_loaded(name) do
     module = Module.concat([Scouter.EventsRepo.Migrations, name_to_module(name)])
+
     if Code.loaded?(module) do
       {:module, module}
-    else
-      nil
     end
   end
 
