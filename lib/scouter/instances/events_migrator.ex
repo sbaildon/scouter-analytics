@@ -18,7 +18,7 @@ defmodule Scouter.Instances.EventsMigrator do
           "CREATE TABLE IF NOT EXISTS schema_migrations (version UINT64 not null primary key, inserted_at text not null);"
         )
 
-        migrations =
+      migrations =
         Scouter.EventsRepo
         |> migrations_path()
         |> List.wrap()
