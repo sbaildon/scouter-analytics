@@ -81,7 +81,6 @@ defmodule Scouter.Instance do
   defp repo_config(name) do
     Scouter.Repo.config()
     |> Keyword.put(:name, {:via, Registry, {name, :repo}})
-    |> Keyword.put(:other_opts, {:via, Registry, {name, :repo}})
     |> Keyword.replace(:database, database_path(name))
   end
 
