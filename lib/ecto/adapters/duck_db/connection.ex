@@ -63,5 +63,7 @@ defmodule Ecto.Adapters.DuckDB.Connection do
   defdelegate update(prefix, table, fields, filters, returning), to: SQLite3
 
   def ddl_logs(_), do: []
-  defdelegate execute_ddl(command), to: SQLite3
+  # this is delegated to postgres so that tables are migrated with more appropriate
+  # types. delegating to SQLite3 results in timestamps as varchar, uuids as varchar and more
+  defdelegate execute_ddl(command), to: Postgres
 end
