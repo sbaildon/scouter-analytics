@@ -13,20 +13,22 @@ defmodule Scouter.EventsRepo.BackupWorker do
 
   defp bucket(name), do: System.fetch_env!("BACKUP_#{name}_BUCKET")
   defp prefix(name), do: System.get_env("BACKUP_#{name}_PREFIX", "/")
-  defp specifiers(), do: ["%INSTANCE"]
+  defp specifiers, do: ["%INSTANCE"]
 
   def perform(%{args: %{"name" => name}} = job) do
     %{name: {:via, Registry, {instance, :oban}}} = job.conf
 
-    prefix = Enum.reduce(specifiers(), prefix(name), fn
-      "%INSTANCE" = specifier, prefix -> String.replace(prefix, specifier, to_string(instance))
-      _, prefix -> prefix
-    end)
+    prefix =
+      Enum.reduce(specifiers(), prefix(name), fn
+        "%INSTANCE" = specifier, prefix -> String.replace(prefix, specifier, to_string(instance))
+        _, prefix -> prefix
+      end)
 
-    bucket = Enum.reduce(specifiers(), bucket(name), fn
-      "%INSTANCE" = specifier, bucket -> String.replace(bucket, specifier, to_string(instance))
-      _, bucket -> bucket
-    end)
+    bucket =
+      Enum.reduce(specifiers(), bucket(name), fn
+        "%INSTANCE" = specifier, bucket -> String.replace(bucket, specifier, to_string(instance))
+        _, bucket -> bucket
+      end)
 
     root = Path.join(["s3://", bucket, prefix])
 
@@ -43,13 +45,11 @@ defmodule Scouter.EventsRepo.BackupWorker do
     end)
   end
 
-
-
   defp delete_credentials_query(name) do
     "DROP TEMPORARY SECRET #{name};"
   end
 
-  def events_backup_query() do
+  def events_backup_query do
     """
     COPY (
     SELECT
