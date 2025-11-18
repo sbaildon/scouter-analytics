@@ -14,12 +14,17 @@ defmodule Scouter.EventsRepo.BackupWorker do
   defp bucket(name), do: System.fetch_env!("BACKUP_#{name}_BUCKET")
   defp prefix(name), do: System.get_env("BACKUP_#{name}_PREFIX", "/")
 
-  def perform(%{args: %{"name" => name}}) do
     root = Path.join(["s3://", bucket(name), prefix(name)])
+  def perform(%{args: %{"name" => name}} = job) do
+    %{name: {:via, Registry, {instance, :oban}}} = job.conf
 
     EventsRepo.transaction(fn repo ->
       credentials_query = create_credentials_if_not_exists_query(name)
       repo.query!(credentials_query, [], log: false)
+    Scouter.with_instance(instance, fn _ ->
+      EventsRepo.transaction(fn repo ->
+        credentials_query = create_credentials_if_not_exists_query(name)
+        repo.query!(credentials_query, [], log: false)
 
         repo.query!("COPY schema_migrations TO $1;", [Path.join([root, "schema_migrations.parquet"])], log: false)
 
@@ -28,6 +33,8 @@ defmodule Scouter.EventsRepo.BackupWorker do
       end)
     end)
   end
+
+
 
   defp delete_credentials_query(name) do
     "DROP TEMPORARY SECRET #{name};"
