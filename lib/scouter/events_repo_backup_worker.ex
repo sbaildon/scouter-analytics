@@ -13,14 +13,23 @@ defmodule Scouter.EventsRepo.BackupWorker do
 
   defp bucket(name), do: System.fetch_env!("BACKUP_#{name}_BUCKET")
   defp prefix(name), do: System.get_env("BACKUP_#{name}_PREFIX", "/")
+  defp specifiers(), do: ["%INSTANCE"]
 
-    root = Path.join(["s3://", bucket(name), prefix(name)])
   def perform(%{args: %{"name" => name}} = job) do
     %{name: {:via, Registry, {instance, :oban}}} = job.conf
 
-    EventsRepo.transaction(fn repo ->
-      credentials_query = create_credentials_if_not_exists_query(name)
-      repo.query!(credentials_query, [], log: false)
+    prefix = Enum.reduce(specifiers(), prefix(name), fn
+      "%INSTANCE" = specifier, prefix -> String.replace(prefix, specifier, to_string(instance))
+      _, prefix -> prefix
+    end)
+
+    bucket = Enum.reduce(specifiers(), bucket(name), fn
+      "%INSTANCE" = specifier, bucket -> String.replace(bucket, specifier, to_string(instance))
+      _, bucket -> bucket
+    end)
+
+    root = Path.join(["s3://", bucket, prefix])
+
     Scouter.with_instance(instance, fn _ ->
       EventsRepo.transaction(fn repo ->
         credentials_query = create_credentials_if_not_exists_query(name)
