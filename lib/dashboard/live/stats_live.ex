@@ -45,9 +45,13 @@ defmodule Dashboard.StatsLive do
   end
 
   defp authorized_services(socket) do
-    with %{caveats: [{instance, service_ids}]} <- socket.assigns,
-         {:ok, services} <- Services.list_published(instance, ids: service_ids) do
-      assign(socket, :services, services)
+    case socket.assigns do
+      %{caveats: [{instance, service_ids}]} ->
+        {:ok, services} = Services.list_published(instance, ids: service_ids)
+        assign(socket, :services, services)
+
+      _ ->
+        assign(socket, :services, [])
     end
   end
 
@@ -172,22 +176,26 @@ defmodule Dashboard.StatsLive do
   end
 
   def fetch_aggregates(socket) when is_connected(socket) do
-    %{query: query, caveats: [{instance, _}]} = socket.assigns
+    case socket.assigns do
+      %{query: query, caveats: [{instance, _}]} ->
+        filters = authorized_filters(query, socket.assigns.services)
 
-    filters = authorized_filters(query, socket.assigns.services)
+        key = socket.id
+        scale = to_timeout(millisecond: 750)
+        limit = 1
 
-    key = socket.id
-    scale = to_timeout(millisecond: 750)
-    limit = 1
+        case RateLimit.hit(key, scale, limit) do
+          {:allow, _current_count} ->
+            start_async(socket, :fetch_aggregates, fn ->
+              Scouter.Events.arrow(instance, filters)
+            end)
 
-    case RateLimit.hit(key, scale, limit) do
-      {:allow, _current_count} ->
-        start_async(socket, :fetch_aggregates, fn ->
-          Scouter.Events.arrow(instance, filters)
-        end)
+          {:deny, ms_until_next_window} ->
+            Process.send_after(self(), :fetch_aggregates, ms_until_next_window)
+            socket
+        end
 
-      {:deny, ms_until_next_window} ->
-        Process.send_after(self(), :fetch_aggregates, ms_until_next_window)
+      %{caveats: []} ->
         socket
     end
   end
