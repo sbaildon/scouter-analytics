@@ -88,7 +88,7 @@ defmodule Scouter.Services do
   def register(instance, params, opts \\ []) do
     params = Map.put_new(params, :published, true)
 
-    Scouter.with_instance(instance, fn %{state_dir: _state_dir} ->
+    Scouter.with_instance(instance, fn _ ->
       Repo.transact(
         fn repo ->
           repo.insert(Service.changeset(params))
