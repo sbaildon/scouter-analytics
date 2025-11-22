@@ -78,17 +78,6 @@ defmodule Scouter.Services do
           {_, _matchers} = repo.delete_all(Services.Matcher.where_service(service_id))
           {:ok, service} = repo.fetch(Service.where_id(service_id))
           {:ok, _} = repo.delete(service)
-
-          socket = service_socket(service)
-
-          :ok = File.rm(socket)
-
-          dir = Path.dirname(socket)
-
-          with {:ok, []} <- File.ls(dir) do
-            File.rmdir(dir)
-          end
-
           {:ok, service}
         end,
         [{:mode, :immediate} | opts]
