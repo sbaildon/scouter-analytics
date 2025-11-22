@@ -44,6 +44,6 @@ defmodule Dashboard.Router do
   end
 
   def static(conn, _opts) do
-    put_static_url(conn, URI.append_path(Dashboard.Endpoint.uri(), "/static"))
+    put_static_url(conn, URI.append_path(Dashboard.Endpoint.struct_url(), "/static"))
   end
 end
