@@ -91,22 +91,11 @@ defmodule Scouter.Services do
     Scouter.with_instance(instance, fn %{state_dir: _state_dir} ->
       Repo.transact(
         fn repo ->
-          {:ok, service} = repo.insert(Service.changeset(params))
-
-          :ok = create_socket(instance, service.id)
-
-          {:ok, service}
+          repo.insert(Service.changeset(params))
         end,
         [{:mode, :immediate} | opts]
       )
     end)
-  end
-
-  def create_socket(instance, service_id) do
-    :ok = service_id |> service_socket() |> Path.dirname() |> File.mkdir_p()
-    :ok = File.ln_s(instance_socket(instance), service_socket(service_id))
-
-    :ok
   end
 
   def add_matcher(instance, service_id, type, value) do
@@ -114,15 +103,6 @@ defmodule Scouter.Services do
       Repo.insert(%Scouter.Services.Matcher{service_id: service_id, type: type, value: value})
     end)
   end
-
-  defp service_socket(service) when is_struct(service), do: service_socket(service.id)
-
-  defp service_socket(runtime_directory, service_id), do: Path.join([runtime_directory, "services", service_id, "socket"])
-
-  defp instance_socket(instance) when is_atom(instance), do: instance |> to_string() |> instance_socket()
-
-  defp instance_socket(instance),
-    do: Path.join([System.fetch_env!("RUNTIME_DIRECTORY"), "scouter", "analytics", "instances", instance, "socket"])
 
   def change(instance, service_id, params, opts \\ []) do
     read_query =
