@@ -53,7 +53,7 @@ defmodule Scouter.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, github: "phoenixframework/phoenix", override: true},
+      {:phoenix, "~> 1.8"},
       {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.10"},
       {:ecto_sqlite3,
@@ -61,7 +61,7 @@ defmodule Scouter.MixProject do
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 4.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_view, "~> 1.0.0", override: true},
+      {:phoenix_live_view, "~> 1.0"},
       {:floki, ">= 0.30.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.8.3"},
       {:tailwind, "~> 0.2", runtime: Mix.env() == :dev},
@@ -94,7 +94,6 @@ defmodule Scouter.MixProject do
       {:referrer_blocklist, git: "https://github.com/sbaildon/referrer-blocklist"},
       {:cidr, "~> 1.2"},
       {:systemd, "~> 0.6"},
-      {:flame_on, "~> 0.7.0", only: [:dev]},
       {:con_cache, "~> 1.1"}
     ]
   end
