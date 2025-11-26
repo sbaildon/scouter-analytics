@@ -5,7 +5,6 @@ defmodule Scouter.Services do
   alias Scouter.Repo
   alias Scouter.Service
   alias Scouter.Services
-  alias Scouter.Services.Matcher
 
   require Logger
 
