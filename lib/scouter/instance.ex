@@ -108,7 +108,7 @@ defmodule Scouter.Instance do
     {:ok, pids}
   end
 
-  def paths(name) do
+  def paths(_name) do
     %{runtime_dir: runtime_directory(), state_dir: state_directory()}
   end
 
