@@ -46,7 +46,8 @@ defmodule Admin do
 
   def controller do
     quote do
-      use Phoenix.Controller
+      use Phoenix.Controller,
+        formats: [:json]
 
       import Plug.Conn
 
