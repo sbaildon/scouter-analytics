@@ -29,7 +29,7 @@ defmodule Telemetry.Broadway do
         default: [concurrency: 1, max_demand: max_demand(), min_demand: min_demand()]
       ],
       batchers: [
-        default: [batch_size: batch_size(), batch_timeout: batch_timeout_ms()]
+        default: [batch_size: batch_size(), batch_timeout: batch_timeout()]
       ],
       context: %{instance: instance}
     ]
@@ -76,7 +76,7 @@ defmodule Telemetry.Broadway do
   end
 
   defp batch_size, do: 1000
-  defp batch_timeout_ms, do: to_timeout(second: 2)
+  defp batch_timeout, do: to_timeout(second: 2)
 
   defp max_demand, do: 1000
   defp min_demand, do: 200
