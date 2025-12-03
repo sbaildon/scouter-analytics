@@ -30,14 +30,18 @@ defmodule Scouter.Events do
         |> DF.group_by(:grouping_id)
         |> DF.head(event_limit())
         |> partition_by()
-        |> Map.drop([
-          group_id(:subdivision1_code),
-          group_id(:subdivision2_code),
-          group_id(:city_geoname_id)
-        ])
+        |> Map.drop(groups_not_supported_by_ui())
         |> Map.new(&make_presentable/1)
       end
     end)
+  end
+
+  defp groups_not_supported_by_ui do
+    [
+      group_id(:subdivision1_code),
+      group_id(:subdivision2_code),
+      group_id(:city_geoname_id)
+    ]
   end
 
   defp make_presentable({grouping_id, df}) when grouping_id in [group_id(:referrer), group_id(:country_code)] do
