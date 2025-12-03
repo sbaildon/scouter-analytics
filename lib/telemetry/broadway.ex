@@ -30,13 +30,14 @@ defmodule Telemetry.Broadway do
     ]
   end
 
-  def partition_by(%{data: {instance, _params, _headers}} = _message) do
+  def partition_by(%{metadata: %{instance: instance}}) do
     :erlang.phash2(instance)
   end
 
   @impl Broadway
-  def handle_message(_processor, %{data: data} = message, _context) do
-    {instance, params, headers} = data
+  def handle_message(_processor, message, _context) do
+    {params, headers} = message.data
+    %{instance: instance} = message.metadata
 
     case Telemetry.EventController.transform(instance, params, headers) do
       {:ok, event} ->
