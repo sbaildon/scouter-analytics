@@ -51,9 +51,13 @@ defmodule Telemetry.Broadway do
     end
   end
 
+  # would like to match on ^size, but at the moment, record_all always returns {1, [_]}
   @impl Broadway
   def handle_batch(_batcher, messages, %{batch_key: instance, size: size}, _context) do
-    {^size, _} = Events.record_all(instance, messages)
+    {_, _} =
+      messages
+      |> Enum.map(fn %{data: event} -> event end)
+      |> then(fn events -> Events.record_all(instance, events) end)
 
     messages
   end
