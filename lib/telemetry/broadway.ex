@@ -49,7 +49,7 @@ defmodule Telemetry.Broadway do
     case Telemetry.EventController.transform(instance, params, headers) do
       {:ok, event} ->
         event
-        |> prepare_record()
+        |> Events.prepare_record()
         |> then(&Broadway.Message.put_data(message, &1))
 
       {:error, reason} ->
