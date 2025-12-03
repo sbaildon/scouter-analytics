@@ -211,6 +211,10 @@ defmodule Scouter.Events do
     Map.take(event, Event.__schema__(:fields))
   end
 
+  def prepare_record(%Event{} = event) do
+    Map.take(event, Event.__schema__(:fields))
+  end
+
   def count_and_range("past_hour"), do: {1, :hour}
   def count_and_range("past_7_days"), do: {7, :day}
   def count_and_range("past_14_days"), do: {14, :day}

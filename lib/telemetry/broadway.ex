@@ -48,7 +48,9 @@ defmodule Telemetry.Broadway do
 
     case Telemetry.EventController.transform(instance, params, headers) do
       {:ok, event} ->
-        Broadway.Message.put_data(message, event)
+        event
+        |> prepare_record()
+        |> then(&Broadway.Message.put_data(message, &1))
 
       {:error, reason} ->
         Logger.info("couldn't transform event #{inspect(reason)}")
@@ -57,12 +59,8 @@ defmodule Telemetry.Broadway do
   end
 
   @impl Broadway
-  def handle_batch(_batcher, messages, _batch_info, %{instance: instance}) do
-    messages
-    |> Enum.map(&Events.prepare_record_all(&1.data))
-    |> then(fn events ->
-      Events.record_all(instance, events)
-    end)
+  def handle_batch(_batcher, messages, %{size: size}, %{instance: instance}) do
+    {^size, _} = Events.record_all(instance, messages)
 
     messages
   end
