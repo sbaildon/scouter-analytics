@@ -13,6 +13,7 @@ defmodule Scouter.Application do
       {ReferrerBlocklist, [http_client: Req]},
       Scouter.Instances,
       Scouter.Services,
+      Telemetry.Broadway,
       Dashboard,
       Admin,
       {Scouter.Geo, Application.fetch_env!(:scouter, Scouter.Geo)},

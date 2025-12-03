@@ -6,51 +6,40 @@ defmodule Telemetry.Broadway do
 
   require Logger
 
-  def start_link(opts) do
-    {name, _opts} = Keyword.pop!(opts, :name)
-    Broadway.start_link(__MODULE__, [{:name, name} | config(name: name)])
+  def start_link(_opts) do
+    Broadway.start_link(__MODULE__, [{:name, __MODULE__} | config()])
   end
 
-  @impl Broadway
-  def process_name({:via, module, {registry_name, key}}, basename) do
-    {:via, module, {registry_name, {key, basename}}}
-  end
-
-  defp config(opts) do
-    {:via, Registry, {instance, _}} = Keyword.fetch!(opts, :name)
-
+  defp config do
     [
       producer: [
         module: {Telemetry.Ingest, []},
-        concurrency: 1,
-        transformer: {__MODULE__, :transform, []}
+        concurrency: 1
       ],
       processors: [
-        default: [concurrency: 1, max_demand: max_demand(), min_demand: min_demand()]
+        default: [concurrency: 1, max_demand: max_demand(), min_demand: min_demand()],
+        partition_by: &partition_by/1
       ],
       batchers: [
         default: [batch_size: batch_size(), batch_timeout: batch_timeout()]
-      ],
-      context: %{instance: instance}
+      ]
     ]
   end
 
-  def transform(event, _opts) do
-    %Broadway.Message{
-      data: event,
-      acknowledger: Broadway.NoopAcknowledger.init()
-    }
+  def partition_by(%{data: {instance, _params, _headers}} = _message) do
+    :erlang.phash2(instance)
   end
 
   @impl Broadway
-  def handle_message(_processor, %{data: data} = message, %{instance: instance}) do
-    {params, headers} = data
+  def handle_message(_processor, %{data: data} = message, _context) do
+    {instance, params, headers} = data
 
     case Telemetry.EventController.transform(instance, params, headers) do
       {:ok, event} ->
         event
-        |> Events.prepare_record()
+        |> Events.for_insert_all()
         |> then(&Broadway.Message.put_data(message, &1))
+        |> Broadway.Message.put_batch_key(instance)
 
       {:error, reason} ->
         Logger.info("couldn't transform event #{inspect(reason)}")
@@ -59,7 +48,7 @@ defmodule Telemetry.Broadway do
   end
 
   @impl Broadway
-  def handle_batch(_batcher, messages, %{size: size}, %{instance: instance}) do
+  def handle_batch(_batcher, messages, %{batch_key: instance, size: size}, _context) do
     {^size, _} = Events.record_all(instance, messages)
 
     messages

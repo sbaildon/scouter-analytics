@@ -215,7 +215,7 @@ defmodule Scouter.Events do
     Map.take(event, Event.__schema__(:fields))
   end
 
-  def prepare_record(%Event{} = event) do
+  def for_insert_all(%Event{} = event) do
     Map.take(event, Event.__schema__(:fields))
   end
 

@@ -1,5 +1,7 @@
 defmodule Telemetry.Ingest do
   @moduledoc false
+  @behaviour Broadway.Producer
+
   use GenStage
 
   require Logger
@@ -38,8 +40,8 @@ defmodule Telemetry.Ingest do
   end
 
   @impl GenStage
-  def handle_cast({:push, params, headers}, {events, buffer_size, pending_demand}) do
-    event = build_event(params, headers)
+  def handle_cast({:push, instance, params, headers}, {events, buffer_size, pending_demand}) do
+    event = build_message(instance, params, headers)
     events = [event | events]
 
     dispatch_events(events, buffer_size + 1, pending_demand)
@@ -49,10 +51,13 @@ defmodule Telemetry.Ingest do
     {:via, Registry, {instance, :broadway}}
     |> Broadway.producer_names()
     |> Enum.random()
-    |> GenStage.cast({:push, params, headers})
+    |> GenStage.cast({:push, instance, params, headers})
   end
 
-  defp build_event(params, headers) do
-    {params, headers}
+  defp build_message(instance, params, headers) do
+    %Broadway.Message{
+      data: {instance, params, headers},
+      acknowledger: Broadway.NoopAcknowledger.init()
+    }
   end
 end
