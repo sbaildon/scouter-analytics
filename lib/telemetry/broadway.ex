@@ -17,8 +17,12 @@ defmodule Telemetry.Broadway do
         concurrency: 1
       ],
       processors: [
-        default: [concurrency: 1, max_demand: max_demand(), min_demand: min_demand()],
-        partition_by: &partition_by/1
+        default: [
+          concurrency: 1,
+          max_demand: max_demand(),
+          min_demand: min_demand(),
+          partition_by: &partition_by/1
+        ]
       ],
       batchers: [
         default: [batch_size: batch_size(), batch_timeout: batch_timeout()]
