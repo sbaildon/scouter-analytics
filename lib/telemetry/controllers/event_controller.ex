@@ -12,7 +12,7 @@ defmodule Telemetry.EventController do
     :ok =
       conn.params
       |> Map.put("u", NaiveDateTime.utc_now())
-      |> Telemetry.Sink.push(conn.req_headers, conn.private.scouter_instance)
+      |> Telemetry.Ingest.push(conn.req_headers, conn.private.scouter_instance)
 
     resp(conn, :ok, "ok")
   end

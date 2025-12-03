@@ -1,4 +1,4 @@
-defmodule Telemetry.Sink do
+defmodule Telemetry.Ingest do
   @moduledoc false
   use GenStage
 

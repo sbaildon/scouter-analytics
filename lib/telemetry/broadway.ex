@@ -21,7 +21,7 @@ defmodule Telemetry.Broadway do
 
     [
       producer: [
-        module: {Telemetry.Sink, []},
+        module: {Telemetry.Ingest, []},
         concurrency: 1,
         transformer: {__MODULE__, :transform, []}
       ],
