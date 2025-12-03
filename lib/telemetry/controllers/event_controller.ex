@@ -70,7 +70,7 @@ defmodule Telemetry.EventController do
   defp continue_if_pattern_match(%{instance: instance, service: service, count: count} = context) do
     callback = fn ->
       Enum.find_value(service.matchers, {:ok, nil}, fn matcher ->
-        Regex.match?(matcher.pattern, count.o.host) && {:ok, matcher.id}
+        Regex.match?(matcher.regex, count.o.host) && {:ok, matcher.id}
       end)
     end
 
