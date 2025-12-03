@@ -42,7 +42,7 @@ defmodule Telemetry.Sink do
     event = build_event(params, headers)
     events = [event | events]
 
-    dispatch_events(events, buffer_size, pending_demand)
+    dispatch_events(events, buffer_size + 1, pending_demand)
   end
 
   def push(params, headers, instance) do
