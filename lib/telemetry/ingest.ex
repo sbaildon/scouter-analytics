@@ -48,7 +48,7 @@ defmodule Telemetry.Ingest do
   end
 
   def push(params, headers, instance) do
-    {:via, Registry, {instance, :broadway}}
+    Telemetry.Broadway
     |> Broadway.producer_names()
     |> Enum.random()
     |> GenStage.cast({:push, instance, params, headers})
