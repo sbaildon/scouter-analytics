@@ -44,6 +44,17 @@ defmodule Scouter.Events do
     ]
   end
 
+  def count(instance) do
+    result = Scouter.with_instance(instance, fn _ ->
+      Scouter.EventsRepo.query("SELECT count() from events;")
+    end)
+
+    case result do
+      {:ok, %{rows: [[count]], num_rows: 1}} -> {:ok, count}
+      _ -> :error
+    end
+  end
+
   defp make_presentable({grouping_id, df}) when grouping_id in [group_id(:referrer), group_id(:country_code)] do
     series = S.transform(df[:value], fn v -> Scouter.Event.present(grouping_id, v) end)
     {grouping_id, DF.put(df, :present, series)}
