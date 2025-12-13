@@ -74,7 +74,7 @@ defmodule Telemetry.EventController do
       end)
     end
 
-    case ConCache.fetch_or_store({:via, :global, {instance, :cache}}, count.o.host, callback) do
+    case ConCache.fetch_or_store({:via, Registry, {Scouter.InstanceRegistry, {instance, :cache}}}, count.o.host, callback) do
       {:ok, nil} -> {:error, :no_pattern_match}
       {:ok, _} -> geo_step(context)
     end

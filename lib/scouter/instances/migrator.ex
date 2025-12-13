@@ -21,7 +21,8 @@ defmodule Scouter.Instances.Migrator do
     :global.whereis_name(name)
   end
 
-  defp lookup({:via, registry, name}) do
-    apply(registry, :lookup, [name])
+  defp lookup({:via, mod, {registry, key}}) do
+    [{pid, _}] = apply(mod, :lookup, [registry, key])
+    pid
   end
 end

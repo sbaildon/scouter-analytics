@@ -68,7 +68,7 @@ defmodule Scouter.Instances do
   end
 
   defp put_name(opts) do
-    Keyword.put(opts, :name, {:via, Registry, {Scouter.InstanceRegistry, :main}})
+    Keyword.put(opts, :name, {:via, Registry, {Scouter.InstanceRegistry, "main"}})
   end
 
   defp maybe_enable_instance_manager do

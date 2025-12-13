@@ -3,6 +3,7 @@ defmodule Scouter.Instance do
   use Supervisor
 
   alias Scouter.Instances.Migrator
+  alias Scouter.InstanceRegistry
 
   require Logger
 
@@ -30,25 +31,26 @@ defmodule Scouter.Instance do
     name =
       _instance_name =
       case opts[:name] do
-        {:via, Registry, {Scouter.InstanceRegistry, instance_name}} -> instance_name
+        {:via, Registry, {InstanceRegistry, instance_name}} -> instance_name
         _instance_name -> raise ArgumentError, "only via tuples are supported"
       end
 
     children = [
-      {ConCache, name: {:via, :global, {name, :cache}}, ttl_check_interval: false},
+      {ConCache, name: {:via, Registry, {InstanceRegistry, {name, :cache}}}, ttl_check_interval: false},
       {Scouter.Repo, repo_config(name)},
       {Oban,
        oban_config(:scouter) ++
          [
-           name: {:via, :global, {name, :oban}},
+           name: {:via, Registry, {InstanceRegistry, {name, :oban}}},
            get_dynamic_repo: fn ->
-             :global.whereis_name({name, :repo})
+             [{pid, _}] = Registry.lookup(InstanceRegistry, {name, :repo})
+             pid
            end
          ]},
       {Adbc.Database,
-       [driver: :duckdb, path: events_database_path(name), process_options: [name: {:via, :global, {name, :adbc_db}}]]},
+       [driver: :duckdb, path: events_database_path(name), process_options: [name: {:via, Registry, {InstanceRegistry, {name, :adbc_db}}}]]},
       {Scouter.EventsRepo, events_repo_config(name)},
-      Supervisor.child_spec({Migrator, skip: skip_migrations?(), repos: [Scouter.Repo], process: {:via, :global, {name, :repo}}},
+      Supervisor.child_spec({Migrator, skip: skip_migrations?(), repos: [Scouter.Repo], process: {:via, Registry, {InstanceRegistry, {name, :repo}}}},
         id: :repo_migrator
       ),
       Supervisor.child_spec(
@@ -58,7 +60,7 @@ defmodule Scouter.Instance do
          skip_table_creation: true,
          skip: skip_migrations?(),
          repos: [Scouter.EventsRepo],
-         process: {:via, :global, {name, :events_repo}}},
+         process: {:via, Registry, {InstanceRegistry, {name, :events_repo}}}},
         id: :events_repo_migrator
       ),
       bandit([{:instance, name} | opts])
@@ -68,24 +70,24 @@ defmodule Scouter.Instance do
   end
 
   defp repo_config(:main = name) do
-    Keyword.put(Scouter.Repo.config(), :name, {:global, {name, :repo}})
+    Keyword.put(Scouter.Repo.config(), :name, {:via, Registry, {InstanceRegistry, {name, :repo}}})
   end
 
   defp repo_config(name) do
     Scouter.Repo.config()
-    |> Keyword.put(:name, {:via, :global, {name, :repo}})
+    |> Keyword.put(:name, {:via, Registry, {InstanceRegistry, {name, :repo}}})
     |> Keyword.replace(:database, database_path(name))
   end
 
   defp events_repo_config(:main = name) do
     Scouter.EventsRepo.config()
-    |> Keyword.put(:name, {:via, :global, {name, :events_repo}})
+    |> Keyword.put(:name, {:via, Registry, {InstanceRegistry, {name, :events_repo}}})
     |> Keyword.put(:instance, name)
   end
 
   defp events_repo_config(name) do
     Scouter.EventsRepo.config()
-    |> Keyword.put(:name, {:via, :global, {name, :events_repo}})
+    |> Keyword.put(:name, {:via, Registry, {InstanceRegistry, {name, :events_repo}}})
     |> Keyword.put(:instance, name)
   end
 
@@ -97,9 +99,13 @@ defmodule Scouter.Instance do
 
   def registered_pids(name) do
     {:ok, %{
-      repo: :global.whereis_name({name, :repo}),
-      events_repo: :global.whereis_name({name, :events_repo})
+      repo: lookup_pid!(InstanceRegistry, {name, :repo}),
+      events_repo: lookup_pid!(InstanceRegistry, {name, :events_repo}),
     }}
+  end
+
+  defp lookup_pid!(registry, key)  do
+    with [{pid, _}] <- Registry.lookup(registry, key), do: pid
   end
 
   defp bandit(opts) do
