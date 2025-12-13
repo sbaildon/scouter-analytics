@@ -16,7 +16,7 @@ defmodule Scouter.EventsRepo.BackupWorker do
   defp specifiers, do: ["%INSTANCE"]
 
   def perform(%{args: %{"name" => name}} = job) do
-    %{name: {:via, Registry, {instance, :oban}}} = job.conf
+    %{name: {:via, :global, {instance, :oban}}} = job.conf
 
     prefix =
       Enum.reduce(specifiers(), prefix(name), fn

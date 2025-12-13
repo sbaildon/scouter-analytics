@@ -19,10 +19,6 @@ defmodule Scouter do
     end
   end
 
-  def start_instance(name, opts) when is_binary(name) do
-    start_instance(String.to_atom(name), opts)
-  end
-
   def start_instance(name, {:local, socket}) do
     DynamicSupervisor.start_child(
       Scouter.InstanceSupervisor,
@@ -45,10 +41,6 @@ defmodule Scouter do
         Scouter.InstanceSupervisor,
         {Scouter.Instance, name: {:via, Registry, {Scouter.InstanceRegistry, name}}, fd: fd}
       )
-  end
-
-  def stop_instance(name) when is_binary(name) do
-    name |> String.to_atom() |> stop_instance()
   end
 
   def stop_instance(name) do

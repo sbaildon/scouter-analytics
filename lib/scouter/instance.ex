@@ -7,15 +7,13 @@ defmodule Scouter.Instance do
   require Logger
 
   defstruct [
-    :runtime_dir,
-    :state_dir,
+    :name,
     :repo,
     :events_repo
   ]
 
   @type t :: %__MODULE__{
-          runtime_dir: Path.t(),
-          state_dir: Path.t(),
+          name: String.t(),
           repo: pid(),
           events_repo: pid()
         }
@@ -37,22 +35,20 @@ defmodule Scouter.Instance do
       end
 
     children = [
-      {Registry, name: name, keys: :unique},
-      {ConCache, name: {:via, Registry, {name, :cache}}, ttl_check_interval: false},
+      {ConCache, name: {:via, :global, {name, :cache}}, ttl_check_interval: false},
       {Scouter.Repo, repo_config(name)},
       {Oban,
        oban_config(:scouter) ++
          [
-           name: {:via, Registry, {name, :oban}},
+           name: {:via, :global, {name, :oban}},
            get_dynamic_repo: fn ->
-             [{pid, _}] = Registry.lookup(name, :repo)
-             pid
+             :global.whereis_name({name, :repo})
            end
          ]},
       {Adbc.Database,
-       [driver: :duckdb, path: events_database_path(name), process_options: [name: {:via, Registry, {name, :adbc_db}}]]},
+       [driver: :duckdb, path: events_database_path(name), process_options: [name: {:via, :global, {name, :adbc_db}}]]},
       {Scouter.EventsRepo, events_repo_config(name)},
-      Supervisor.child_spec({Migrator, skip: skip_migrations?(), repos: [Scouter.Repo], process: {name, :repo}},
+      Supervisor.child_spec({Migrator, skip: skip_migrations?(), repos: [Scouter.Repo], process: {:via, :global, {name, :repo}}},
         id: :repo_migrator
       ),
       Supervisor.child_spec(
@@ -62,7 +58,7 @@ defmodule Scouter.Instance do
          skip_table_creation: true,
          skip: skip_migrations?(),
          repos: [Scouter.EventsRepo],
-         process: {name, :events_repo}},
+         process: {:via, :global, {name, :events_repo}}},
         id: :events_repo_migrator
       ),
       bandit([{:instance, name} | opts])
@@ -72,43 +68,38 @@ defmodule Scouter.Instance do
   end
 
   defp repo_config(:main = name) do
-    Keyword.put(Scouter.Repo.config(), :name, {:via, Registry, {name, :repo}})
+    Keyword.put(Scouter.Repo.config(), :name, {:global, {name, :repo}})
   end
 
   defp repo_config(name) do
     Scouter.Repo.config()
-    |> Keyword.put(:name, {:via, Registry, {name, :repo}})
+    |> Keyword.put(:name, {:via, :global, {name, :repo}})
     |> Keyword.replace(:database, database_path(name))
   end
 
   defp events_repo_config(:main = name) do
     Scouter.EventsRepo.config()
-    |> Keyword.put(:name, {:via, Registry, {name, :events_repo}})
+    |> Keyword.put(:name, {:via, :global, {name, :events_repo}})
     |> Keyword.put(:instance, name)
   end
 
   defp events_repo_config(name) do
     Scouter.EventsRepo.config()
-    |> Keyword.put(:name, {:via, Registry, {name, :events_repo}})
+    |> Keyword.put(:name, {:via, :global, {name, :events_repo}})
     |> Keyword.put(:instance, name)
   end
 
   def build(name) do
-    with {:ok, %{repo: _repo} = registered_pids} <- registered_pids(name) do
-      paths = paths(name)
-      {:ok, struct(__MODULE__, Enum.reduce([paths, registered_pids, %{name: name}], %{}, &Map.merge/2))}
+    with {:ok, registered_pids} <- registered_pids(name) do
+      {:ok, struct(__MODULE__, Enum.reduce([registered_pids, %{name: name}], %{}, &Map.merge/2))}
     end
   end
 
   def registered_pids(name) do
-    %{repo: _, events_repo: _} =
-      pids = name |> Registry.select([{{:"$1", :"$2", :_}, [], [{{:"$1", :"$2"}}]}]) |> Map.new()
-
-    {:ok, pids}
-  end
-
-  def paths(_name) do
-    %{runtime_dir: runtime_directory(), state_dir: state_directory()}
+    {:ok, %{
+      repo: :global.whereis_name({name, :repo}),
+      events_repo: :global.whereis_name({name, :events_repo})
+    }}
   end
 
   defp bandit(opts) do

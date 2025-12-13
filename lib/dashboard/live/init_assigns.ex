@@ -36,7 +36,7 @@ defmodule Dashboard.InitAssigns do
     |> Enum.map(fn item -> item |> String.trim() |> String.split(";", trim: true) end)
     |> Enum.map(fn
       [services, "instance=" <> instance] ->
-        {String.to_atom(instance), services |> String.trim_leading("(") |> String.trim_trailing(")") |> String.split(" ")}
+        {instance, services |> String.trim_leading("(") |> String.trim_trailing(")") |> String.split(" ")}
 
       [services | []] ->
         {:main, services |> String.trim_leading("(") |> String.trim_trailing(")") |> String.split(" ")}

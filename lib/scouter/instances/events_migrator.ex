@@ -10,8 +10,8 @@ defmodule Scouter.Instances.EventsMigrator do
 
   @impl GenServer
   def init(opts) do
-    with {{registry, key}, opts} <- Keyword.pop(opts, :process),
-         [{repo, _}] <- Registry.lookup(registry, key) do
+    with {naming_scheme, opts} <- Keyword.pop(opts, :process),
+         repo <- lookup(naming_scheme) do
       {:ok, _} =
         SQL.query(
           repo,
@@ -113,5 +113,17 @@ defmodule Scouter.Instances.EventsMigrator do
 
   defp migration?(mod) do
     Code.ensure_loaded?(mod) and function_exported?(mod, :__migration__, 0)
+  end
+
+  defp lookup({:via, :global, name}) do
+    :global.whereis_name(name)
+  end
+
+  defp lookup({:global, name}) do
+    :global.whereis_name(name)
+  end
+
+  defp lookup({:via, registry, name}) do
+    apply(registry, :lookup, [name])
   end
 end
