@@ -29,7 +29,8 @@ defmodule Scouter do
   def start_instance(name, {:port, port}) do
     DynamicSupervisor.start_child(
       Scouter.InstanceSupervisor,
-      Supervisor.child_spec({Scouter.Instance, name: {:via, Registry, {Scouter.InstanceRegistry, name}}, port: port},
+      Supervisor.child_spec(
+        {Scouter.Instance, name: {:via, Registry, {Scouter.InstanceRegistry, name}}, port: port},
         restart: :temporary
       )
     )
@@ -65,6 +66,8 @@ defmodule Scouter do
   end
 
   def list_instances do
-    Scouter.InstanceRegistry |> Registry.select([{{:"$1", :"$2", :_}, [], [{{:"$1", :"$2"}}]}]) |> Keyword.keys()
+    Scouter.InstanceRegistry
+    |> Registry.select([{{:"$1", :"$2", :_}, [], [{{:"$1", :"$2"}}]}])
+    |> Keyword.keys()
   end
 end
