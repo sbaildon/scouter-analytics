@@ -16,7 +16,13 @@ defmodule Scouter.Service do
 
   def changeset(service, params) do
     service
-    |> cast(params, [:name, :published])
+    |> cast(params, [:id, :name, :published])
+    |> then(fn changeset ->
+      case Ecto.get_meta(service, :state) do
+        :loaded -> Ecto.Changeset.delete_change(changeset, :id)
+        _ -> changeset
+      end
+    end)
     |> validate_required([:name, :published])
     |> cast_assoc(:matchers)
   end

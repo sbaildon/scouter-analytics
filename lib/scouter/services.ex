@@ -21,6 +21,12 @@ defmodule Scouter.Services do
     Supervisor.init(children, strategy: :one_for_one)
   end
 
+  def id() do
+    with {:parameterized, {mod, params}} <- Scouter.Service.__schema__(:type, :id) do
+      apply(mod, :autogenerate, [params])
+    end
+  end
+
   def fetch(instance, service_id, opts \\ []) do
     Scouter.with_instance(instance, fn _ ->
       Repo.transact(
