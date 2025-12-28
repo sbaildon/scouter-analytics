@@ -2,8 +2,8 @@ defmodule Scouter.Instance do
   @moduledoc false
   use Supervisor
 
-  alias Scouter.Instances.Migrator
   alias Scouter.InstanceRegistry
+  alias Scouter.Instances.Migrator
 
   require Logger
 
@@ -48,9 +48,15 @@ defmodule Scouter.Instance do
            end
          ]},
       {Adbc.Database,
-       [driver: :duckdb, path: events_database_path(name), process_options: [name: {:via, Registry, {InstanceRegistry, {name, :adbc_db}}}]]},
+       [
+         driver: :duckdb,
+         path: events_database_path(name),
+         process_options: [name: {:via, Registry, {InstanceRegistry, {name, :adbc_db}}}]
+       ]},
       {Scouter.EventsRepo, events_repo_config(name)},
-      Supervisor.child_spec({Migrator, skip: skip_migrations?(), repos: [Scouter.Repo], process: {:via, Registry, {InstanceRegistry, {name, :repo}}}},
+      Supervisor.child_spec(
+        {Migrator,
+         skip: skip_migrations?(), repos: [Scouter.Repo], process: {:via, Registry, {InstanceRegistry, {name, :repo}}}},
         id: :repo_migrator
       ),
       Supervisor.child_spec(
@@ -98,13 +104,14 @@ defmodule Scouter.Instance do
   end
 
   def registered_pids(name) do
-    {:ok, %{
-      repo: lookup_pid!(InstanceRegistry, {name, :repo}),
-      events_repo: lookup_pid!(InstanceRegistry, {name, :events_repo}),
-    }}
+    {:ok,
+     %{
+       repo: lookup_pid!(InstanceRegistry, {name, :repo}),
+       events_repo: lookup_pid!(InstanceRegistry, {name, :events_repo})
+     }}
   end
 
-  defp lookup_pid!(registry, key)  do
+  defp lookup_pid!(registry, key) do
     with [{pid, _}] <- Registry.lookup(registry, key), do: pid
   end
 
