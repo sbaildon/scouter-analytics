@@ -45,13 +45,27 @@ defmodule Scouter.Events do
   end
 
   def count(instance) do
-    result = Scouter.with_instance(instance, fn _ ->
-      Scouter.EventsRepo.query("SELECT count() from events;")
+    instance
+    |> Scouter.with_instance(fn _ ->
+      Scouter.EventsRepo.aggregate(Scouter.Event.query(), :count)
     end)
+    |> case do
+      count when is_integer(count) -> {:ok, count}
+      result -> :error
+    end
+  end
 
-    case result do
-      {:ok, %{rows: [[count]], num_rows: 1}} -> {:ok, count}
-      _ -> :error
+  def count(instance, starting, ending) do
+    instance
+    |> Scouter.with_instance(fn _ ->
+      Scouter.Event.query()
+      |> Scouter.Event.starting(starting)
+      |> Scouter.Event.ending(ending)
+      |> Scouter.EventsRepo.aggregate(:count)
+    end)
+    |> case do
+      count when is_integer(count) -> {:ok, count}
+      result -> :error
     end
   end
 
