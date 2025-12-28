@@ -18,7 +18,6 @@ defmodule Scouter.Application do
       Admin,
       {Scouter.Geo, Application.fetch_env!(:scouter, Scouter.Geo)},
       {Finch, Application.fetch_env!(:scouter, Finch)},
-      {DNSCluster, query: Application.get_env(:scouter, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Scouter.PubSub}
     ]
 
