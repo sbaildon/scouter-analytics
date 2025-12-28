@@ -7,8 +7,8 @@ defmodule Scouter.Instances.Migrator do
   end
 
   def init(opts) do
-    with {naming_scheme, opts} <- Keyword.pop(opts, :process),
-         repo_pid <- lookup(naming_scheme) do
+    with {naming_scheme, opts} <- Keyword.pop(opts, :process) do
+      repo_pid = lookup(naming_scheme)
       Ecto.Migrator.init([{:dynamic_repo, repo_pid} | opts])
     end
   end
