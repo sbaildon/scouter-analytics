@@ -21,7 +21,7 @@ defmodule Scouter.Services do
     Supervisor.init(children, strategy: :one_for_one)
   end
 
-  def id() do
+  def id do
     with {:parameterized, {mod, params}} <- Scouter.Service.__schema__(:type, :id) do
       apply(mod, :autogenerate, [params])
     end
