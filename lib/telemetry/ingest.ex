@@ -56,8 +56,8 @@ defmodule Telemetry.Ingest do
 
   defp build_message(instance, params, headers) do
     %Broadway.Message{
-      acknowledger: Broadway.NoopAcknowledger.init()
       data: {params, headers},
+      acknowledger: Telemetry.BroadcastAcknowledger.init(instance),
       metadata: %{instance: instance}
     }
   end
