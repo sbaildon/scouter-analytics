@@ -124,6 +124,10 @@ defmodule Scouter.Event do
     )
   end
 
+  defp normalize_potential_iso_string(%DateTime{} = datetime, _time) do
+    {:ok, DateTime.to_naive(datetime)}
+  end
+
   defp normalize_potential_iso_string(potential_iso_string, time) do
     case NaiveDateTime.from_iso8601(potential_iso_string) do
       {:ok, date_time} -> {:ok, date_time}
