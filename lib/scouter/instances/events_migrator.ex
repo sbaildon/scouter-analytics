@@ -10,8 +10,9 @@ defmodule Scouter.Instances.EventsMigrator do
 
   @impl GenServer
   def init(opts) do
-    with {naming_scheme, opts} <- Keyword.pop(opts, :process),
-         repo <- lookup(naming_scheme) do
+    with {naming_scheme, opts} <- Keyword.pop(opts, :process) do
+      repo = lookup(naming_scheme)
+
       {:ok, _} =
         SQL.query(
           repo,
