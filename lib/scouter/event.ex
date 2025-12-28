@@ -102,7 +102,9 @@ defmodule Scouter.Event do
 
   def range(query, count, interval) do
     from([{^named_binding(), event}] in query,
-      where: event.timestamp >= date_trunc("minute", current_localtimestamp()) - interval(^count, interval)
+      where:
+        event.timestamp >=
+          date_trunc("minute", current_localtimestamp()) - interval(^count, interval)
     )
   end
 
