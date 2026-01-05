@@ -26,18 +26,3 @@ migrate repo=default_repo:
 
 rollback to repo=default_repo:
     mix ecto.rollback --no-compile -r {{ repo }} --to={{ to }}
-
-contain vm_name="builder":
-    #!/usr/bin/env bash
-    set -euxo pipefail
-    limactl rm --force {{ vm_name }}
-    export BUILD_DIR=$(mktemp -d)
-    git clone .. ${BUILD_DIR}
-    cat .ci/image.yaml \
-        | yq '.mounts = []' \
-        | yq '.mounts[0] = {"location": env(BUILD_DIR)}' \
-        | yq '.mounts[1] = {"location": env(XDG_CONFIG_HOME) + "/containers/", "mountPoint": "/run/containers/0/"}' \
-        | limactl create --name={{ vm_name }} -
-    limactl start {{ vm_name }}
-    limactl rm --force {{ vm_name }}
-    limactl shell --workdir="${BUILD_DIR}/analytics" {{ vm_name }} .ci/build.sh
