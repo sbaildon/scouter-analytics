@@ -22,7 +22,6 @@
           beamPkgs.elixir_1_18
           pkgs.caddy
           pkgs.duckdb
-          pkgs.hivemind
           pkgs.minio
           pkgs.minio-client
           pkgs.sqlite
@@ -57,6 +56,11 @@
       apps.aarch64-darwin.duckdb = {
         type = "app";
         program = "${pkgs.duckdb}/bin/duckdb";
+      };
+
+      apps.aarch64-darwin.hivemind = {
+        type = "app";
+        program = "${pkgs.hivemind}/bin/hivemind";
       };
 
       packages.aarch64-darwin.default = beamPkgs.elixir_1_18;

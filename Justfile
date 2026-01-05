@@ -9,6 +9,9 @@ serve:
 proxy config="Caddyfile":
     nix run .#caddy -- run --config={{ config }} --watch
 
+infra:
+    nix run .#hivemind -- --processes=proxy,storage
+
 storage:
     nix run .#minio -- server --address 127.0.0.1:${MINIO_API_PORT} --console-address 127.0.0.1:${MINIO_CONSOLE_PORT} ${XDG_DATA_HOME}/{{ otp_app }}
 
