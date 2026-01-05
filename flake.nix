@@ -23,7 +23,6 @@
           pkgs.caddy
           pkgs.duckdb
           pkgs.hivemind
-          pkgs.imgproxy
           pkgs.minio
           pkgs.minio-client
           pkgs.sqlite
@@ -53,11 +52,6 @@
       apps.aarch64-darwin.mc = {
         type = "app";
         program = "${pkgs.minio-client}/bin/mc";
-      };
-
-      apps.aarch64-darwin.imgproxy = {
-        type = "app";
-        program = "${pkgs.imgproxy}/bin/imgproxy";
       };
 
       apps.aarch64-darwin.duckdb = {
