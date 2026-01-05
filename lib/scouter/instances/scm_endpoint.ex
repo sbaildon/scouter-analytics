@@ -9,7 +9,7 @@ defmodule Scouter.Instances.SCMEndpoint do
         accept_connection(socket)
 
       other ->
-        Logger.warning("failed to start #{inspect(other)}")
+        Logger.warning("failed to start scm endpoint, #{inspect(other)}")
     end
   end
 
@@ -40,7 +40,10 @@ defmodule Scouter.Instances.SCMEndpoint do
 
   defp accept_connection(socket) do
     {:ok, client} = :socket.accept(socket, :infinity)
-    {:ok, _pid} = Task.Supervisor.start_child(Scouter.Instances.SCMReceiver, fn -> serve(client) end)
+
+    {:ok, _pid} =
+      Task.Supervisor.start_child(Scouter.Instances.SCMReceiver, fn -> serve(client) end)
+
     accept_connection(socket)
   end
 
@@ -64,7 +67,8 @@ defmodule Scouter.Instances.SCMEndpoint do
     end
   end
 
-  defp clean_socket(<<0, _rest::binary>> = abstract_namespace_socket), do: {:ok, abstract_namespace_socket}
+  defp clean_socket(<<0, _rest::binary>> = abstract_namespace_socket),
+    do: {:ok, abstract_namespace_socket}
 
   defp clean_socket(path) do
     case File.rm(path) do
