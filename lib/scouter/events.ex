@@ -52,7 +52,9 @@ defmodule Scouter.Events do
     end)
     |> case do
       count when is_integer(count) -> {:ok, count}
-      result -> :error
+      result ->
+        Logger.info(result)
+        :error
     end
   end
 
