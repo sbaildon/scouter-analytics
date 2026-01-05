@@ -12,27 +12,25 @@ defmodule Dashboard.Layouts do
 
   embed_templates "layouts/*"
 
-  attr :conn, Plug.Conn, required: true
-
   def import_map(assigns) do
     ~H"""
     <script type="importmap">
-      <%= raw(Phoenix.json_library().encode_to_iodata!(imports(@conn))) %>
+      <%= raw(Phoenix.json_library().encode_to_iodata!(imports())) %>
     </script>
     """
   end
 
-  defp imports(conn) do
+  defp imports do
     %{
       "imports" => %{
-        "@hotwired/stimulus" => static_url(conn, "/js/@hotwired/stimulus@3.2.2.js"),
-        "@github/hotkey" => static_url(conn, "/js/@github/hotkey@3.1.1/index.js"),
-        "controllers/service" => static_url(conn, "/js/dashboard/service_controller.js"),
-        "controllers/hotkey" => static_url(conn, "/js/dashboard/hotkey_controller.js"),
-        "phoenix_live_view" => static_url(conn, "/js/phoenix_live_view.esm.js"),
-        "phoenix" => static_url(conn, "/js/phoenix.mjs"),
-        "topbar" => static_url(conn, "/js/topbar.js"),
-        "apache-arrow" => static_url(conn, "/js/@uwdata/flechette@2.2.0.mjs")
+        "@hotwired/stimulus" => ~p"/js/@hotwired/stimulus@3.2.2.js",
+        "@github/hotkey" => ~p"/js/@github/hotkey@3.1.1/index.js",
+        "controllers/service" => ~p"/js/dashboard/service_controller.js",
+        "controllers/hotkey" => ~p"/js/dashboard/hotkey_controller.js",
+        "phoenix_live_view" => ~p"/js/phoenix_live_view.esm.js",
+        "phoenix" => ~p"/js/phoenix.mjs",
+        "topbar" => ~p"/js/topbar.js",
+        "apache-arrow" => ~p"/js/@uwdata/flechette@2.2.0.mjs"
       }
     }
   end

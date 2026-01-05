@@ -16,7 +16,7 @@ const csrfToken = document
 const path = document
 	.querySelector("meta[name='path']")
 	.getAttribute("content");
-const liveSocket = new LiveSocket(`${path}/live`, Socket, {
+const liveSocket = new LiveSocket(`/_app/analytics/live`, Socket, {
 	longPollFallbackMs: 2500,
 	params: {
 		_csrf_token: csrfToken,
