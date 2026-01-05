@@ -72,27 +72,30 @@ defmodule Scouter.Instances do
   end
 
   defp maybe_enable_instance_manager do
-    case :systemd.listen_fds() do
-      [] -> maybe_start_self_managed_instance_manager()
-      fds -> maybe_start_systemd_managed_instance_manager(fds)
-    end
-  end
-
-  defp maybe_start_self_managed_instance_manager do
-    case System.fetch_env("INSTANCE_MANAGER_SOCKET") do
-      {:ok, path} -> instance_manager_processes(path: path)
-      :error -> []
-    end
-  end
-
-  def maybe_start_systemd_managed_instance_manager(fds) do
-    with {:ok, socket_name} <- System.fetch_env("INSTANCE_MANAGER_SOCKET"),
-         {fd, name} <- List.keyfind(fds, to_charlist(socket_name), 1) do
-      Logger.info("starting instance manager with fd #{fd}, #{name}")
-      instance_manager_processes(fd: fd)
-    else
-      _ ->
+    case {:systemd.listen_fds(), System.get_env("INSTANCE_MANAGER_SOCKET")} do
+      {[], nil} ->
         []
+
+      {[], path} ->
+        instance_manager_processes(path: path)
+
+      {_fds, nil} ->
+        []
+
+      {fds, socket_name} ->
+        start_systemd_managed_instance_manager(fds, socket_name)
+    end
+  end
+
+  defp start_systemd_managed_instance_manager(fds, socket_name) do
+    case List.keyfind(fds, to_charlist(socket_name), 1) do
+      {fd, name} ->
+        Logger.info("starting instance manager with fd #{fd}, #{name}")
+        instance_manager_processes(fd: fd)
+
+      _ ->
+        Logger.warning("#{inspect(socket_name)} was not given as a file descriptor")
+        {:stop, "#{inspect(socket_name)} was not given as a file descriptor"}
     end
   end
 
