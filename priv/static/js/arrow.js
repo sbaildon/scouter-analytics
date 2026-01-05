@@ -41,16 +41,25 @@ arrow.on("receive", (payload) => {
 	fragment.appendChild(svg);
 
 	for (const row of table) {
-		const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+		const bg = document.createElementNS(
+			"http://www.w3.org/2000/svg",
+			"rect",
+		);
 		bg.setAttribute("y", `${row[RowIndex] * height}`);
 		bg.setAttribute("width", "100%");
 		bg.setAttribute("height", height);
 		bg.setAttribute("fill", "transparent");
 
-		const bar = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+		const bar = document.createElementNS(
+			"http://www.w3.org/2000/svg",
+			"rect",
+		);
 
 		bar.setAttribute("y", `${row[RowIndex] * height}`);
-		bar.setAttribute("width", `${Math.max(0.2, (row.count / row.max) * 100)}%`);
+		bar.setAttribute(
+			"width",
+			`${Math.max(0.2, (row.count / row.max) * 100)}%`,
+		);
 		bar.setAttribute("height", height);
 		bar.setAttribute("fill", `oklch(84.1% 0.238 128.85 / 40%)`); // --color-lime-400
 
@@ -85,7 +94,10 @@ arrow.on("receive", (payload) => {
 		foreignObject.setAttribute("width", "100%");
 		foreignObject.setAttribute("height", height);
 
-		const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+		const group = document.createElementNS(
+			"http://www.w3.org/2000/svg",
+			"g",
+		);
 		group.setAttribute("phx-click", "filter");
 		group.setAttribute("phx-value-value", row.value || "");
 		group.setAttribute("phx-value-group", groupIds[group_id]);
