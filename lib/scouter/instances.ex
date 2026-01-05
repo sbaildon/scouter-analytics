@@ -101,7 +101,9 @@ defmodule Scouter.Instances do
     [
       {DynamicSupervisor, name: Scouter.InstanceSupervisor, strategy: :one_for_one},
       {Task.Supervisor, name: Scouter.Instances.SCMReceiver},
-      Supervisor.child_spec({Task, fn -> SCMEndpoint.start(manager_opts) end}, restart: :permanent)
+      Supervisor.child_spec({Task, fn -> SCMEndpoint.start(manager_opts) end},
+        restart: :permanent
+      )
     ]
   end
 end
