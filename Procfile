@@ -1,2 +1,2 @@
-caddy: just proxy
-objtst: just storage
+proxy: just proxy
+storage: just storage
