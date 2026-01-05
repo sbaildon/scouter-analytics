@@ -20,6 +20,7 @@
       devShells.aarch64-darwin.default = pkgs.mkShell {
         buildInputs = [
           beamPkgs.elixir_1_18
+          pkgs.erofs-utils
           pkgs.caddy
           pkgs.duckdb
           pkgs.minio

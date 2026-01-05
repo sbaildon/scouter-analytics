@@ -1,0 +1,18 @@
+[Unit]
+Description=Scouter Analytics
+
+[Service]
+Restart=on-failure
+DynamicUser=yes
+User=scouter-analytics
+Group=scouter-analytics
+ProtectSystem=full
+NoNewPrivileges=true
+PrivateDevices=true
+PrivateTmp=disconnected
+Type=notify
+StateDirectory=scouter/analytics
+RuntimeDirectory=scouter/analytics
+Environment=HOME=%T
+Environment=ERL_CRASH_DUMP_SECONDS=0
+ExecStart=/opt/scouter/analytics/bin/analytics start
