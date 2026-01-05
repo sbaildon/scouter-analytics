@@ -51,7 +51,9 @@ defmodule Scouter.Events do
       Scouter.EventsRepo.aggregate(Scouter.Event.query(), :count)
     end)
     |> case do
-      count when is_integer(count) -> {:ok, count}
+      count when is_integer(count) ->
+        {:ok, count}
+
       result ->
         Logger.info(result)
         :error
@@ -67,12 +69,17 @@ defmodule Scouter.Events do
       |> Scouter.EventsRepo.aggregate(:count)
     end)
     |> case do
-      count when is_integer(count) -> {:ok, count}
-      result -> :error
+      count when is_integer(count) ->
+        {:ok, count}
+
+      result ->
+        Logger.info(result)
+        :error
     end
   end
 
-  defp make_presentable({grouping_id, df}) when grouping_id in [group_id(:referrer), group_id(:country_code)] do
+  defp make_presentable({grouping_id, df})
+       when grouping_id in [group_id(:referrer), group_id(:country_code)] do
     series = S.transform(df[:value], fn v -> Scouter.Event.present(grouping_id, v) end)
     {grouping_id, DF.put(df, :present, series)}
   end
@@ -285,7 +292,9 @@ defmodule Scouter.Events do
 
   defp subdivision1_code(_, _), do: nil
 
-  defp subdivision2_code(country_code, %{"subdivisions" => [_first, %{"iso_code" => iso_code} | _rest]})
+  defp subdivision2_code(country_code, %{
+         "subdivisions" => [_first, %{"iso_code" => iso_code} | _rest]
+       })
        when not is_nil(country_code) do
     country_code <> "-" <> iso_code
   end
