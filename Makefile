@@ -7,10 +7,12 @@ ROOTFS := $(CURDIR)/rootfs
 # Version parsed from mix.exs (can be overridden)
 VERSION := $(shell grep -A1 'defp version do' mix.exs | tail -1 | sed 's/[^0-9.]//g')
 
+RELEASE := 1
+
 IMAGE_DIR := .
 
 # Image filename
-IMAGE := scouter-analytics_$(VERSION).raw
+IMAGE := scouter-analytics_$(VERSION)-$(RELEASE).raw
 
 # Find all .service files in dist/systemd/
 SYSTEMD_SERVICES := $(wildcard dist/systemd/usr/lib/systemd/system/*.service)
