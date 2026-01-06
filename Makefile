@@ -37,7 +37,8 @@ $(ROOTFS)/:
 	mkdir -p $@
 
 $(ROOTFS)/opt/scouter/analytics/: _build/prod/rel/analytics/
-	rsync --mkpath -a _build/prod/rel/analytics/ $@
+	@mkdir -p $(@D)
+	cp -r _build/prod/rel/analytics/ $@
 
 _build/prod/rel/analytics/:
 	mix deps.get
