@@ -30,6 +30,7 @@
             pkgs.minio
             pkgs.minio-client
             pkgs.sqlite
+            pkgs.gnumake
           ];
         };
 
