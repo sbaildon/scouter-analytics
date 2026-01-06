@@ -1,11 +1,13 @@
 # Output directory for install target (can be overridden)
-OUTPUT_DIR := /var/lib/portables/scouter-analytics.raw.v
+INSTALL_DIR := /var/lib/portables/scouter-analytics.raw.v
 
 # Root filesystem build directory (can be overridden)
 ROOTFS := $(CURDIR)/rootfs
 
 # Version parsed from mix.exs (can be overridden)
 VERSION := $(shell grep -A1 'defp version do' mix.exs | tail -1 | sed 's/[^0-9.]//g')
+
+IMAGE_DIR := .
 
 # Image filename
 IMAGE := scouter-analytics_$(VERSION).raw
@@ -20,14 +22,14 @@ ROOTFS_MOUNT_POINT_FILES := $(ROOTFS)/etc/resolve.conf $(ROOTFS)/etc/machine-id
 ROOTFS_CONTENTS := $(ROOTFS)/usr/lib/os-release $(ROOTFS)/opt/scouter/analytics/ $(ROOTFS_SERVICES) $(ROOTFS_MOUNT_POINT_DIRS) $(ROOTFS_MOUNT_POINT_FILES)
 
 # Default target: build the .raw image locally
-$(IMAGE): $(ROOTFS_CONTENTS)
+$(IMAGE_DIR)/$(IMAGE): $(ROOTFS_CONTENTS)
 	unshare --user --map-root-user --mount --map-auto \
 		mkfs.erofs --all-root $@ $(ROOTFS)/
 
 .PHONY: install
 install:
-	@mkdir -p $(OUTPUT_DIR)
-	cp $(IMAGE) $(OUTPUT_DIR)/$(IMAGE)
+	@mkdir -p $(INSTALL_DIR)
+	cp $(IMAGE_DIR)/$(IMAGE) $(INSTALL_DIR)/$(IMAGE)
 
 $(ROOTFS)/:
 	mkdir -p $@
