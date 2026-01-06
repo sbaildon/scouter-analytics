@@ -2,68 +2,73 @@
   description = "Scouter";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/fc8835d44a356d64953cb31f1b086fab1e25bb5b";
+  inputs.flake-utils.url = "github:numtide/flake-utils";
 
   outputs =
     {
       self,
       nixpkgs,
+      flake-utils,
     }:
-    let
-      pkgs = nixpkgs.legacyPackages.aarch64-darwin;
-      beamPkgs = pkgs.beam.packages.erlang_28;
-    in
-    {
-      formatter.aarch64-darwin = pkgs.nixfmt;
+    flake-utils.lib.eachDefaultSystem (
+      system:
+      let
+        pkgs = nixpkgs.legacyPackages.${system};
+        beamPkgs = pkgs.beam.packages.erlang_28;
+      in
+      {
+        formatter = pkgs.nixfmt-rfc-style;
 
-      # nix develop
-      # https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/darwin/apple-sdk/frameworks.nix
-      devShells.aarch64-darwin.default = pkgs.mkShell {
-        buildInputs = [
-          beamPkgs.elixir_1_18
-          pkgs.erofs-utils
-          pkgs.caddy
-          pkgs.duckdb
-          pkgs.minio
-          pkgs.minio-client
-          pkgs.sqlite
-        ];
-      };
+        # nix develop
+        # https://github.com/NixOS/nixpkgs/blob/master/pkgs/os-specific/darwin/apple-sdk/frameworks.nix
+        devShells.default = pkgs.mkShell {
+          buildInputs = [
+            beamPkgs.elixir_1_18
+            pkgs.erofs-utils
+            pkgs.caddy
+            pkgs.duckdb
+            pkgs.minio
+            pkgs.minio-client
+            pkgs.sqlite
+          ];
+        };
 
-      apps.aarch64-darwin.iex = {
-        type = "app";
-        program = "${beamPkgs.elixir_1_18}/bin/iex";
-      };
+        apps.iex = {
+          type = "app";
+          program = "${beamPkgs.elixir_1_18}/bin/iex";
+        };
 
-      apps.aarch64-darwin.mix = {
-        type = "app";
-        program = "${beamPkgs.elixir_1_18}/bin/mix";
-      };
+        apps.mix = {
+          type = "app";
+          program = "${beamPkgs.elixir_1_18}/bin/mix";
+        };
 
-      apps.aarch64-darwin.caddy = {
-        type = "app";
-        program = "${pkgs.caddy}/bin/caddy";
-      };
+        apps.caddy = {
+          type = "app";
+          program = "${pkgs.caddy}/bin/caddy";
+        };
 
-      apps.aarch64-darwin.minio = {
-        type = "app";
-        program = "${pkgs.minio}/bin/minio";
-      };
+        apps.minio = {
+          type = "app";
+          program = "${pkgs.minio}/bin/minio";
+        };
 
-      apps.aarch64-darwin.mc = {
-        type = "app";
-        program = "${pkgs.minio-client}/bin/mc";
-      };
+        apps.mc = {
+          type = "app";
+          program = "${pkgs.minio-client}/bin/mc";
+        };
 
-      apps.aarch64-darwin.duckdb = {
-        type = "app";
-        program = "${pkgs.duckdb}/bin/duckdb";
-      };
+        apps.duckdb = {
+          type = "app";
+          program = "${pkgs.duckdb}/bin/duckdb";
+        };
 
-      apps.aarch64-darwin.hivemind = {
-        type = "app";
-        program = "${pkgs.hivemind}/bin/hivemind";
-      };
+        apps.hivemind = {
+          type = "app";
+          program = "${pkgs.hivemind}/bin/hivemind";
+        };
 
-      packages.aarch64-darwin.default = beamPkgs.elixir_1_18;
-    };
+        packages.default = beamPkgs.elixir_1_18;
+      }
+    );
 }
