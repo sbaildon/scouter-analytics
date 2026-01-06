@@ -25,8 +25,7 @@ ROOTFS_CONTENTS := $(ROOTFS)/usr/lib/os-release $(ROOTFS)/opt/scouter/analytics/
 
 # Default target: build the .raw image locally
 $(IMAGE_DIR)/$(IMAGE): $(ROOTFS_CONTENTS)
-	unshare --user --map-root-user --mount --map-auto \
-		mkfs.erofs --all-root $@ $(ROOTFS)/
+	mkfs.erofs --all-root $@ $(ROOTFS)/
 
 .PHONY: install
 install:
@@ -49,27 +48,22 @@ _build/prod/rel/analytics/:
 		--force
 
 $(ROOTFS)/usr/lib/os-release: | $(ROOTFS)/
-	unshare \
-		--user \
-		--map-root-user \
-		--mount \
-		--map-auto \
-		dnf \
-			--use-host-config \
-			--installroot=$(ROOTFS)/ \
-			--setopt=metadata_expire=never \
-			--setopt=install_weak_deps=False \
-			--setopt=tsflags=nodocs \
-			--assumeyes \
-			install \
-				bash \
-				coreutils-single \
-				sed \
-				grep \
-				zlib \
-				libstdc++ \
-				openssl-libs \
-				glibc-langpack-en
+	dnf \
+		--use-host-config \
+		--installroot=$(ROOTFS)/ \
+		--setopt=metadata_expire=never \
+		--setopt=install_weak_deps=False \
+		--setopt=tsflags=nodocs \
+		--assumeyes \
+		install \
+			bash \
+			coreutils-single \
+			sed \
+			grep \
+			zlib \
+			libstdc++ \
+			openssl-libs \
+			glibc-langpack-en
 
 $(ROOTFS)/%.service: dist/systemd/%.service | $(ROOTFS)/
 	@mkdir -p $(@D)
