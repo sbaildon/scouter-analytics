@@ -24,9 +24,8 @@ $(IMAGE): $(ROOTFS_CONTENTS)
 	unshare --user --map-root-user --mount --map-auto \
 		mkfs.erofs --all-root $@ $(ROOTFS)/
 
-# Install target: copy to OUTPUT_DIR (may require root)
 .PHONY: install
-install: $(IMAGE)
+install:
 	@mkdir -p $(OUTPUT_DIR)
 	cp $(IMAGE) $(OUTPUT_DIR)/$(IMAGE)
 
