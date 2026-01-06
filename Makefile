@@ -1,5 +1,5 @@
 # Output directory for install target (can be overridden)
-OUTPUT_DIR := /var/lib/portables
+OUTPUT_DIR := /var/lib/portables/scouter-analytics.raw.v
 
 # Root filesystem build directory (can be overridden)
 ROOTFS := $(CURDIR)/rootfs
