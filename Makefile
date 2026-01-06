@@ -14,7 +14,7 @@ IMAGE := scouter-analytics_$(VERSION).raw
 SYSTEMD_SERVICES := $(wildcard dist/systemd/usr/lib/systemd/system/*.service)
 ROOTFS_SERVICES := $(patsubst dist/systemd/%,$(ROOTFS)/%,$(SYSTEMD_SERVICES))
 ROOTFS_MOUNT_POINT_DIRS := $(ROOTFS)/proc $(ROOTFS)/sys $(ROOTFS)/dev $(ROOTFS)/run $(ROOTFS)/tmp $(ROOTFS)/var/tmp
-ROOTFS_MOUNT_POINTS_FILES := $(ROOTFS)/etc/resolve.conf $(ROOTFS)/etc/machine-id
+ROOTFS_MOUNT_POINT_FILES := $(ROOTFS)/etc/resolve.conf $(ROOTFS)/etc/machine-id
 
 # Aggregate all rootfs contents
 ROOTFS_CONTENTS := $(ROOTFS)/usr/lib/os-release $(ROOTFS)/opt/scouter/analytics/ $(ROOTFS_SERVICES) $(ROOTFS_MOUNT_POINT_DIRS) $(ROOTFS_MOUNT_POINT_FILES)
