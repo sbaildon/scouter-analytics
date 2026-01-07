@@ -37,7 +37,7 @@ $(ROOTFS)/:
 
 $(ROOTFS)/opt/scouter/analytics/: _build/prod/rel/analytics/
 	@mkdir -p $(@D)
-	cp -r $< $(@D)
+	cp -r $< $(ROOTFS)/opt/scouter
 
 _build/prod/rel/analytics/:
 	mix deps.get
