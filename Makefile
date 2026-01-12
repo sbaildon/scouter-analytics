@@ -43,6 +43,8 @@ _build/prod/rel/analytics/:
 	mix deps.get
 	mix deps.compile
 	mix assets.deploy
+	mix ua_inspector.download --force
+	mix ref_inspector.download --force
 	mix release \
 		--overwrite \
 		--force
