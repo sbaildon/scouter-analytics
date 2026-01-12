@@ -21,7 +21,7 @@ ROOTFS_MOUNT_POINT_DIRS := $(ROOTFS)/proc $(ROOTFS)/sys $(ROOTFS)/dev $(ROOTFS)/
 ROOTFS_MOUNT_POINT_FILES := $(ROOTFS)/etc/resolv.conf $(ROOTFS)/etc/machine-id
 
 # Aggregate all rootfs contents
-ROOTFS_CONTENTS := $(ROOTFS)/usr/bin/scouter-analytics/ $(ROOTFS_SERVICES) $(ROOTFS_MOUNT_POINT_DIRS) $(ROOTFS_MOUNT_POINT_FILES)
+ROOTFS_CONTENTS := $(ROOTFS)/usr/bin/scouter-analytics $(ROOTFS_SERVICES) $(ROOTFS_MOUNT_POINT_DIRS) $(ROOTFS_MOUNT_POINT_FILES)
 
 # Default target: build the .raw image locally
 $(IMAGE_DIR)/$(IMAGE): $(ROOTFS_CONTENTS)
