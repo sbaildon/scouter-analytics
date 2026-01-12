@@ -1,4 +1,4 @@
-FROM docker.io/library/elixir:1.19-otp-28-lim AS base
+FROM docker.io/library/elixir:1.19-otp-28-slim AS base
 
 ENV MIX_ENV=prod
 
