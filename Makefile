@@ -21,11 +21,11 @@ ROOTFS_MOUNT_POINT_DIRS := $(ROOTFS)/proc $(ROOTFS)/sys $(ROOTFS)/dev $(ROOTFS)/
 ROOTFS_MOUNT_POINT_FILES := $(ROOTFS)/etc/resolv.conf $(ROOTFS)/etc/machine-id
 
 # Aggregate all rootfs contents
-ROOTFS_CONTENTS := $(ROOTFS)/usr/lib/os-release $(ROOTFS)/opt/scouter/analytics/ $(ROOTFS_SERVICES) $(ROOTFS_MOUNT_POINT_DIRS) $(ROOTFS_MOUNT_POINT_FILES)
+ROOTFS_CONTENTS := $(ROOTFS)/usr/bin/scouter-analytics/ $(ROOTFS_SERVICES) $(ROOTFS_MOUNT_POINT_DIRS) $(ROOTFS_MOUNT_POINT_FILES)
 
 # Default target: build the .raw image locally
-$(IMAGE_DIR)/$(IMAGE):
-	podman build --output - --quiet . | mkfs.erofs --tar --all-root $@ /dev/stdin
+$(IMAGE_DIR)/$(IMAGE): $(ROOTFS_CONTENTS)
+	mkfs.erofs --all-root $@ $(ROOTFS)/
 
 .PHONY: install
 install:
@@ -35,37 +35,8 @@ install:
 $(ROOTFS)/:
 	mkdir -p $@
 
-$(ROOTFS)/opt/scouter/analytics/: _build/prod/rel/analytics/
-	@mkdir -p $(@D)
-	cp -r $< $(ROOTFS)/opt/scouter
-
-_build/prod/rel/analytics/:
-	mix deps.get
-	mix deps.compile
-	mix assets.deploy
-	mix ua_inspector.download --force
-	mix ref_inspector.download --force
-	mix release \
-		--overwrite \
-		--force
-
-$(ROOTFS)/usr/lib/os-release: | $(ROOTFS)/
-	dnf \
-		--use-host-config \
-		--installroot=$(ROOTFS)/ \
-		--setopt=metadata_expire=never \
-		--setopt=install_weak_deps=False \
-		--setopt=tsflags=nodocs \
-		--assumeyes \
-		install \
-			bash \
-			coreutils-single \
-			sed \
-			grep \
-			zlib \
-			libstdc++ \
-			openssl-libs \
-			glibc-langpack-en
+$(ROOTFS)/usr/bin/scouter-analytics/: | $(ROOTFS)/
+	podman build --output=type=local,dest=$(ROOTFS) .
 
 $(ROOTFS)/%.service: dist/systemd/%.service | $(ROOTFS)/
 	@mkdir -p $(@D)
