@@ -24,8 +24,8 @@ ROOTFS_MOUNT_POINT_FILES := $(ROOTFS)/etc/resolv.conf $(ROOTFS)/etc/machine-id
 ROOTFS_CONTENTS := $(ROOTFS)/usr/lib/os-release $(ROOTFS)/opt/scouter/analytics/ $(ROOTFS_SERVICES) $(ROOTFS_MOUNT_POINT_DIRS) $(ROOTFS_MOUNT_POINT_FILES)
 
 # Default target: build the .raw image locally
-$(IMAGE_DIR)/$(IMAGE): $(ROOTFS_CONTENTS)
-	mkfs.erofs --all-root $@ $(ROOTFS)/
+$(IMAGE_DIR)/$(IMAGE):
+	podman build --output - --quiet . | mkfs.erofs --tar --all-root dev/stdin
 
 .PHONY: install
 install:
