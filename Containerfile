@@ -42,6 +42,6 @@ RUN apt-get update && \
 	openssl \
 	&& rm -rf /var/lib/apt/lists/*
 COPY --from=app /app/_build/prod/rel .
-ENTRYPOINT [ "/scouter/bin/scouter" ]
+ENTRYPOINT [ "/analytics/bin/analytics" ]
 CMD [ "start" ]
 
