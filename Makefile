@@ -49,3 +49,6 @@ $(ROOTFS_MOUNT_POINT_FILES): | $(ROOTFS)/
 	@mkdir -p $(@D)
 	touch $@
 
+.PHONY: clean
+clean:
+	git clean -fd
