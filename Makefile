@@ -25,7 +25,7 @@ ROOTFS_CONTENTS := $(ROOTFS)/usr/lib/os-release $(ROOTFS)/opt/scouter/analytics/
 
 # Default target: build the .raw image locally
 $(IMAGE_DIR)/$(IMAGE):
-	podman build --output - --quiet . | mkfs.erofs --tar --all-root dev/stdin
+	podman build --output - --quiet . | mkfs.erofs --tar --all-root $@ /dev/stdin
 
 .PHONY: install
 install:
