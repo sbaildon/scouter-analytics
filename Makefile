@@ -35,7 +35,7 @@ install:
 $(ROOTFS)/:
 	mkdir -p $@
 
-$(ROOTFS)/usr/bin/scouter-analytics/: | $(ROOTFS)/
+$(ROOTFS)/usr/bin/scouter-analytics: | $(ROOTFS)/
 	podman build --output=type=local,dest=$(ROOTFS) .
 
 $(ROOTFS)/%.service: dist/systemd/%.service | $(ROOTFS)/
