@@ -41,7 +41,6 @@ RUN apt-get update && \
 	ca-certificates \
 	openssl \
 	&& rm -rf /var/lib/apt/lists/*
-RUN mkdir -p /opt/scouter
 COPY --from=app /app/_build/prod/rel /usr/lib/scouter
 RUN ln -s /usr/lib/scouter/analytics/bin/analytics /usr/bin/scouter-analytics
 ENTRYPOINT [ "/usr/bin/scouter-analytics" ]
