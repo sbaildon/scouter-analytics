@@ -34,7 +34,7 @@ RUN mix compile
 COPY config/runtime.exs config/
 RUN mix release
 
-FROM docker.io/library/debian:12-slim AS release
+FROM docker.io/library/debian:13-slim AS release
 ENV LANG=C.UTF-8
 RUN apt-get update && \
 	apt-get install -y --no-install-recommends \
