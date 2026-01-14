@@ -45,9 +45,9 @@ $(ROOTFS)/%.service: dist/systemd/%.service | $(ROOTFS)/
 $(ROOTFS_MOUNT_POINT_DIRS): | $(ROOTFS)/
 	mkdir -p $@
 
-$(ROOTFS_MOUNT_POINT_FILES): | $(ROOTFS)/
+$(ROOTFS)/etc/%: | $(ROOTFS)/
 	@mkdir -p $(@D)
-	touch $@
+	echo -n > $@
 
 .PHONY: clean
 clean:
