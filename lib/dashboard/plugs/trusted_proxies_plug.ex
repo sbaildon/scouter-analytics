@@ -14,33 +14,17 @@ defmodule Dashboard.TrustedProxiesPlug do
 
   def call(conn, _opts) do
     if trusted_proxies = trusted_proxies() do
-      forwarded_for =
-        conn
-        |> get_req_header("x-forwarded-for")
-        |> Enum.flat_map(&parse_header/1)
-
-      Logger.info(forwarded_for: forwarded_for)
-
-      client_and_proxy_pairs =
-        for client <- forwarded_for, trusted_proxy <- trusted_proxies do
-          {client, trusted_proxy}
-        end
+      {_, _, _, _} = client = conn.remote_ip
 
       trusted_environment? =
-        Enum.any?(client_and_proxy_pairs, fn {client, proxy} ->
-          Logger.debug(proxy: proxy, forwarded: client)
-          trusted_client?(client, proxy)
-        end)
+        Enum.any?(trusted_proxies, fn trusted_proxy -> trusted_client?(client, trusted_proxy) end)
 
       (trusted_environment? && trusted_environment(conn)) ||
-        untrusted_environment(conn, forwarded_for, trusted_proxies)
+        untrusted_environment(conn, client, trusted_proxies)
     else
       unspecified_environment(conn)
     end
   end
-
-  defp parse_header("for=" <> _ = header), do: RemoteIp.Parsers.Forwarded.parse(header)
-  defp parse_header(header), do: RemoteIp.Parsers.Generic.parse(header)
 
   defp trusted_client?(client_ip, trusted_proxy) do
     client_ip <= trusted_proxy.last && client_ip >= trusted_proxy.first
@@ -48,9 +32,9 @@ defmodule Dashboard.TrustedProxiesPlug do
 
   defp trusted_environment(conn), do: assign(conn, :environment, :trusted)
 
-  defp untrusted_environment(conn, forwarded_for, trusted_proxies) do
+  defp untrusted_environment(conn, client, trusted_proxies) do
     Logger.warning(
-      "connection received from a client other than a trusted proxy, from #{inspect(forwarded_for)}, trusted #{inspect(trusted_proxies)}"
+      "connection received from a client other than a trusted proxy, from #{inspect(client)}, trusted #{inspect(trusted_proxies)}"
     )
 
     conn
