@@ -67,8 +67,7 @@ defmodule Scouter.Instances.SCMEndpoint do
     end
   end
 
-  defp clean_socket(<<0, _rest::binary>> = abstract_namespace_socket),
-    do: {:ok, abstract_namespace_socket}
+  defp clean_socket(<<0, _rest::binary>> = abstract_namespace_socket), do: {:ok, abstract_namespace_socket}
 
   defp clean_socket(path) do
     case File.rm(path) do
