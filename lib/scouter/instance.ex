@@ -163,13 +163,21 @@ defmodule Scouter.Instance do
   end
 
   def state_directory do
-    Enum.find_value(["STATE_DIRECTORY", "XDG_DATA_HOME"], default_state_directory(), &System.get_env/1)
+    Enum.find_value(
+      ["STATE_DIRECTORY", "XDG_DATA_HOME"],
+      default_state_directory(),
+      &System.get_env/1
+    )
   end
 
   defp default_state_directory, do: "/var/lib/scouter/analytics"
 
   def runtime_directory do
-    Enum.find_value(["RUNTIME_DIRECTORY", "XDG_RUNTIME_DIR"], default_runtime_directory(), &System.get_env/1)
+    Enum.find_value(
+      ["RUNTIME_DIRECTORY", "XDG_RUNTIME_DIR"],
+      default_runtime_directory(),
+      &System.get_env/1
+    )
   end
 
   defp default_runtime_directory, do: "/run/scouter/analytics"
