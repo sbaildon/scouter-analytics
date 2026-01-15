@@ -8,6 +8,7 @@ defmodule Dashboard.TrustedProxiesPlug do
 
   # local unix socket are always trusted
   def call(%{remote_ip: {:local, _name}} = conn, _opts) do
+    Logger.info(client: :local)
     trusted_environment(conn)
   end
 
@@ -17,6 +18,8 @@ defmodule Dashboard.TrustedProxiesPlug do
         conn
         |> get_req_header("x-forwarded-for")
         |> Enum.flat_map(&parse_header/1)
+
+      Logger.info(forwarded_for: forwarded_for)
 
       client_and_proxy_pairs =
         for client <- forwarded_for, trusted_proxy <- trusted_proxies do
