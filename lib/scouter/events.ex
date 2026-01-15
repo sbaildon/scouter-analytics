@@ -307,6 +307,17 @@ defmodule Scouter.Events do
   defp ignore_unknown_country("T1"), do: nil
   defp ignore_unknown_country(country), do: country
 
+  def backup_now(instance) do
+    Scouter.with_instance(instance, fn _ ->
+      Enum.map(BackupWorker.config(), fn {name, _options} ->
+        job = %{name: name} |> BackupWorker.new()
+
+        # hardcoding oban lookup here, but it could be made available with Scouter.with_instance
+        Oban.insert({:via, Registry, {Scouter.InstanceRegistry, {instance, :oban}}}, job)
+      end)
+    end)
+  end
+
   def backup_now do
     Enum.map(BackupWorker.config(), fn {name, _options} ->
       %{name: name}
