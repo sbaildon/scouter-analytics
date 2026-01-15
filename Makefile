@@ -17,7 +17,7 @@ IMAGE := scouter-analytics_$(VERSION)-$(RELEASE).raw
 # Find all .service files in dist/systemd/
 SYSTEMD_SERVICES := $(wildcard dist/systemd/usr/lib/systemd/system/*.service)
 ROOTFS_SERVICES := $(patsubst dist/systemd/%,$(ROOTFS)/%,$(SYSTEMD_SERVICES))
-ROOTFS_MOUNT_POINT_DIRS := $(ROOTFS)/proc $(ROOTFS)/sys $(ROOTFS)/dev $(ROOTFS)/run $(ROOTFS)/tmp $(ROOTFS)/var/tmp $(ROOTFS)/var/lib/scouter/analytics
+ROOTFS_MOUNT_POINT_DIRS := $(ROOTFS)/proc/ $(ROOTFS)/sys/ $(ROOTFS)/dev/ $(ROOTFS)/run/ $(ROOTFS)/tmp/ $(ROOTFS)/var/tmp/ $(ROOTFS)/var/lib/scouter/analytics/
 ROOTFS_MOUNT_POINT_FILES := $(ROOTFS)/etc/resolv.conf $(ROOTFS)/etc/machine-id
 
 # Aggregate all rootfs contents
@@ -42,10 +42,10 @@ $(ROOTFS)/%.service: dist/systemd/%.service | $(ROOTFS)/
 	@mkdir -p $(@D)
 	cp $< $@
 
-$(ROOTFS_MOUNT_POINT_DIRS): | $(ROOTFS)/
+$(ROOTFS)/%/: | $(ROOTFS)/
 	mkdir -p $@
 
-$(ROOTFS)/etc/%: | $(ROOTFS)/
+$(ROOTFS)/%: | $(ROOTFS)/
 	@mkdir -p $(@D)
 	echo -n > $@
 
