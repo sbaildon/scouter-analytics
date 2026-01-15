@@ -13,8 +13,7 @@ defmodule Dashboard.Endpoint do
     same_site: "Lax"
   ]
 
-  socket "/_app/analytics/live", Dashboard.ArrowSocket,
-    websocket: [connect_info: [:x_headers, session: @session_options]]
+  socket "/_app/analytics/live", Dashboard.ArrowSocket, websocket: [connect_info: [:x_headers, session: @session_options]]
 
   # Serve at "/" the static files from "priv/static" directory.
   #
