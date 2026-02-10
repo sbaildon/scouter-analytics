@@ -21,6 +21,7 @@ defmodule Ecto.Adapters.DuckDB.Query do
     defp encode_param(%NaiveDateTime{} = param), do: NaiveDateTime.to_iso8601(param)
     defp encode_param(%DateTime{} = param), do: DateTime.to_iso8601(param)
     defp encode_param(%Decimal{} = param), do: Decimal.to_string(param)
+    defp encode_param(param) when is_map(param), do: JSON.encode_to_iodata!(param)
     defp encode_param(param), do: param
 
     def decode(_query, %Adbc.Result{} = result, _opts) do
