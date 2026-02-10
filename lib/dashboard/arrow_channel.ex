@@ -35,7 +35,7 @@ defmodule Dashboard.ArrowChannel do
       group_id(:namespace) => :namespaces,
       group_id(:path) => :paths,
       group_id(:referrer) => :referrers,
-      group_id(:referrer_source) => :referrers,
+      group_id(:referrer_source) => :sources,
       group_id(:utm_medium) => :utm_mediums,
       group_id(:utm_source) => :utm_sources,
       group_id(:utm_campaign) => :utm_campaigns,
