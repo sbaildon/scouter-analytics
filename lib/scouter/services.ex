@@ -63,6 +63,12 @@ defmodule Scouter.Services do
     end
   end
 
+  defp calculate_matcher(%{type: :exact, value: value} = matcher) do
+    with {:ok, regex} <- value |> Regex.escape() |> Regex.compile() do
+      %{matcher | regex: regex}
+    end
+  end
+
   defp wildcard_to_regex(value) do
     value
     |> String.graphemes()
