@@ -44,6 +44,14 @@ defmodule Scouter do
       )
   end
 
+  def start_instance(name) do
+    {:ok, _pid} =
+      DynamicSupervisor.start_child(
+        Scouter.InstanceSupervisor,
+        {Scouter.Instance, name: {:via, Registry, {Scouter.InstanceRegistry, name}}}
+      )
+  end
+
   def stop_instance(name) do
     Logger.info("stopping instance #{name} by request")
 
