@@ -14,7 +14,7 @@ defmodule Dashboard.TrustedProxiesPlug do
 
   def call(conn, _opts) do
     if trusted_proxies = trusted_proxies() do
-      {_, _, _, _} = client = conn.remote_ip
+     client = conn.remote_ip
 
       trusted_environment? =
         Enum.any?(trusted_proxies, fn trusted_proxy -> trusted_client?(client, trusted_proxy) end)
@@ -26,8 +26,12 @@ defmodule Dashboard.TrustedProxiesPlug do
     end
   end
 
+  defp trusted_client?(client_ip, trusted_proxy) when tuple_size(client_ip) != tuple_size(trusted_proxy.first) do
+    false
+  end
+
   defp trusted_client?(client_ip, trusted_proxy) do
-    client_ip <= trusted_proxy.last && client_ip >= trusted_proxy.first
+    CIDR.match!(trusted_proxy, client_ip)
   end
 
   defp trusted_environment(conn), do: assign(conn, :environment, :trusted)
