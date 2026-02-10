@@ -120,8 +120,9 @@ defmodule Telemetry.EventController do
   end
 
   defp referrer(nil), do: nil
-  defp referrer(%{host: nil}), do: nil
-  defp referrer(%{host: host}), do: String.trim_leading(host, "www.")
+  defp referrer(%{scheme: nil, host: nil, path: nil}), do: nil
+  defp referrer(%{scheme: nil, host: nil, path: path}), do: path
+  defp referrer(%{host: host}), do: host
 
   defp referrer_source(nil), do: nil
 

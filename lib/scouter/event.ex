@@ -309,9 +309,11 @@ defmodule Scouter.Event do
   end
 
   def present(group_id(:referrer), value) do
-    case value |> URI.parse() |> Map.fetch(:host) do
-      {:ok, nil} -> unknown()
-      {:ok, host} -> Regex.replace(~r/(www\.)/, host, "")
+    case URI.parse(value) do
+      %{scheme: nil, host: nil, path: nil} -> unknown()
+      %{scheme: nil, host: nil, path: path} -> path
+      %{host: host} -> host
+      _ -> unknown()
     end
   end
 
