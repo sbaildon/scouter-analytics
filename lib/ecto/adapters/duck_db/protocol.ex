@@ -161,6 +161,10 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
     {:ok, state}
   end
 
+  defp error_to_exception(%ArgumentError{} = error) do
+    error
+  end
+
   defp error_to_exception(string) when is_binary(string) do
     ArgumentError.exception(string)
   end
