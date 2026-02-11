@@ -1,6 +1,5 @@
 defmodule Scouter.Events.Mock do
   @moduledoc false
-  alias Scouter.Events
 
   def add_utm_parameters(event) do
     {utm_source, utm_medium, utm_campaign, utm_term, utm_content} = Enum.random(utm_parameters())
@@ -93,14 +92,6 @@ defmodule Scouter.Events.Mock do
       {nil, nil, nil, nil, nil},
       {nil, nil, nil, nil, nil}
     ]
-  end
-
-  def add_country_details(event) do
-    Events.country_details(event, generate_ipv4())
-  end
-
-  defp generate_ipv4 do
-    Enum.map_join(1..4, ".", fn _ -> :rand.uniform(255) end)
   end
 
   def add_os_and_browser_details(event) do

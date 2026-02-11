@@ -5,7 +5,6 @@ defmodule Scouter.Events do
   alias Scouter.Event
   alias Scouter.EventsRepo
   alias Scouter.EventsRepo.BackupWorker
-  alias Scouter.Geo
 
   require Explorer.DataFrame, as: DF
   require Explorer.Series, as: S
@@ -16,8 +15,8 @@ defmodule Scouter.Events do
   def arrow(instance, filters \\ []) do
     Scouter.with_instance(instance, fn %{repo: repo} ->
       {:ok, df} =
-        Event.query()
-        |> Event.typed_aggregate_query()
+        Scouter.PageView.query()
+        |> Scouter.PageView.typed_aggregate_query()
         |> filter(filters)
         |> then(&Ecto.Adapters.SQL.to_sql(:all, repo, &1))
         |> then(fn {sql, params} ->
@@ -31,18 +30,9 @@ defmodule Scouter.Events do
         |> DF.group_by(:grouping_id)
         |> DF.head(event_limit())
         |> partition_by()
-        |> Map.drop(groups_not_supported_by_ui())
         |> Map.new(&make_presentable/1)
       end
     end)
-  end
-
-  defp groups_not_supported_by_ui do
-    [
-      group_id(:subdivision1_code),
-      group_id(:subdivision2_code),
-      group_id(:city_geoname_id)
-    ]
   end
 
   def count(instance) do
@@ -258,51 +248,6 @@ defmodule Scouter.Events do
   def count_and_range("past_14_days"), do: {14, :day}
   def count_and_range("past_30_days"), do: {30, :day}
   def count_and_range(_), do: {-1, :year}
-
-  def country_details(event, ip) do
-    geo_params =
-      case Geo.lookup(ip) do
-        {:ok, entry} ->
-          country_code =
-            entry
-            |> get_in(["country", "iso_code"])
-            |> ignore_unknown_country()
-
-          city_geoname_id = country_code && get_in(entry, ["city", "geoname_id"])
-
-          %{
-            country_code: country_code,
-            subdivision1_code: subdivision1_code(country_code, entry),
-            subdivision2_code: subdivision2_code(country_code, entry),
-            city_geoname_id: city_geoname_id
-          }
-
-        nil ->
-          %{}
-      end
-
-    Map.merge(event, geo_params)
-  end
-
-  defp subdivision1_code(country_code, %{"subdivisions" => [%{"iso_code" => iso_code} | _rest]})
-       when not is_nil(country_code) do
-    country_code <> "-" <> iso_code
-  end
-
-  defp subdivision1_code(_, _), do: nil
-
-  defp subdivision2_code(country_code, %{"subdivisions" => [_first, %{"iso_code" => iso_code} | _rest]})
-       when not is_nil(country_code) do
-    country_code <> "-" <> iso_code
-  end
-
-  defp subdivision2_code(_, _), do: nil
-
-  # Ignore worldwide (ZZ), disputed terrories (XX), and Tor (T1)
-  defp ignore_unknown_country("ZZ"), do: nil
-  defp ignore_unknown_country("XX"), do: nil
-  defp ignore_unknown_country("T1"), do: nil
-  defp ignore_unknown_country(country), do: country
 
   def backup_now(instance) do
     Scouter.with_instance(instance, fn _ ->

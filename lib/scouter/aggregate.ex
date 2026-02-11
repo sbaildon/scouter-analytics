@@ -16,9 +16,6 @@ defmodule Scouter.Aggregate do
     field :utm_content, :string
     field :utm_term, :string
     field :country_code, :string
-    field :subdivision1_code, :string
-    field :subdivision2_code, :string
-    field :city_geoname_id, :integer
     field :operating_system, :string
     field :operating_system_version, :string
     field :browser, :string

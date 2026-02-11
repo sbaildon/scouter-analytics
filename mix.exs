@@ -76,7 +76,6 @@ defmodule Scouter.MixProject do
       {:typeid_elixir, "~> 1.1"},
       {:ua_inspector,
        git: "https://github.com/elixir-inspector/ua_inspector", ref: "b40401edffea4d039420d828bd3dc1f95a932039"},
-      {:locus, "~> 2.3"},
       {:ref_inspector, "~> 2.0"},
       {:ex_cldr, "~> 2.37"},
       {:ex_cldr_territories, "~> 2.9.0"},

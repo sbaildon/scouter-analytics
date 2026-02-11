@@ -16,23 +16,8 @@ defmodule Scouter.Event do
   schema "events" do
     field :service_id, :string
     field :timestamp, :naive_datetime
-    field :namespace, :string
-    field :path, :string
-    field :referrer, :string
-    field :referrer_source, :string
-    field :utm_medium, :string
-    field :utm_source, :string
-    field :utm_campaign, :string
-    field :utm_content, :string
-    field :utm_term, :string
-    field :country_code, :string
-    field :subdivision1_code, :string
-    field :subdivision2_code, :string
-    field :city_geoname_id, :integer
-    field :operating_system, :string
-    field :operating_system_version, :string
-    field :browser, :string
-    field :browser_version, :string
+    field :type, :string
+    field :properties, Ecto.JSON
   end
 
   def changeset(params) do
@@ -54,9 +39,6 @@ defmodule Scouter.Event do
       :utm_content,
       :utm_term,
       :country_code,
-      :subdivision1_code,
-      :subdivision2_code,
-      :city_geoname_id,
       :operating_system,
       :operating_system_version,
       :browser,
@@ -182,118 +164,6 @@ defmodule Scouter.Event do
       select: %Scouter.Aggregate{count: count(field(event, ^field)), value: field(event, ^field)},
       order_by: [desc: count(field(event, ^field))]
     )
-  end
-
-  def typed_aggregate_query(query) do
-    query
-    |> then(fn query ->
-      from([{^named_binding(), e}] in query,
-        select: %{
-          count: selected_as(count(), :count),
-          grouping_id:
-            selected_as(
-              fragment(
-                "GROUPING (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) :: UINTEGER",
-                e.namespace,
-                e.path,
-                e.referrer,
-                e.referrer_source,
-                e.utm_medium,
-                e.utm_source,
-                e.utm_campaign,
-                e.utm_content,
-                e.utm_term,
-                e.country_code,
-                e.subdivision1_code,
-                e.subdivision2_code,
-                e.city_geoname_id,
-                e.operating_system,
-                e.operating_system_version,
-                e.browser,
-                e.browser_version
-              ),
-              :grouping_id
-            ),
-          value:
-            selected_as(
-              fragment(
-                "CASE ?
-                  WHEN '0b01111111111111111' THEN ?
-                  WHEN '0b10111111111111111' THEN ?
-                  WHEN '0b11011111111111111' THEN ?
-                  WHEN '0b11101111111111111' THEN ?
-                  WHEN '0b11110111111111111' THEN ?
-                  WHEN '0b11111011111111111' THEN ?
-                  WHEN '0b11111101111111111' THEN ?
-                  WHEN '0b11111110111111111' THEN ?
-                  WHEN '0b11111111011111111' THEN ?
-                  WHEN '0b11111111101111111' THEN ?
-                  WHEN '0b11111111110111111' THEN ?
-                  WHEN '0b11111111111011111' THEN ?
-                  WHEN '0b11111111111101111' THEN ?::text
-                  WHEN '0b11111111111110111' THEN ?
-                  WHEN '0b11111111111111011' THEN ?
-                  WHEN '0b11111111111111101' THEN ?
-                  WHEN '0b11111111111111110' THEN ? END",
-                selected_as(:grouping_id),
-                e.namespace,
-                e.path,
-                e.referrer,
-                e.referrer_source,
-                e.utm_medium,
-                e.utm_source,
-                e.utm_campaign,
-                e.utm_content,
-                e.utm_term,
-                e.country_code,
-                e.subdivision1_code,
-                e.subdivision2_code,
-                e.city_geoname_id,
-                e.operating_system,
-                e.operating_system_version,
-                e.browser,
-                e.browser_version
-              ),
-              :value
-            ),
-          max:
-            selected_as(
-              over(max(selected_as(:count)), partition_by: selected_as(:grouping_id)),
-              :max
-            )
-        }
-      )
-    end)
-    |> then(fn query ->
-      from([{^named_binding(), e}] in query,
-        group_by:
-          fragment(
-            "GROUPING SETS((?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?))",
-            e.namespace,
-            e.path,
-            e.referrer,
-            e.referrer_source,
-            e.utm_medium,
-            e.utm_source,
-            e.utm_campaign,
-            e.utm_content,
-            e.utm_term,
-            e.country_code,
-            e.subdivision1_code,
-            e.subdivision2_code,
-            e.city_geoname_id,
-            e.operating_system,
-            e.operating_system_version,
-            e.browser,
-            e.browser_version
-          )
-      )
-    end)
-    |> then(fn query ->
-      from([{^named_binding(), event}] in query,
-        order_by: [asc: selected_as(:grouping_id), desc: selected_as(:count)]
-      )
-    end)
   end
 
   def present(_, nil), do: unknown()

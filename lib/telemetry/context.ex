@@ -9,7 +9,7 @@ defmodule Telemetry.Context do
     :count,
     :service,
     :user_agent,
-    :geo,
+    :country_code,
     :headers
   ]
 
@@ -18,7 +18,7 @@ defmodule Telemetry.Context do
           count: %Telemetry.Count{},
           service: %Scouter.Service{},
           user_agent: UserAgent.t(),
-          geo: Map.t(),
+          country_code: atom(),
           headers: [String.t()]
         }
 end

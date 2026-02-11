@@ -75,10 +75,6 @@ config :scouter, Scouter.EventsRepo,
   database: env.("EVENT_DATABASE_PATH", "/var/lib/scouter/analytics/events.duckdb"),
   pool_size: env_as.("EVENT_POOL_SIZE", "10", :integer)
 
-config :scouter, Scouter.Geo,
-  maxmind: {env.("MAXMIND_API_KEY", nil), env.("MAXMIND_EDITION", "GeoLite2-City")},
-  database_path: env.("MMDB_PATH", nil)
-
 config :scouter, Scouter.Repo,
   database: env.("DATABASE_PATH", "/var/lib/scouter/analytics/domain.db"),
   pool_size: env_as.("POOL_SIZE", "10", :integer)

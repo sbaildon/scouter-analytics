@@ -53,6 +53,7 @@
 			o: window.location.origin,
 			q: location.search,
 			i: document.currentScript.dataset.scouterService,
+			z: Intl.DateTimeFormat().resolvedOptions().timeZone,
 		};
 
 		var rcb, pcb, tcb; // Save callbacks to apply later.

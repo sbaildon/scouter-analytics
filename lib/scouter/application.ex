@@ -16,7 +16,6 @@ defmodule Scouter.Application do
       Telemetry.Broadway,
       Dashboard,
       Admin,
-      {Scouter.Geo, Application.fetch_env!(:scouter, Scouter.Geo)},
       {Finch, Application.fetch_env!(:scouter, Finch)},
       {Phoenix.PubSub, name: Scouter.PubSub}
     ]

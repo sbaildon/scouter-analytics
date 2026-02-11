@@ -76,19 +76,14 @@ defmodule Telemetry.EventController do
 
     case ConCache.fetch_or_store({:via, Registry, {Scouter.InstanceRegistry, {instance, :cache}}}, count.o.host, callback) do
       {:ok, nil} -> {:error, :no_pattern_match}
-      {:ok, _} -> geo_step(context)
+      {:ok, _} -> country_code_step(context)
     end
   end
 
-  def geo_step(context) do
-    ip = RemoteIp.from(context.headers, clients: clients())
-
-    case Scouter.Geo.lookup(ip) do
-      {:ok, geo} ->
-        continue(%{context | geo: geo})
-
-      _other ->
-        continue(context)
+  defp country_code_step(context) do
+    case Map.fetch(Cldr.Timezone.territories_by_timezone(), context.count.z) do
+      {:ok, country_code} -> continue(%{context | country_code: country_code})
+      :error -> continue(context)
     end
   end
 
@@ -98,24 +93,24 @@ defmodule Telemetry.EventController do
     {:ok,
      %Event{
        service_id: Identifier.uuid(context.service.id),
-       namespace: context.count.o.host,
-       path: context.count.p,
-       referrer: referrer(context.count.r),
-       referrer_source: referrer_source(context.count.r),
-       timestamp: utc_now_s(),
-       browser: browser(context.user_agent),
-       browser_version: browser_version(context.user_agent),
-       operating_system: os(context.user_agent),
-       operating_system_version: os_version(context.user_agent),
-       country_code: country_code(context.geo),
-       subdivision1_code: subdivision1_code(context.geo),
-       subdivision2_code: subdivision2_code(context.geo),
-       city_geoname_id: city_geoname_id(context.geo),
-       utm_medium: utm_medium(context.count.q),
-       utm_source: utm_source(context.count.q),
-       utm_campaign: utm_campaign(context.count.q),
-       utm_content: utm_content(context.count.q),
-       utm_term: utm_term(context.count.q)
+       type: "pageview",
+       timestamp: utc_now_s(context.count.u),
+       properties: %{
+         namespace: context.count.o.host,
+         path: context.count.p,
+         referrer: referrer(context.count.r),
+         referrer_source: referrer_source(context.count.r),
+         browser: browser(context.user_agent),
+         browser_version: browser_version(context.user_agent),
+         operating_system: os(context.user_agent),
+         operating_system_version: os_version(context.user_agent),
+         country_code: context.country_code,
+         utm_medium: utm_medium(context.count.q),
+         utm_source: utm_source(context.count.q),
+         utm_campaign: utm_campaign(context.count.q),
+         utm_content: utm_content(context.count.q),
+         utm_term: utm_term(context.count.q)
+       }
      }}
   end
 
@@ -134,7 +129,7 @@ defmodule Telemetry.EventController do
   defp nil_if_unknown(:unknown), do: nil
   defp nil_if_unknown(other), do: other
 
-  defp utc_now_s, do: NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second)
+  defp utc_now_s(naivedatetime), do: NaiveDateTime.truncate(naivedatetime, :second)
 
   defp utm_medium(%{"utm_medium" => value}), do: value
   defp utm_medium(_), do: nil
@@ -151,18 +146,6 @@ defmodule Telemetry.EventController do
   defp utm_term(%{"utm_term" => value}), do: value
   defp utm_term(_), do: nil
 
-  defp country_code(%{"country" => %{"iso_code" => country_code}}), do: country_code
-  defp country_code(_other), do: nil
-
-  defp subdivision1_code(%{"subdivisions" => [%{"iso_code" => iso_code} | _]}), do: iso_code
-  defp subdivision1_code(_), do: nil
-
-  defp subdivision2_code(%{"subdivisions" => [_, %{"iso_code" => iso_code} | []]}), do: iso_code
-  defp subdivision2_code(_), do: nil
-
-  defp city_geoname_id(%{"city" => %{"geoname_id" => city_geoname_id}}), do: city_geoname_id
-  defp city_geoname_id(_other), do: nil
-
   defp browser(%UserAgent{browser_family: :unknown}), do: nil
   defp browser(%UserAgent{browser_family: browser}), do: browser
 
@@ -177,13 +160,6 @@ defmodule Telemetry.EventController do
   defp os_version(%UserAgent{os: :unknown}), do: nil
   defp os_version(%UserAgent{os: %UserAgent.OS{version: :unknown}}), do: nil
   defp os_version(%UserAgent{os: %UserAgent.OS{version: version}}), do: version
-
-  # allow 127.0.0.1 as client_ip when in development
-  if Application.compile_env(:scouter, :dev_routes) do
-    defp clients, do: ["127.0.0.1"]
-  else
-    defp clients, do: []
-  end
 
   defp user_agent(headers) do
     {"user-agent", user_agent_header} = List.keyfind(headers, "user-agent", 0)
