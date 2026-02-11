@@ -54,7 +54,7 @@ defmodule Dashboard.StatComponents do
 
   def filters(assigns) do
     ~H"""
-    <.controls title="Filters" id="filters" class="hidden has-[li]:block pb-1.25">
+    <.controls title="Filters" id="filters" class="hidden has-[li]:block pb-[0.25lh]">
       <section
         :for={{param, group_id, title} <- filters()}
         :if={Map.get(@query, param)}
@@ -204,7 +204,7 @@ defmodule Dashboard.StatComponents do
     ~H"""
     <.controls id="services" title={gettext("Service")}>
       <form phx-change="filter" action="/" method="GET">
-        <ul class="flex flex-col pb-1.25">
+        <ul class="flex flex-col pb-[0.25lh]">
           <li :for={service <- @services} class="px-2">
             <span class="flex flex-row justify-between">
               <span>{service.name}</span>
@@ -220,7 +220,7 @@ defmodule Dashboard.StatComponents do
     ~H"""
     <.controls id="services" title={gettext("Services")}>
       <form phx-change="filter" action="/" method="GET">
-        <ul class="flex flex-col pb-1.25">
+        <ul class="flex flex-col pb-[0.25lh]">
           <li :for={{service, i} <- Enum.with_index(@services, 1)}>
             <label class="hover:bg-zinc-200/70 px-2 flex flex-row justify-between">
               <div>
