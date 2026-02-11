@@ -1,0 +1,34 @@
+defmodule Scouter.EventsRepo.Migrations.CreatePageViewsView do
+  use Ecto.Migration
+
+  def up do
+    execute("""
+    CREATE OR REPLACE VIEW web_analytics AS
+    SELECT
+    service_id,
+    timestamp,
+    properties->>'namespace' AS namespace,
+    properties->>'path' AS path,
+    properties->>'referrer' AS referrer,
+    properties->>'referrer_source' AS referrer_source,
+    properties->>'utm_medium' AS utm_medium,
+    properties->>'utm_source' AS utm_source,
+    properties->>'utm_campaign' AS utm_campaign,
+    properties->>'utm_content' AS utm_content,
+    properties->>'utm_term' AS utm_term,
+    properties->>'country_code' AS country_code,
+    properties->>'subdivision1_code' AS subdivision1_code,
+    properties->>'subdivision2_code' AS subdivision2_code,
+    properties->>'city_geoname_id' AS city_geoname_id,
+    properties->>'operating_system' AS operating_system,
+    properties->>'operating_system_version' AS operating_system_version,
+    properties->>'browser' AS browser,
+    properties->>'browser_version' AS browser_version
+    FROM events;
+    """)
+  end
+
+  def down do
+    execute("DROP VIEW pageviews")
+  end
+end
