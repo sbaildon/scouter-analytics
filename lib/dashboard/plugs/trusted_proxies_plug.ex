@@ -14,7 +14,7 @@ defmodule Dashboard.TrustedProxiesPlug do
 
   def call(conn, _opts) do
     if trusted_proxies = trusted_proxies() do
-     client = conn.remote_ip
+      client = conn.remote_ip
 
       trusted_environment? =
         Enum.any?(trusted_proxies, fn trusted_proxy -> trusted_client?(client, trusted_proxy) end)
