@@ -11,7 +11,10 @@ defmodule Components do
 
   def controls(assigns) do
     ~H"""
-    <fieldset id={@id} class={["bg-zinc-100 shadow-[4px_5px_0px_0px_#] shadow-zinc-200", @class]}>
+    <fieldset
+      id={@id}
+      class={["bg-zinc-100 shadow-[4px_5px_0px_0px_#] shadow-zinc-200", @class]}
+    >
       <legend class="tracking-[0.125ch] [text-rendering:optimizelegibility] uppercase bg-zinc-200 px-2 ml-2 mb-0.5">
         {@title}
       </legend>
