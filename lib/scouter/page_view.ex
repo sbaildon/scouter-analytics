@@ -16,7 +16,7 @@ defmodule Scouter.PageView do
           grouping_id:
             selected_as(
               fragment(
-                "GROUPING (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) :: UINTEGER",
+                "GROUPING (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) :: UINTEGER",
                 e.namespace,
                 e.path,
                 e.referrer,
@@ -25,7 +25,6 @@ defmodule Scouter.PageView do
                 e.utm_source,
                 e.utm_campaign,
                 e.utm_content,
-                e.utm_term,
                 e.country_code,
                 e.operating_system,
                 e.operating_system_version,
@@ -38,20 +37,19 @@ defmodule Scouter.PageView do
             selected_as(
               fragment(
                 "CASE ?
-                  WHEN '0b01111111111111' THEN ?
-                  WHEN '0b10111111111111' THEN ?
-                  WHEN '0b11011111111111' THEN ?
-                  WHEN '0b11101111111111' THEN ?
-                  WHEN '0b11110111111111' THEN ?
-                  WHEN '0b11111011111111' THEN ?
-                  WHEN '0b11111101111111' THEN ?
-                  WHEN '0b11111110111111' THEN ?
-                  WHEN '0b11111111011111' THEN ?
-                  WHEN '0b11111111101111' THEN ?
-                  WHEN '0b11111111110111' THEN ?
-                  WHEN '0b11111111111011' THEN ?
-                  WHEN '0b11111111111101' THEN ?
-                  WHEN '0b11111111111110' THEN ? END",
+                  WHEN '0b0111111111111' THEN ?
+                  WHEN '0b1011111111111' THEN ?
+                  WHEN '0b1101111111111' THEN ?
+                  WHEN '0b1110111111111' THEN ?
+                  WHEN '0b1111011111111' THEN ?
+                  WHEN '0b1111101111111' THEN ?
+                  WHEN '0b1111110111111' THEN ?
+                  WHEN '0b1111111011111' THEN ?
+                  WHEN '0b1111111101111' THEN ?
+                  WHEN '0b1111111110111' THEN ?
+                  WHEN '0b1111111111011' THEN ?
+                  WHEN '0b1111111111101' THEN ?
+                  WHEN '0b1111111111110' THEN ? END",
                 selected_as(:grouping_id),
                 e.namespace,
                 e.path,
@@ -61,7 +59,6 @@ defmodule Scouter.PageView do
                 e.utm_source,
                 e.utm_campaign,
                 e.utm_content,
-                e.utm_term,
                 e.country_code,
                 e.operating_system,
                 e.operating_system_version,
@@ -82,7 +79,7 @@ defmodule Scouter.PageView do
       from([{^named_binding(), e}] in query,
         group_by:
           fragment(
-            "GROUPING SETS((?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?))",
+            "GROUPING SETS((?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?))",
             e.namespace,
             e.path,
             e.referrer,
@@ -91,7 +88,6 @@ defmodule Scouter.PageView do
             e.utm_source,
             e.utm_campaign,
             e.utm_content,
-            e.utm_term,
             e.country_code,
             e.operating_system,
             e.operating_system_version,

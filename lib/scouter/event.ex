@@ -37,7 +37,6 @@ defmodule Scouter.Event do
       :utm_source,
       :utm_campaign,
       :utm_content,
-      :utm_term,
       :country_code,
       :operating_system,
       :operating_system_version,

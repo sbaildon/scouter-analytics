@@ -108,8 +108,7 @@ defmodule Telemetry.EventController do
          utm_medium: utm_medium(context.count.q),
          utm_source: utm_source(context.count.q),
          utm_campaign: utm_campaign(context.count.q),
-         utm_content: utm_content(context.count.q),
-         utm_term: utm_term(context.count.q)
+         utm_content: utm_content(context.count.q)
        }
      }}
   end
@@ -142,9 +141,6 @@ defmodule Telemetry.EventController do
 
   defp utm_content(%{"utm_content" => value}), do: value
   defp utm_content(_), do: nil
-
-  defp utm_term(%{"utm_term" => value}), do: value
-  defp utm_term(_), do: nil
 
   defp browser(%UserAgent{browser_family: :unknown}), do: nil
   defp browser(%UserAgent{browser_family: browser}), do: browser

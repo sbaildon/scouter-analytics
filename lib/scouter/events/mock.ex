@@ -2,13 +2,12 @@ defmodule Scouter.Events.Mock do
   @moduledoc false
 
   def add_utm_parameters(event) do
-    {utm_source, utm_medium, utm_campaign, utm_term, utm_content} = Enum.random(utm_parameters())
+    {utm_source, utm_medium, utm_campaign, _, utm_content} = Enum.random(utm_parameters())
 
     Map.merge(event, %{
       utm_source: utm_source,
       utm_medium: utm_medium,
       utm_campaign: utm_campaign,
-      utm_term: utm_term,
       utm_content: utm_content
     })
   end

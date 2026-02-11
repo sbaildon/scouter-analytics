@@ -21,7 +21,6 @@ defmodule Scouter.TypedAggregate do
         utm_source: group_id(:utm_source),
         utm_campaign: group_id(:utm_campaign),
         utm_content: group_id(:utm_content),
-        utm_term: group_id(:utm_term),
         country_code: group_id(:country_code),
         operating_system: group_id(:operating_system),
         operating_system_version: group_id(:operating_system_version),

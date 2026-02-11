@@ -14,7 +14,6 @@ defmodule Scouter.Aggregate do
     field :utm_source, :string
     field :utm_campaign, :string
     field :utm_content, :string
-    field :utm_term, :string
     field :country_code, :string
     field :operating_system, :string
     field :operating_system_version, :string

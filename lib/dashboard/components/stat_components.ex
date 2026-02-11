@@ -48,7 +48,6 @@ defmodule Dashboard.StatComponents do
       {:utm_sources, group_id(:utm_source), "UTM Sources"},
       {:utm_contents, group_id(:utm_content), "UTM Content"},
       {:utm_campaigns, group_id(:utm_campaign), "UTM Campaigns"},
-      {:utm_terms, group_id(:utm_term), "UTM Terms"},
       {:country_codes, group_id(:country_code), "Countries"}
     ]
   end

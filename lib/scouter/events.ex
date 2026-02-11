@@ -150,10 +150,6 @@ defmodule Scouter.Events do
     filter(Event.where_in(query, :utm_content, values), rest)
   end
 
-  defp filter(query, [{:utm_terms, values} | rest]) do
-    filter(Event.where_in(query, :utm_term, values), rest)
-  end
-
   defp filter(query, [{:namespaces, values} | rest]) do
     filter(Event.where_in(query, :namespace, values), rest)
   end

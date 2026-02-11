@@ -21,7 +21,6 @@ defmodule Dashboard.StatsLive.Query do
     field :utm_campaigns, {:array, :string}
     field :utm_mediums, {:array, :string}
     field :utm_contents, {:array, :string}
-    field :utm_terms, {:array, :string}
     field :country_codes, {:array, :string}
     field :interval, :string
     field :from, :string

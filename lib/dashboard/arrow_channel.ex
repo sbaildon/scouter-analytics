@@ -39,7 +39,6 @@ defmodule Dashboard.ArrowChannel do
       group_id(:utm_medium) => :utm_mediums,
       group_id(:utm_source) => :utm_sources,
       group_id(:utm_campaign) => :utm_campaigns,
-      group_id(:utm_term) => :utm_terms,
       group_id(:country_code) => :country_codes,
       group_id(:operating_system) => :operating_systems,
       group_id(:operating_system_version) => :operating_system_versions,

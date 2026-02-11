@@ -15,7 +15,6 @@ defmodule Scouter.EventsRepo.Migrations.CreatePageViewsView do
     properties->>'utm_source' AS utm_source,
     properties->>'utm_campaign' AS utm_campaign,
     properties->>'utm_content' AS utm_content,
-    properties->>'utm_term' AS utm_term,
     properties->>'country_code' AS country_code,
     properties->>'subdivision1_code' AS subdivision1_code,
     properties->>'subdivision2_code' AS subdivision2_code,
@@ -29,6 +28,6 @@ defmodule Scouter.EventsRepo.Migrations.CreatePageViewsView do
   end
 
   def down do
-    execute("DROP VIEW pageviews")
+    execute("DROP VIEW web_analytics")
   end
 end

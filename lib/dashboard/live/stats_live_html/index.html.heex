@@ -157,16 +157,6 @@
           </div>
         </form>
       </:tab>
-      <:tab title={gettext("Term")} hotkey="b n" field="utm_terms">
-        <form method="GET" action="/" phx-change="filter">
-          <div
-            id={"group_#{group_id(:utm_term)}"}
-            phx-update="ignore"
-            class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
-          >
-          </div>
-        </form>
-      </:tab>
     </.tabbed_chart>
 
     <.tabbed_chart version={2}>
