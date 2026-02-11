@@ -1,175 +1,173 @@
-<div class="grid grid-cols-1 w-screen px-[1.25ch] gap-x-[2ch] pt-[1ch] sm:grid-cols-[1fr_3.326fr]">
-  <nav class="flex flex-col gap-y-[1lh]">
-    <.services services={@services} query={@query} />
-    <.period query={@query} />
-    <.filters query={@query} />
-  </nav>
-  <div class="grid grid-cols-1 col-start-2 sm:grid-cols-3 gap-[4ch]">
-    <header class="col-span-full h-full">
-      <.controls id="information" title="Information">
-        <dl class="flex flex-row gap-x-4 items-center py-0.5 px-1 w-max">
-          <div class="flex flex-row gap-x-1">
-            <dt>{gettext("Client IP")}</dt>
-            <dd class="px-0.5 bg-zinc-100">{render_ip(@client_ip)}</dd>
-          </div>
-          <div class="flex flex-row gap-x-1">
-            <dt>{gettext("Version")}</dt>
-            <dd class="px-0.5 bg-zinc-100">{@version}</dd>
-          </div>
-          <div :if={assigns[:email]} class="flex flex-row gap-x-1">
-            <dt>{gettext("User")}</dt>
-            <dd class="px-0.5 bg-zinc-100">{@email}</dd>
-          </div>
-        </dl>
-      </.controls>
-    </header>
+<nav class="flex fixed flex-col top-[0.5lh] left-[1ch] gap-y-[1lh] w-[20vw]">
+  <.services services={@services} query={@query} />
+  <.period query={@query} />
+  <.filters query={@query} />
+</nav>
+<div class="grid absolute grid-cols-1 col-start-2 sm:grid-cols-3 top-[0.5lh] right-[1ch] w-[78vw] gap-[4ch]">
+  <header class="sticky col-span-full h-full top-[0.5lh]">
+    <.controls id="information" title="Information">
+      <dl class="flex flex-row gap-x-4 items-center py-0.5 px-1 w-max">
+        <div class="flex flex-row gap-x-1">
+          <dt>{gettext("Client IP")}</dt>
+          <dd class="px-0.5 bg-zinc-100">{render_ip(@client_ip)}</dd>
+        </div>
+        <div class="flex flex-row gap-x-1">
+          <dt>{gettext("Version")}</dt>
+          <dd class="px-0.5 bg-zinc-100">{@version}</dd>
+        </div>
+        <div :if={assigns[:email]} class="flex flex-row gap-x-1">
+          <dt>{gettext("User")}</dt>
+          <dd class="px-0.5 bg-zinc-100">{@email}</dd>
+        </div>
+      </dl>
+    </.controls>
+  </header>
 
-    <.tabbed_chart version={2}>
-      <:tab title={gettext("Browsers")} hotkey="b n" field="browsers">
-        <form method="GET" action="/" phx-change="filter">
-          <div
-            id={"group_#{group_id(:browser)}"}
-            phx-update="ignore"
-            class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
-          >
-          </div>
-        </form>
-      </:tab>
-      <:tab title={gettext("Vers.")} hotkey="b v" field="browser_versions">
-        <form method="GET" action="/" phx-change="filter">
-          <div
-            id={"group_#{group_id(:browser_version)}"}
-            phx-update="ignore"
-            class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
-          >
-          </div>
-        </form>
-      </:tab>
-    </.tabbed_chart>
+  <.tabbed_chart version={2}>
+    <:tab title={gettext("Browsers")} hotkey="b n" field="browsers">
+      <form method="GET" action="/" phx-change="filter">
+        <div
+          id={"group_#{group_id(:browser)}"}
+          phx-update="ignore"
+          class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
+        >
+        </div>
+      </form>
+    </:tab>
+    <:tab title={gettext("Vers.")} hotkey="b v" field="browser_versions">
+      <form method="GET" action="/" phx-change="filter">
+        <div
+          id={"group_#{group_id(:browser_version)}"}
+          phx-update="ignore"
+          class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
+        >
+        </div>
+      </form>
+    </:tab>
+  </.tabbed_chart>
 
-    <.tabbed_chart version={2}>
-      <:tab title={gettext("Operating Systems")} hotkey="b n" field="browsers">
-        <form method="GET" action="/" phx-change="filter">
-          <div
-            id={"group_#{group_id(:operating_system)}"}
-            phx-update="ignore"
-            class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
-          >
-          </div>
-        </form>
-      </:tab>
-      <:tab title={gettext("Vers.")} hotkey="b v" field="browser_versions">
-        <form method="GET" action="/" phx-change="filter">
-          <div
-            id={"group_#{group_id(:operating_system_version)}"}
-            phx-update="ignore"
-            class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
-          >
-          </div>
-        </form>
-      </:tab>
-    </.tabbed_chart>
+  <.tabbed_chart version={2}>
+    <:tab title={gettext("Operating Systems")} hotkey="b n" field="browsers">
+      <form method="GET" action="/" phx-change="filter">
+        <div
+          id={"group_#{group_id(:operating_system)}"}
+          phx-update="ignore"
+          class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
+        >
+        </div>
+      </form>
+    </:tab>
+    <:tab title={gettext("Vers.")} hotkey="b v" field="browser_versions">
+      <form method="GET" action="/" phx-change="filter">
+        <div
+          id={"group_#{group_id(:operating_system_version)}"}
+          phx-update="ignore"
+          class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
+        >
+        </div>
+      </form>
+    </:tab>
+  </.tabbed_chart>
 
-    <.tabbed_chart version={2}>
-      <:tab title={gettext("Namespace")} field="namespaces">
-        <form method="GET" action="/" phx-change="filter">
-          <div
-            id={"group_#{group_id(:namespace)}"}
-            phx-update="ignore"
-            class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
-          >
-          </div>
-        </form>
-      </:tab>
-      <:tab checked={true} title={gettext("Path")} field="paths">
-        <form method="GET" action="/" phx-change="filter">
-          <div
-            id={"group_#{group_id(:path)}"}
-            phx-update="ignore"
-            class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
-          >
-          </div>
-        </form>
-      </:tab>
-    </.tabbed_chart>
+  <.tabbed_chart version={2}>
+    <:tab title={gettext("Namespace")} field="namespaces">
+      <form method="GET" action="/" phx-change="filter">
+        <div
+          id={"group_#{group_id(:namespace)}"}
+          phx-update="ignore"
+          class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
+        >
+        </div>
+      </form>
+    </:tab>
+    <:tab checked={true} title={gettext("Path")} field="paths">
+      <form method="GET" action="/" phx-change="filter">
+        <div
+          id={"group_#{group_id(:path)}"}
+          phx-update="ignore"
+          class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
+        >
+        </div>
+      </form>
+    </:tab>
+  </.tabbed_chart>
 
-    <.tabbed_chart version={2}>
-      <:tab title={gettext("Sources")} hotkey="b n" field="sources">
-        <form method="GET" action="/" phx-change="filter">
-          <div
-            id={"group_#{group_id(:referrer_source)}"}
-            phx-update="ignore"
-            class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
-          >
-          </div>
-        </form>
-      </:tab>
-      <:tab title={gettext("Referrers")} hotkey="b v" field="referrers">
-        <form method="GET" action="/" phx-change="filter">
-          <div
-            id={"group_#{group_id(:referrer)}"}
-            phx-update="ignore"
-            class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
-          >
-          </div>
-        </form>
-      </:tab>
-    </.tabbed_chart>
+  <.tabbed_chart version={2}>
+    <:tab title={gettext("Sources")} hotkey="b n" field="sources">
+      <form method="GET" action="/" phx-change="filter">
+        <div
+          id={"group_#{group_id(:referrer_source)}"}
+          phx-update="ignore"
+          class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
+        >
+        </div>
+      </form>
+    </:tab>
+    <:tab title={gettext("Referrers")} hotkey="b v" field="referrers">
+      <form method="GET" action="/" phx-change="filter">
+        <div
+          id={"group_#{group_id(:referrer)}"}
+          phx-update="ignore"
+          class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
+        >
+        </div>
+      </form>
+    </:tab>
+  </.tabbed_chart>
 
-    <.tabbed_chart class="col-span-2" version={2}>
-      <:tab title={gettext("Source")} hotkey="b n" field="utm_sources">
-        <form method="GET" action="/" phx-change="filter">
-          <div
-            id={"group_#{group_id(:utm_source)}"}
-            phx-update="ignore"
-            class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
-          >
-          </div>
-        </form>
-      </:tab>
-      <:tab title={gettext("Campaign")} hotkey="b n" field="utm_campaigns">
-        <form method="GET" action="/" phx-change="filter">
-          <div
-            id={"group_#{group_id(:utm_campaign)}"}
-            phx-update="ignore"
-            class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
-          >
-          </div>
-        </form>
-      </:tab>
-      <:tab title={gettext("Medium")} hotkey="b n" field="utm_mediums">
-        <form method="GET" action="/" phx-change="filter">
-          <div
-            id={"group_#{group_id(:utm_medium)}"}
-            phx-update="ignore"
-            class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
-          >
-          </div>
-        </form>
-      </:tab>
-      <:tab title={gettext("Content")} hotkey="b n" field="utm_contents">
-        <form method="GET" action="/" phx-change="filter">
-          <div
-            id={"group_#{group_id(:utm_content)}"}
-            phx-update="ignore"
-            class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
-          >
-          </div>
-        </form>
-      </:tab>
-    </.tabbed_chart>
+  <.tabbed_chart class="col-span-2" version={2}>
+    <:tab title={gettext("Source")} hotkey="b n" field="utm_sources">
+      <form method="GET" action="/" phx-change="filter">
+        <div
+          id={"group_#{group_id(:utm_source)}"}
+          phx-update="ignore"
+          class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
+        >
+        </div>
+      </form>
+    </:tab>
+    <:tab title={gettext("Campaign")} hotkey="b n" field="utm_campaigns">
+      <form method="GET" action="/" phx-change="filter">
+        <div
+          id={"group_#{group_id(:utm_campaign)}"}
+          phx-update="ignore"
+          class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
+        >
+        </div>
+      </form>
+    </:tab>
+    <:tab title={gettext("Medium")} hotkey="b n" field="utm_mediums">
+      <form method="GET" action="/" phx-change="filter">
+        <div
+          id={"group_#{group_id(:utm_medium)}"}
+          phx-update="ignore"
+          class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
+        >
+        </div>
+      </form>
+    </:tab>
+    <:tab title={gettext("Content")} hotkey="b n" field="utm_contents">
+      <form method="GET" action="/" phx-change="filter">
+        <div
+          id={"group_#{group_id(:utm_content)}"}
+          phx-update="ignore"
+          class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
+        >
+        </div>
+      </form>
+    </:tab>
+  </.tabbed_chart>
 
-    <.tabbed_chart version={2}>
-      <:tab title={gettext("Country")} field="country_codes">
-        <form method="GET" action="/" phx-change="filter">
-          <div
-            id={"group_#{group_id(:country_code)}"}
-            phx-update="ignore"
-            class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
-          >
-          </div>
-        </form>
-      </:tab>
-    </.tabbed_chart>
-  </div>
+  <.tabbed_chart version={2}>
+    <:tab title={gettext("Country")} field="country_codes">
+      <form method="GET" action="/" phx-change="filter">
+        <div
+          id={"group_#{group_id(:country_code)}"}
+          phx-update="ignore"
+          class="overflow-y-scroll w-full scrollbar-hidden bg-zinc-100 h-[10lh]"
+        >
+        </div>
+      </form>
+    </:tab>
+  </.tabbed_chart>
 </div>
