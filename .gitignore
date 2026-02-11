@@ -45,3 +45,4 @@ npm-debug.log
 /priv/ua_inspector/*
 /priv/ref_inspector/*
 /bin/*
+/priv/cldr/*
