@@ -36,8 +36,7 @@ defmodule Scouter.Instance do
       end
 
     children = [
-      {ConCache,
-       name: {:via, Registry, {InstanceRegistry, {name, :cache}}}, ttl_check_interval: false},
+      {ConCache, name: {:via, Registry, {InstanceRegistry, {name, :cache}}}, ttl_check_interval: false},
       {Scouter.Repo, repo_config(name)},
       {Oban,
        oban_config(:scouter) ++
@@ -57,9 +56,7 @@ defmodule Scouter.Instance do
       {Scouter.EventsRepo, events_repo_config(name)},
       Supervisor.child_spec(
         {Migrator,
-         skip: skip_migrations?(),
-         repos: [Scouter.Repo],
-         process: {:via, Registry, {InstanceRegistry, {name, :repo}}}},
+         skip: skip_migrations?(), repos: [Scouter.Repo], process: {:via, Registry, {InstanceRegistry, {name, :repo}}}},
         id: :repo_migrator
       ),
       Supervisor.child_spec(
@@ -189,11 +186,9 @@ defmodule Scouter.Instance do
 
   def database_path(name), do: Path.join([state_directory(), "instances", name, "domain.db"])
 
-  def events_database_path(name) when is_atom(name),
-    do: name |> Atom.to_string() |> events_database_path()
+  def events_database_path(name) when is_atom(name), do: name |> Atom.to_string() |> events_database_path()
 
-  def events_database_path(name),
-    do: Path.join([state_directory(), "instances", name, "events.duckdb"])
+  def events_database_path(name), do: Path.join([state_directory(), "instances", name, "events.duckdb"])
 
   defp skip_migrations? do
     value = System.get_env("RUN_MIGRATIONS", "false")
