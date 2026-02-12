@@ -20,7 +20,7 @@ defmodule Scouter.EventsRepo.Migrations.CreatePageViewsView do
     properties->>'operating_system_version' AS operating_system_version,
     properties->>'browser' AS browser,
     properties->>'browser_version' AS browser_version
-    FROM events WHERE event.type = 'pageview';
+    FROM events WHERE events.type = 'pageview';
     """)
   end
 
