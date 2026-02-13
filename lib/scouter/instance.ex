@@ -55,7 +55,7 @@ defmodule Scouter.Instance do
       {Adbc.Database,
        [
          driver: :duckdb,
-         path: events_database_path(name),
+         path: ":memory:",
          process_options: [name: {:via, Registry, {InstanceRegistry, {name, :adbc_db}}}]
        ]},
       {Scouter.EventsRepo, events_repo_config(name)},
@@ -186,9 +186,12 @@ defmodule Scouter.Instance do
 
   def database_path(name), do: Path.join([state_directory(), "instances", name, "domain.db"])
 
-  def events_database_path(name) when is_atom(name), do: name |> Atom.to_string() |> events_database_path()
+  def datalake_catalog_path(name) when is_atom(name), do: name |> Atom.to_string() |> datalake_catalog_path()
 
-  def events_database_path(name), do: Path.join([state_directory(), "instances", name, "events.duckdb"])
+  def datalake_catalog_path(name), do: Path.join([state_directory(), "instances", name, "catalog.db"])
+
+  def datalake_storage_path(name) when is_atom(name), do: name |> Atom.to_string() |> datalake_storage_path()
+  def datalake_storage_path(name), do: Path.join([state_directory(), "instances", name])
 
   defp skip_migrations? do
     value = System.get_env("RUN_MIGRATIONS", "false")

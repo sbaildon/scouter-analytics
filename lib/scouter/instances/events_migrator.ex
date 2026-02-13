@@ -10,13 +10,50 @@ defmodule Scouter.Instances.EventsMigrator do
 
   @impl GenServer
   def init(opts) do
-    with {naming_scheme, opts} <- Keyword.pop(opts, :process) do
+    with {naming_scheme, opts} <- Keyword.pop(opts, :process),
+         {:ok, instance} <- Keyword.fetch(opts, :instance) do
       repo = lookup(naming_scheme)
 
       {:ok, _} =
         SQL.query(
           repo,
-          "CREATE TABLE IF NOT EXISTS schema_migrations (version UINT64 not null primary key, inserted_at text not null);"
+          "install ducklake;"
+        )
+
+      {:ok, _} =
+        SQL.query(
+          repo,
+          "INSTALL sqlite;"
+        )
+
+      {:ok, _} =
+        SQL.query(
+          repo,
+          "ATTACH 'ducklake:sqlite:#{Scouter.Instance.datalake_catalog_path(instance)}' AS ducklake (DATA_PATH '#{Scouter.Instance.datalake_storage_path(instance)}', ENCRYPTED);"
+        )
+
+      {:ok, _} =
+        SQL.query(
+          repo,
+          "USE ducklake;"
+        )
+
+      {:ok, _} =
+        SQL.query(
+          repo,
+          "CALL ducklake.set_option('parquet_compression', 'zstd');"
+        )
+
+      {:ok, _} =
+        SQL.query(
+          repo,
+          "CALL ducklake.set_option('hive_file_pattern', true);"
+        )
+
+      {:ok, _} =
+        SQL.query(
+          repo,
+          "CREATE TABLE IF NOT EXISTS schema_migrations (version UINT64 not null, inserted_at text not null);"
         )
 
       migrations =

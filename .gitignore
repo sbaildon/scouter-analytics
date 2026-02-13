@@ -46,3 +46,5 @@ npm-debug.log
 /priv/ref_inspector/*
 /bin/*
 /priv/cldr/*
+
+.local/state/scouter/analytics/*
