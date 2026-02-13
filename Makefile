@@ -30,7 +30,7 @@ $(IMAGE_DIR)/$(IMAGE): $(ROOTFS_CONTENTS)
 .PHONY: install
 install:
 	@mkdir -p $(INSTALL_DIR)
-	cp $(IMAGE_DIR)/$(IMAGE) $(INSTALL_DIR)/$(IMAGE)
+	install -m 444 $(IMAGE_DIR)/$(IMAGE) $(INSTALL_DIR)/$(IMAGE)
 
 $(ROOTFS)/:
 	mkdir -p $@
