@@ -38,6 +38,11 @@ defmodule Scouter.Instance do
     children = [
       {ConCache, name: {:via, Registry, {InstanceRegistry, {name, :cache}}}, ttl_check_interval: false},
       {Scouter.Repo, repo_config(name)},
+      Supervisor.child_spec(
+        {Migrator,
+         skip: skip_migrations?(), repos: [Scouter.Repo], process: {:via, Registry, {InstanceRegistry, {name, :repo}}}},
+        id: :repo_migrator
+      ),
       {Oban,
        oban_config(:scouter) ++
          [
@@ -54,11 +59,6 @@ defmodule Scouter.Instance do
          process_options: [name: {:via, Registry, {InstanceRegistry, {name, :adbc_db}}}]
        ]},
       {Scouter.EventsRepo, events_repo_config(name)},
-      Supervisor.child_spec(
-        {Migrator,
-         skip: skip_migrations?(), repos: [Scouter.Repo], process: {:via, Registry, {InstanceRegistry, {name, :repo}}}},
-        id: :repo_migrator
-      ),
       Supervisor.child_spec(
         {Scouter.Instances.EventsMigrator,
          instance: name,
