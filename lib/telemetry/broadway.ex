@@ -72,7 +72,7 @@ defmodule Telemetry.Broadway do
   end
 
   defp batch_size, do: 1000
-  defp batch_timeout, do: to_timeout(second: 2)
+  defp batch_timeout, do: to_timeout(second: 5)
 
   defp max_demand, do: 1000
   defp min_demand, do: 200
