@@ -9,5 +9,12 @@ defmodule Scouter.EventsRepo.Migrations.CreateEvents do
       add :type, :string, null: false
       add :properties, :json, null: false
     end
+
+    execute(
+      ~S"""
+      ALTER TABLE events SET PARTITIONED BY (service_id, year(timestamp), month(timestamp));
+      """,
+      ""
+    )
   end
 end
