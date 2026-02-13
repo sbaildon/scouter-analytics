@@ -25,7 +25,7 @@ ROOTFS_CONTENTS := $(ROOTFS)/usr/bin/scouter-analytics $(ROOTFS_SERVICES) $(ROOT
 
 # Default target: build the .raw image locally
 $(IMAGE_DIR)/$(IMAGE): $(ROOTFS_CONTENTS)
-	mkfs.erofs --all-root $@ $(ROOTFS)/
+	mkfs.erofs -zzstd --all-root $@ $(ROOTFS)/
 
 .PHONY: install
 install:
