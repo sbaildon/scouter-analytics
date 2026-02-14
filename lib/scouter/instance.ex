@@ -172,16 +172,6 @@ defmodule Scouter.Instance do
 
   defp default_state_directory, do: "/var/lib/scouter/analytics"
 
-  def runtime_directory do
-    Enum.find_value(
-      ["RUNTIME_DIRECTORY", "XDG_RUNTIME_DIR"],
-      default_runtime_directory(),
-      &System.get_env/1
-    )
-  end
-
-  defp default_runtime_directory, do: "/run/scouter/analytics"
-
   def database_path(name) when is_atom(name), do: name |> Atom.to_string() |> database_path()
 
   def database_path(name), do: Path.join([state_directory(), "instances", name, "domain.db"])
