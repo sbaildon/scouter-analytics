@@ -2,10 +2,10 @@ defmodule Mix.Tasks.GeneratePageviews do
   @moduledoc false
   use Mix.Task
 
-  defp default_host, do: "https://" <> System.fetch_env!("TELEMETRY_HOST")
+  defp default_host, do: "https://" <> System.fetch_env!("SCOUTER_HOST")
   defp default_path, do: "/"
   defp default_ip, do: "127.0.0.1"
-  defp default_origin, do: System.fetch_env!("DASHBOARD_HOST")
+  defp default_origin, do: System.fetch_env!("SCOUTER_HOST")
 
   defp default_user_agent,
     do:

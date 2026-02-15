@@ -1,6 +1,6 @@
 import .local/share/caddy/*
 
-{$DASHBOARD_HOST} {
+{$SCOUTER_HOST} {
 	log stdout {
 		format console
 	}

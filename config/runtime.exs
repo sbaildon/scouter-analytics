@@ -52,12 +52,12 @@ config :scouter, Admin.Endpoint, server: env_as.("ADMIN", "false", :boolean)
 
 config :scouter, Dashboard.Endpoint,
   url: [
-    host: env!.("DASHBOARD_HOST"),
+    host: env!.("SCOUTER_HOST"),
     port: 443,
     scheme: "https",
     path: env.("DASHBOARD_PATH", "/")
   ],
-  static_url: [host: env!.("DASHBOARD_HOST"), port: 443, scheme: "https", path: "/_app/analytics/static"],
+  static_url: [host: env!.("SCOUTER_HOST"), port: 443, scheme: "https", path: "/_app/analytics/static"],
   secret_key_base: env!.("DASHBOARD_SECRET_KEY_BASE"),
   live_view: [signing_salt: env!.("DASHBOARD_SIGNING_SALT")],
   trusted_proxies: System.get_env("TRUSTED_PROXIES")
