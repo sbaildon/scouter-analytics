@@ -189,18 +189,6 @@ defmodule Scouter.Instance do
   end
 
   def oban_config(otp_app) do
-    config = Application.fetch_env!(otp_app, Oban)
-
-    config
-    |> Keyword.fetch!(:plugins)
-    |> List.keyfind(Oban.Plugins.Cron, 0)
-    |> elem(1)
-    |> Keyword.get(:crontab)
-    |> case do
-      [] -> Logger.info("backups disabled. no configuration provided")
-      _ -> nil
-    end
-
-    config
+    Application.fetch_env!(otp_app, Oban)
   end
 end
