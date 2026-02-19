@@ -13,6 +13,7 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
     with {instance, _opts} <- Keyword.pop!(opts, :instance),
          db = lookup({:via, Registry, {Scouter.InstanceRegistry, {instance, :adbc_db}}}),
          {:ok, conn} <- Adbc.Connection.start_link(database: db),
+         {:ok, _} <- install_extension(conn, System.get_env("DUCKDB_HTTPFS_EXTENSION", "httpfs")),
          {:ok, _} <- install_extension(conn, System.get_env("DUCKDB_DUCKLAKE_EXTENSION", "ducklake")),
          {:ok, _} <- install_extension(conn, System.get_env("DUCKDB_SQLITE_EXTENSION", "sqlite")),
          {:ok, _} <-
