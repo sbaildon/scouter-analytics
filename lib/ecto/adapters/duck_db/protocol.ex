@@ -13,6 +13,15 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
     with {instance, _opts} <- Keyword.pop!(opts, :instance),
          db = lookup({:via, Registry, {Scouter.InstanceRegistry, {instance, :adbc_db}}}),
          {:ok, conn} <- Adbc.Connection.start_link(database: db),
+         {:ok, _} <- Adbc.Connection.query(conn, "install #{System.get_env("DUCKLAKE_EXTENSION", "ducklake")};"),
+         {:ok, _} <-
+           Adbc.Connection.query(
+             conn,
+             "ATTACH IF NOT EXISTS 'ducklake:sqlite:#{Scouter.Instance.datalake_catalog_path(instance)}' AS ducklake (DATA_PATH '#{Scouter.Instance.datalake_storage_path(instance)}', ENCRYPTED);"
+           ),
+         {:ok, _} <- Adbc.Connection.query(conn, "USE ducklake;"),
+         {:ok, _} <- Adbc.Connection.query(conn, "CALL ducklake.set_option('parquet_compression', 'zstd');"),
+         {:ok, _} <- Adbc.Connection.query(conn, "CALL ducklake.set_option('hive_file_pattern', true);"),
          {:ok, _} <- Adbc.Connection.query(conn, "PRAGMA enable_checkpoint_on_shutdown;") do
       state = %__MODULE__{
         conn: conn

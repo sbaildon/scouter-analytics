@@ -73,7 +73,7 @@ config :scouter, Oban,
 
 config :scouter, Scouter.EventsRepo,
   database: env.("EVENT_DATABASE_PATH", "/var/lib/scouter/analytics/events.duckdb"),
-  pool_size: env_as.("EVENT_POOL_SIZE", "10", :integer)
+  pool_size: env_as.("EVENT_POOL_SIZE", "1", :integer)
 
 config :scouter, Scouter.Repo,
   database: env.("DATABASE_PATH", "/var/lib/scouter/analytics/domain.db"),
