@@ -48,3 +48,4 @@ npm-debug.log
 /priv/cldr/*
 
 .local/state/scouter/analytics/*
+.local/lib

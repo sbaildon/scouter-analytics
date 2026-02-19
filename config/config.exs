@@ -1,20 +1,5 @@
 import Config
 
-duckdb_platform = fn ->
-  case {:os.type(), :system_architecture |> :erlang.system_info() |> to_string()} do
-    {{:unix, :darwin}, _} -> {"osx", "universal"}
-    {{:unix, :linux}, "aarch64" <> _} -> {"linux", "arm64"}
-    {{:unix, :linux}, _} -> {"linux", "amd64"}
-  end
-end
-
-duckdb_url = fn version ->
-  {os, arch} = duckdb_platform.()
-  "https://github.com/duckdb/duckdb/releases/download/v#{version}/libduckdb-#{os}-#{arch}.zip"
-end
-
-config :adbc, :drivers, [{:duckdb, version: "1.4.4", url: duckdb_url.("1.4.4")}]
-
 config :ecto_sqlite3,
   binary_id_type: :binary,
   uuid_type: :binary,
