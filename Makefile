@@ -1,18 +1,22 @@
 # Output directory for install target (can be overridden)
 INSTALL_DIR := /var/lib/portables/scouter-analytics.raw.v
 
+# Build directory (can be overridden, defaults to current directory)
+BUILD_DIR := .
+
 # Root filesystem build directory (can be overridden)
-ROOTFS := $(CURDIR)/rootfs
+ROOTFS := $(BUILD_DIR)/rootfs
 
 # Version parsed from mix.exs (can be overridden)
 VERSION := $(shell grep -A1 'defp version do' mix.exs | tail -1 | sed 's/[^0-9.]//g')
 
-RELEASE := 1
+IMAGE_DIR := $(BUILD_DIR)
 
-IMAGE_DIR := .
+$(info building in $(BUILD_DIR))
 
 # Image filename
-IMAGE := scouter-analytics_$(VERSION)-$(RELEASE).raw
+NAME = scouter-analytics
+IMAGE := $(NAME)_$(VERSION).raw
 
 # Find all .service files in dist/systemd/
 SYSTEMD_SERVICES := $(wildcard dist/systemd/usr/lib/systemd/system/*.service)
@@ -29,7 +33,10 @@ $(IMAGE_DIR)/$(IMAGE): $(ROOTFS_CONTENTS)
 
 .PHONY: install
 install:
-	install -D -m 444 $(IMAGE_DIR)/$(IMAGE) $(INSTALL_DIR)/$(IMAGE)
+	@version=$$(systemd-vpick --suffix=.raw --print=version $(INSTALL_DIR) 2>/dev/null || echo "$(VERSION)-0"); \
+	n=$${version##*-}; \
+	base=$${version%-*}; \
+	install --verbose -D -m 444 $(IMAGE_DIR)/$(IMAGE) $(INSTALL_DIR)/$(NAME)_$${base}-$$(( n + 1 )).raw
 
 $(ROOTFS)/:
 	mkdir -p $@
