@@ -55,6 +55,7 @@ defmodule Scouter.Instance do
       {Adbc.Database,
        [
          driver: :duckdb,
+         version: "1.4.4",
          path: ":memory:",
          process_options: [name: {:via, Registry, {InstanceRegistry, {name, :adbc_db}}}]
        ]},
