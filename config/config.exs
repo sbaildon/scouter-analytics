@@ -1,9 +1,9 @@
 import Config
 
 duckdb_platform = fn ->
-  case {:os.type(), :erlang.system_info(:system_architecture) |> to_string()} do
+  case {:os.type(), :system_architecture |> :erlang.system_info() |> to_string()} do
     {{:unix, :darwin}, _} -> {"osx", "universal"}
-    {{:unix, :linux}, arch} when arch == "aarch64" -> {"linux", "aarch64"}
+    {{:unix, :linux}, "aarch64" <> _} -> {"linux", "arm64"}
     {{:unix, :linux}, _} -> {"linux", "amd64"}
   end
 end
