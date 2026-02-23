@@ -33,10 +33,13 @@ $(IMAGE_DIR)/$(IMAGE): $(ROOTFS_CONTENTS)
 
 .PHONY: install
 install:
-	@version=$$(systemd-vpick --suffix=.raw --print=version $(INSTALL_DIR) 2>/dev/null || echo "$(VERSION)-0"); \
-	n=$${version##*-}; \
-	base=$${version%-*}; \
-	install --verbose -D -m 444 $(IMAGE_DIR)/$(IMAGE) $(INSTALL_DIR)/$(NAME)_$${base}-$$(( n + 1 )).raw
+	@latest=$$(ls -1 $(INSTALL_DIR)/$(NAME)_$(VERSION)-*.raw 2>/dev/null | sort -t- -k2 -n | tail -1); \
+	if [ -n "$$latest" ]; then \
+		n=$$(echo "$$latest" | sed 's/.*-\([0-9]*\)\.raw/\1/'); \
+	else \
+		n=0; \
+	fi; \
+	install --verbose -D -m 444 $(IMAGE_DIR)/$(IMAGE) $(INSTALL_DIR)/$(NAME)_$(VERSION)-$$(( n + 1 )).raw
 
 $(ROOTFS)/:
 	mkdir -p $@
