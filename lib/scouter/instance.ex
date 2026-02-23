@@ -183,7 +183,7 @@ defmodule Scouter.Instance do
 
   def datalake_storage_path(name) when is_atom(name), do: name |> Atom.to_string() |> datalake_storage_path()
 
-  def datalake_storage_path(name), do: Path.join([state_directory(), "instances", name])
+  def datalake_storage_path(name), do: Path.join([state_directory(), "instances", name, "data"])
 
   defp skip_migrations? do
     value = System.get_env("RUN_MIGRATIONS", "false")
