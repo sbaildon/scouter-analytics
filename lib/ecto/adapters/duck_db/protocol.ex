@@ -14,7 +14,7 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
          db = lookup({:via, Registry, {Scouter.InstanceRegistry, {instance, :adbc_db}}}),
          {:ok, conn} <- Adbc.Connection.start_link(database: db),
          {:ok, directory} <- resolve_directory(Scouter.Instance.lakehouse_data_path(instance)),
-         :ok <- mkdir_p(directory),
+         :ok <- File.mkdir_p(directory),
          {:ok, _} <- install_extension(conn, System.get_env("DUCKDB_HTTPFS_EXTENSION", "httpfs")),
          {:ok, _} <- install_extension(conn, System.get_env("DUCKDB_DUCKLAKE_EXTENSION", "ducklake")),
          {:ok, _} <- install_extension(conn, System.get_env("DUCKDB_SQLITE_EXTENSION", "sqlite")),
