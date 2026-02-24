@@ -181,9 +181,9 @@ defmodule Scouter.Instance do
 
   def datalake_catalog_path(name), do: Path.join([state_directory(), "instances", name, "lakehouse", "catalog.db"])
 
-  def datalake_storage_path(name) when is_atom(name), do: name |> Atom.to_string() |> datalake_storage_path()
+  def lakehouse_data_path(name) when is_atom(name), do: name |> Atom.to_string() |> lakehouse_data_path()
 
-  def datalake_storage_path(name), do: Path.join([state_directory(), "instances", name, "lakehouse", "data"])
+  def lakehouse_data_path(name), do: Path.join([state_directory(), "instances", name, "lakehouse", "data"])
 
   defp skip_migrations? do
     value = System.get_env("RUN_MIGRATIONS", "false")
