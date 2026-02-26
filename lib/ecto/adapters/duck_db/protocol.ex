@@ -38,7 +38,7 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
   defp resolve_directory(path), do: {:ok, Path.dirname(path)}
 
   defp install_extension(conn, extension) do
-    Logger.info("installing #{extension}")
+    Logger.debug("installing #{extension}")
     Adbc.Connection.query(conn, "INSTALL '#{extension}';")
   end
 
