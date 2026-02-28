@@ -92,7 +92,7 @@ defmodule Telemetry.EventController do
 
     {:ok,
      %Event{
-       service_id: Identifier.uuid(context.service.id),
+       entity_id: Identifier.uuid(context.service.id),
        type: "pageview",
        timestamp: utc_now_s(context.count.u),
        properties: %{

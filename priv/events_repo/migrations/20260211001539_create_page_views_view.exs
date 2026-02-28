@@ -5,7 +5,7 @@ defmodule Scouter.EventsRepo.Migrations.CreatePageViewsView do
     execute("""
     CREATE OR REPLACE VIEW web_analytics AS
     SELECT
-    service_id,
+    entity_id AS service_id,
     timestamp,
     properties->>'namespace' AS namespace,
     properties->>'path' AS path,

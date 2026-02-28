@@ -14,7 +14,7 @@ defmodule Scouter.Event do
 
   @primary_key false
   schema "events" do
-    field :service_id, :string
+    field :entity_id, :string
     field :timestamp, :naive_datetime
     field :type, :string
     field :properties, Ecto.JSON
