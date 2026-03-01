@@ -42,9 +42,6 @@ env_as = fn var, default, as ->
   convert.(env, as)
 end
 
-s3_endpoint =
-  Regex.named_captures(~r/^(?<proto>.+):\/\/(?<endpoint>.+):(?<port>\d+)$/, env!.("S3_ENDPOINT"))
-
 config :ref_inspector,
   init: {Scouter.Release, :configure_ref_inspector}
 
