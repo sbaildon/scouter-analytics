@@ -1,7 +1,5 @@
 import Config
 
-alias Scouter.EventsRepo.BackupWorker
-
 convert = fn term, as ->
   case as do
     :integer ->
@@ -58,15 +56,6 @@ config :scouter, Dashboard.Endpoint,
   secret_key_base: env!.("DASHBOARD_SECRET_KEY_BASE"),
   live_view: [signing_salt: env!.("DASHBOARD_SIGNING_SALT")],
   trusted_proxies: System.get_env("TRUSTED_PROXIES")
-
-config :scouter, Oban,
-  plugins: [
-    {Oban.Plugins.Cron,
-     crontab:
-       Enum.map(BackupWorker.config(), fn {name, options} ->
-         {Map.fetch!(options, "SCHEDULE"), BackupWorker, args: %{name: name}}
-       end)}
-  ]
 
 config :scouter, Scouter.EventsRepo,
   database: env.("EVENT_DATABASE_PATH", "/var/lib/scouter/analytics/events.duckdb"),

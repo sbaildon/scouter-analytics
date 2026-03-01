@@ -4,7 +4,6 @@ defmodule Scouter.Events do
 
   alias Scouter.Event
   alias Scouter.EventsRepo
-  alias Scouter.EventsRepo.BackupWorker
 
   require Explorer.DataFrame, as: DF
   require Explorer.Series, as: S
@@ -244,25 +243,6 @@ defmodule Scouter.Events do
   def count_and_range("past_14_days"), do: {14, :day}
   def count_and_range("past_30_days"), do: {30, :day}
   def count_and_range(_), do: {-1, :year}
-
-  def backup_now(instance) do
-    Scouter.with_instance(instance, fn _ ->
-      Enum.map(BackupWorker.config(), fn {name, _options} ->
-        job = BackupWorker.new(%{name: name})
-
-        # hardcoding oban lookup here, but it could be made available with Scouter.with_instance
-        Oban.insert({:via, Registry, {Scouter.InstanceRegistry, {instance, :oban}}}, job)
-      end)
-    end)
-  end
-
-  def backup_now do
-    Enum.map(BackupWorker.config(), fn {name, _options} ->
-      %{name: name}
-      |> BackupWorker.new()
-      |> Oban.insert()
-    end)
-  end
 
   defp event_limit do
     "EVENT_LIMIT" |> System.get_env("300") |> String.to_integer()
