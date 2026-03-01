@@ -24,7 +24,7 @@ defmodule Scouter.MixProject do
   end
 
   defp version do
-    "0.2.1"
+    "0.2.2"
     |> maybe_append_version_suffix(Mix.env())
     |> to_string()
   end
