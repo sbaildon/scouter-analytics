@@ -164,11 +164,11 @@ defmodule Scouter.Instance do
   end
 
   def state_directory do
-    Enum.find_value(
-      ["STATE_DIRECTORY", "XDG_DATA_HOME"],
-      default_state_directory(),
-      &System.get_env/1
-    )
+    cond do
+      dir = System.get_env("STATE_DIRECTORY") -> dir
+      dir = System.get_env("XDG_DATA_HOME") -> Path.join([dir, "scouter/analytics"])
+      true -> default_state_directory()
+    end
   end
 
   defp default_state_directory, do: "/var/lib/scouter/analytics"
