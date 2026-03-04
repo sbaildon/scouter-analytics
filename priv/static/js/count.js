@@ -51,7 +51,7 @@
 			],
 			b: is_bot(),
 			o: window.location.origin,
-			q: location.search,
+			q: filter_query(location.search),
 			i: document.currentScript.dataset.scouterService,
 			z: Intl.DateTimeFormat().resolvedOptions().timeZone,
 		};
@@ -124,6 +124,23 @@
 		return new URL("/telemetry", src.href).href;
 	};
 
+	// Filter query string to only keep allowed parameters.
+	const allowed_params = [
+		"utm_source",
+		"utm_medium",
+		"utm_campaign",
+		"utm_content",
+	];
+	const filter_query = function (search) {
+		const original = new URLSearchParams(search);
+		const filtered = new URLSearchParams();
+		original.forEach(function (value, key) {
+			if (allowed_params.indexOf(key) !== -1) filtered.set(key, value);
+		});
+		const str = filtered.toString();
+		return str ? "?" + str : "";
+	};
+
 	// Get current path.
 	var get_path = function () {
 		var loc = location,
@@ -138,7 +155,7 @@
 			)
 				loc = a;
 		}
-		return loc.pathname + loc.search || "/";
+		return loc.pathname + filter_query(loc.search) || "/";
 	};
 
 	// Run function after DOM is loaded.
