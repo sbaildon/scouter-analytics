@@ -177,9 +177,9 @@ defmodule Scouter.Instance do
 
   def database_path(name), do: Path.join([state_directory(), "instances", name, "domain.db"])
 
-  def datalake_catalog_path(name) when is_atom(name), do: name |> Atom.to_string() |> datalake_catalog_path()
+  def lakehouse_catalog_path(name) when is_atom(name), do: name |> Atom.to_string() |> lakehouse_catalog_path()
 
-  def datalake_catalog_path(name), do: Path.join([state_directory(), "instances", name, "lakehouse", "catalog.db"])
+  def lakehouse_catalog_path(name), do: Path.join([state_directory(), "instances", name, "lakehouse", "catalog.db"])
 
   def lakehouse_data_path(name) when is_atom(name), do: name |> Atom.to_string() |> lakehouse_data_path()
 
