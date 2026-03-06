@@ -173,16 +173,16 @@ defmodule Scouter.Instance do
 
   defp default_state_directory, do: "/var/lib/scouter/analytics"
 
+  def database_path("main"), do: Path.join([state_directory(), "domain.db"])
   def database_path(name) when is_atom(name), do: name |> Atom.to_string() |> database_path()
-
   def database_path(name), do: Path.join([state_directory(), "instances", name, "domain.db"])
 
+  def lakehouse_catalog_path("main"), do: Path.join([state_directory(), "lakehouse", "catalog.db"])
   def lakehouse_catalog_path(name) when is_atom(name), do: name |> Atom.to_string() |> lakehouse_catalog_path()
-
   def lakehouse_catalog_path(name), do: Path.join([state_directory(), "instances", name, "lakehouse", "catalog.db"])
 
+  def lakehouse_data_path("main"), do: Path.join([state_directory(), "lakehouse", "data"])
   def lakehouse_data_path(name) when is_atom(name), do: name |> Atom.to_string() |> lakehouse_data_path()
-
   def lakehouse_data_path(name), do: Path.join([state_directory(), "instances", name, "lakehouse", "data"])
 
   defp skip_migrations? do
