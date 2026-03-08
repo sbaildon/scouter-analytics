@@ -20,6 +20,12 @@ defmodule Scouter.Instances do
     Supervisor.init(children, strategy: :one_for_one)
   end
 
+  def get_cache(instance), do: {:via, Registry, {Scouter.InstanceRegistry, {instance, :cache}}}
+
+  def clear_cache(instance) do
+    instance |> get_cache() |> ConCache.ets() |> :ets.delete_all_objects()
+  end
+
   defp maybe_main_instance do
     socket = System.get_env("TELEMETRY_SOCKET")
     port = System.get_env("TELEMETRY_PORT")
