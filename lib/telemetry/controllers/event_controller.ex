@@ -56,10 +56,14 @@ defmodule Telemetry.EventController do
     continue_unless_invalid_service(context)
   end
 
-  defp continue_unless_invalid_service(context) when is_map(context.count.o) do
-    case Services.fetch(context.instance, context.count.i) do
+  defp continue_unless_invalid_service(%{instance: instance} = context) when is_map(context.count.o) do
+    callback = fn ->
+      Services.fetch(context.instance, context.count.i)
+    end
+
+    case ConCache.fetch_or_store(Scouter.Instances.get_cache(instance), context.count.i, callback) do
       {:ok, service} -> continue_if_pattern_match(%{context | service: service})
-      {:error, :not_found} -> {:error, :service_not_found}
+      :error -> {:error, :service_not_found}
     end
   end
 
@@ -74,7 +78,7 @@ defmodule Telemetry.EventController do
       end)
     end
 
-    case ConCache.fetch_or_store(Scouter.Instances.get_cache(instance), count.o.host, callback) do
+    case ConCache.fetch_or_store(Scouter.Instances.get_cache(instance), {service.id, count.o.host}, callback) do
       {:ok, nil} -> {:error, :no_pattern_match}
       {:ok, _} -> country_code_step(context)
     end
