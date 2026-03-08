@@ -11,13 +11,13 @@ defmodule Scouter.Application do
   def start(_type, _args) do
     children = [
       {ReferrerBlocklist, [http_client: Req]},
+      {Phoenix.PubSub, name: Scouter.PubSub},
       Scouter.Instances,
       Scouter.Services,
       Telemetry.Broadway,
       Dashboard,
       Admin,
-      {Finch, Application.fetch_env!(:scouter, Finch)},
-      {Phoenix.PubSub, name: Scouter.PubSub}
+      {Finch, Application.fetch_env!(:scouter, Finch)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

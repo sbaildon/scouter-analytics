@@ -14,9 +14,7 @@ defmodule Scouter.Services do
 
   @impl Supervisor
   def init(_init_arg) do
-    children = [
-      {Cachex, name: service_cache()}
-    ]
+    children = []
 
     Supervisor.init(children, strategy: :one_for_one)
   end
@@ -83,7 +81,8 @@ defmodule Scouter.Services do
   end
 
   def delete(instance, service_id, opts \\ []) do
-    Scouter.with_instance(instance, fn _ ->
+    instance
+    |> Scouter.with_instance(fn _ ->
       Repo.transact(
         fn repo ->
           {_, _matchers} = repo.delete_all(Services.Matcher.where_service(service_id))
@@ -94,12 +93,14 @@ defmodule Scouter.Services do
         [{:mode, :immediate} | opts]
       )
     end)
+    |> maybe_broadcast("service.deleted", instance)
   end
 
   def register(instance, params, opts \\ []) do
     params = Map.put_new(params, :published, true)
 
-    Scouter.with_instance(instance, fn _ ->
+    instance
+    |> Scouter.with_instance(fn _ ->
       Repo.transact(
         fn repo ->
           repo.insert(Service.changeset(params))
@@ -107,13 +108,23 @@ defmodule Scouter.Services do
         [{:mode, :immediate} | opts]
       )
     end)
+    |> maybe_broadcast("service.created", instance)
   end
 
   def add_matcher(instance, service_id, type, value) do
-    Scouter.with_instance(instance, fn _ ->
+    instance
+    |> Scouter.with_instance(fn _ ->
       Repo.insert(%Scouter.Services.Matcher{service_id: service_id, type: type, value: value})
     end)
+    |> maybe_broadcast("service.updated", instance)
   end
+
+  defp maybe_broadcast({:ok, _} = result, event, instance) do
+    Phoenix.PubSub.broadcast(Scouter.PubSub, event, {event, instance})
+    result
+  end
+
+  defp maybe_broadcast(other, _event, _instance), do: other
 
   def change(instance, service_id, params, opts \\ []) do
     read_query =
@@ -122,7 +133,8 @@ defmodule Scouter.Services do
       |> Service.with_matchers()
       |> EctoHelpers.preload()
 
-    Scouter.with_instance(instance, fn _ ->
+    instance
+    |> Scouter.with_instance(fn _ ->
       Repo.transact(
         fn repo ->
           {:ok, service} = repo.fetch(read_query)
@@ -134,6 +146,7 @@ defmodule Scouter.Services do
         [{:mode, :immediate} | opts]
       )
     end)
+    |> maybe_broadcast("service.updated", instance)
   end
 
   def fetch_by_name(instance, name, opts \\ []) do
@@ -195,11 +208,5 @@ defmodule Scouter.Services do
       {:shared, true}, query -> Service.where_shared(query)
       _, query -> query
     end)
-  end
-
-  defp service_cache, do: ServiceCache
-
-  def clear_cache do
-    Cachex.clear(service_cache())
   end
 end

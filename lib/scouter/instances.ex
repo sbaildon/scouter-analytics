@@ -14,7 +14,8 @@ defmodule Scouter.Instances do
   def init(_) do
     children =
       [
-        {Registry, name: Scouter.InstanceRegistry, keys: :unique}
+        {Registry, name: Scouter.InstanceRegistry, keys: :unique},
+        Scouter.Instances.Cacher
       ] ++ maybe_main_instance() ++ maybe_enable_instance_manager()
 
     Supervisor.init(children, strategy: :one_for_one)
