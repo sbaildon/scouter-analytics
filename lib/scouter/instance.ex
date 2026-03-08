@@ -36,7 +36,11 @@ defmodule Scouter.Instance do
       end
 
     children = [
-      {ConCache, name: {:via, Registry, {InstanceRegistry, {name, :cache}}}, ttl_check_interval: false},
+      {ConCache,
+       name: {:via, Registry, {InstanceRegistry, {name, :cache}}},
+       global_ttl: :timer.seconds(30),
+       ttl_check_interval: :timer.seconds(10),
+       touch_on_read: true},
       {Scouter.Repo, repo_config(name)},
       Supervisor.child_spec(
         {Migrator,
