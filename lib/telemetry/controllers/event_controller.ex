@@ -74,7 +74,7 @@ defmodule Telemetry.EventController do
       end)
     end
 
-    case ConCache.fetch_or_store({:via, Registry, {Scouter.InstanceRegistry, {instance, :cache}}}, count.o.host, callback) do
+    case ConCache.fetch_or_store(Scouter.Instances.get_cache(instance), count.o.host, callback) do
       {:ok, nil} -> {:error, :no_pattern_match}
       {:ok, _} -> country_code_step(context)
     end
