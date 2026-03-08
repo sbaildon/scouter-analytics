@@ -5,7 +5,7 @@ defmodule Scouter.EventsRepo.Migrations.CreateEvents do
   def change do
     create table("events", primary_key: false) do
       add :entity_id, :uuid, null: false
-      add :timestamp, :naive_datetime, null: false
+      add :timestamp, :timestamp, null: false
       add :type, :string, null: false
       add :properties, :json, null: false
     end
