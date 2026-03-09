@@ -36,6 +36,7 @@ RUN mix release
 
 FROM docker.io/library/debian:13-slim AS release
 ENV LANG=C.UTF-8
+VOLUME /var/lib/scouter/analytics
 RUN apt-get update && \
 	apt-get install -y --no-install-recommends \
 	ca-certificates \
