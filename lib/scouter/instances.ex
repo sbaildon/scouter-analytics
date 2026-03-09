@@ -34,7 +34,9 @@ defmodule Scouter.Instances do
 
     cond do
       !socket && !port && !instance_manager ->
-        raise "set TELEMETRY_PORT or TELEMETRY_SOCKET"
+        # the operator hasn't configured anything; assume single instance deployment
+        # downstream provides a default telemetry port
+        [{Scouter.Instance, main_instance_opts()}]
 
       !socket && !port ->
         Logger.info("main instance not configured")
