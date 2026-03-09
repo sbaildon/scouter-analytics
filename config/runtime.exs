@@ -40,6 +40,28 @@ env_as = fn var, default, as ->
   convert.(env, as)
 end
 
+credential = fn env, size, file ->
+  operator_configured_path = Path.join([System.get_env("CREDENTIALS_DIRECTORY", "/run/secrets"), file])
+  fallback_path = Path.join([System.get_env("STATE_DIRECTORY", "/var/lib/scouter/analytics"), "credentials", file])
+
+  cond do
+    value = System.get_env(env) ->
+      value
+
+    File.exists?(operator_configured_path) ->
+      File.read!(operator_configured_path)
+
+    File.exists?(fallback_path) ->
+      File.read!(fallback_path)
+
+    true ->
+      secret = :crypto.strong_rand_bytes(size) |> Base.encode64()
+      File.mkdir_p!(Path.dirname(fallback_path))
+      File.write!(fallback_path, secret)
+      secret
+  end
+end
+
 config :ref_inspector,
   init: {Scouter.Release, :configure_ref_inspector}
 
@@ -52,9 +74,9 @@ config :scouter, Dashboard.Endpoint,
     scheme: "https",
     path: env.("DASHBOARD_PATH", "/")
   ],
-  secret_key_base: env!.("DASHBOARD_SECRET_KEY_BASE"),
-  live_view: [signing_salt: env!.("DASHBOARD_SIGNING_SALT")],
   static_url: [host: env.("SCOUTER_HOST", nil), port: 443, scheme: "https", path: "/_app/analytics/static"],
+  secret_key_base: credential.("DASHBOARD_SECRET_KEY_BASE", 64, "dashboard_secret_key_base"),
+  live_view: [signing_salt: credential.("DASHBOARD_SIGNING_SALT", 32, "dashboard_signing_salt")],
   trusted_proxies: System.get_env("TRUSTED_PROXIES")
 
 config :scouter, Scouter.EventsRepo,
