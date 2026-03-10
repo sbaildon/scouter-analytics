@@ -55,7 +55,7 @@ credential = fn env, size, file ->
       File.read!(fallback_path)
 
     true ->
-      secret = :crypto.strong_rand_bytes(size) |> Base.encode64()
+      secret = size |> :crypto.strong_rand_bytes() |> Base.encode64()
       File.mkdir_p!(Path.dirname(fallback_path))
       File.write!(fallback_path, secret)
       secret
