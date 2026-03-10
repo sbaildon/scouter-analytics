@@ -13,7 +13,7 @@ defmodule Scouter.Events do
           %{non_neg_integer() => Explorer.DataFrame.t()} | nil
   def arrow(instance, filters \\ []) do
     Scouter.with_instance(instance, fn %{repo: repo} ->
-      {:ok, df} =
+      result =
         Scouter.PageView.query()
         |> Scouter.PageView.typed_aggregate_query()
         |> filter(filters)
@@ -22,14 +22,20 @@ defmodule Scouter.Events do
           Scouter.EventsRepo.query(sql, params, df: true)
         end)
 
-      if DF.n_rows(df) == 0 do
-        nil
-      else
-        df
-        |> DF.group_by(:grouping_id)
-        |> DF.head(event_limit())
-        |> partition_by()
-        |> Map.new(&make_presentable/1)
+      case result do
+        {:ok, df} ->
+          if DF.n_rows(df) == 0 do
+            nil
+          else
+            df
+            |> DF.group_by(:grouping_id)
+            |> DF.head(event_limit())
+            |> partition_by()
+            |> Map.new(&make_presentable/1)
+          end
+
+        _ ->
+          nil
       end
     end)
   end
