@@ -1,7 +1,8 @@
-defmodule Mix.Tasks.DownloadAdbcDriver do
-  use Mix.Task
-
+defmodule Mix.Tasks.Adbc.DownloadDriver do
   @shortdoc "Downloads an ADBC driver"
+
+  @moduledoc false
+  use Mix.Task
 
   def run([driver]) do
     Mix.shell().info("Downloading #{driver} driver...")
@@ -9,6 +10,6 @@ defmodule Mix.Tasks.DownloadAdbcDriver do
   end
 
   def run(_) do
-    Mix.shell().error("Usage: mix download_driver <driver_name>")
+    Mix.shell().error("Usage: mix adbc.download_driver <driver_name>")
   end
 end

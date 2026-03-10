@@ -28,7 +28,8 @@ COPY priv ./priv
 COPY assets ./assets
 COPY lib ./lib
 RUN mix assets.deploy
-RUN mix download_adbc_driver duckdb
+RUN mix adbc.download_driver duckdb
+RUN mix duckdb.download_extensions sqlite httpfs ducklake
 RUN mix ua_inspector.download --force
 RUN mix ref_inspector.download --force
 RUN mix compile

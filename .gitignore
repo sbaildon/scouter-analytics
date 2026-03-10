@@ -42,6 +42,7 @@ npm-debug.log
 *.duckdb.*
 
 /priv/mmdb/*
+/priv/duckdb/extensions/*
 /priv/ua_inspector/*
 /priv/ref_inspector/*
 /bin/*

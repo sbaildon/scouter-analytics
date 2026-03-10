@@ -4,7 +4,6 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
 
   require Explorer.DataFrame, as: DF
   require Explorer.Series, as: S
-  require Logger
 
   defstruct [:conn, transaction_status: :idle]
 
@@ -15,9 +14,8 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
          {:ok, conn} <- Adbc.Connection.start_link(database: db),
          {:ok, directory} <- resolve_directory(Scouter.Instance.lakehouse_data_path(instance)),
          :ok <- File.mkdir_p(directory),
-         {:ok, _} <- install_extension(conn, System.get_env("DUCKDB_HTTPFS_EXTENSION", "httpfs")),
-         {:ok, _} <- install_extension(conn, System.get_env("DUCKDB_DUCKLAKE_EXTENSION", "ducklake")),
-         {:ok, _} <- install_extension(conn, System.get_env("DUCKDB_SQLITE_EXTENSION", "sqlite")),
+         {:ok, extension_directory_query} <- Adbc.Connection.prepare(conn, "SET extension_directory = ?"),
+         {:ok, _} <- Adbc.Connection.query(conn, extension_directory_query, [Application.app_dir(:scouter, "priv/duckdb/extensions")]),
          {:ok, _} <-
            Adbc.Connection.query(
              conn,
@@ -36,11 +34,6 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
   end
 
   defp resolve_directory(path), do: {:ok, Path.dirname(path)}
-
-  defp install_extension(conn, extension) do
-    Logger.debug("installing #{extension}")
-    Adbc.Connection.query(conn, "INSTALL '#{extension}';")
-  end
 
   @impl DBConnection
   def disconnect(_err, state) do
