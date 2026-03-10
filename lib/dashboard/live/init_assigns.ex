@@ -17,7 +17,7 @@ defmodule Dashboard.InitAssigns do
   end
 
   defp apply_authorization_scheme(socket, "Plain-Text", plain_text) do
-    assign(socket, :caveats, decode_plain_text(plain_text))
+    assign(socket, :caveats, decode_structured_field_value(plain_text))
   end
 
   defp apply_authorization_scheme(socket, "Bearer", token) do
@@ -27,10 +27,10 @@ defmodule Dashboard.InitAssigns do
   defp decode_bearer_token(token) do
     token
     |> verify!()
-    |> decode_standard_field_value()
+    |> decode_structured_field_value()
   end
 
-  def decode_standard_field_value(field_value) do
+  def decode_structured_field_value(field_value) do
     field_value
     |> String.split(",", trim: true)
     |> Enum.map(fn item -> item |> String.trim() |> String.split(";", trim: true) end)
@@ -39,15 +39,8 @@ defmodule Dashboard.InitAssigns do
         {instance, services |> String.trim_leading("(") |> String.trim_trailing(")") |> String.split(" ")}
 
       [services | []] ->
-        {:main, services |> String.trim_leading("(") |> String.trim_trailing(")") |> String.split(" ")}
+        {"main", services |> String.trim_leading("(") |> String.trim_trailing(")") |> String.split(" ")}
     end)
-  end
-
-  defp decode_plain_text(plain_text) do
-    plain_text
-    |> String.trim()
-    |> String.trim(";")
-    |> String.split(";", trim: true)
   end
 
   defp decode_authorization(scheme_and_parameters) do

@@ -20,12 +20,12 @@ defmodule Dashboard.AuthzPlug do
   end
 
   defp build_authorization_header(conn) do
-    {:ok, services} = Scouter.Services.list(skip_service_id: true)
+    {:ok, services} = Scouter.Services.list("main", skip_service_id: true)
 
     service_ids =
-      Enum.map_join(services, ";", fn service -> service.id end)
+      Enum.map_join(services, " ", fn service -> service.id end)
 
-    put_req_header(conn, "authorization", "Plain-Text #{service_ids}")
+    put_req_header(conn, "authorization", "Plain-Text (#{service_ids})")
   end
 
   defp authorize_session(conn, authorization), do: put_session(conn, :authorization, authorization)
