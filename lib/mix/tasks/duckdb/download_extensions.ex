@@ -26,5 +26,4 @@ defmodule Mix.Tasks.Duckdb.DownloadExtensions do
       {:ok, _} = Adbc.Connection.query(conn, "INSTALL #{extension};")
     end
   end
-
 end
