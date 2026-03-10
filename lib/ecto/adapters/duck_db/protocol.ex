@@ -13,8 +13,8 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
     with {instance, _opts} <- Keyword.pop!(opts, :instance),
          db = lookup({:via, Registry, {Scouter.InstanceRegistry, {instance, :adbc_db}}}),
          {:ok, conn} <- Adbc.Connection.start_link(database: db),
-         {:ok, directory} <- resolve_directory(Scouter.Instance.lakehouse_data_path(instance)),
-         :ok <- File.mkdir_p(directory),
+         {:ok, lakehouse_directory} <- resolve_directory(Scouter.Instance.lakehouse_data_path(instance)),
+         :ok <- File.mkdir_p(lakehouse_directory),
          {:ok, extension_directory_query} <- Adbc.Connection.prepare(conn, "SET extension_directory = ?"),
          {:ok, _} <-
            Adbc.Connection.query(conn, extension_directory_query, [
