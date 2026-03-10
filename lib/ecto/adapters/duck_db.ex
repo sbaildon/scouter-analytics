@@ -42,4 +42,11 @@ defmodule Ecto.Adapters.DuckDB do
 
     File.rm(database)
   end
+
+  def resolve_extension_directory do
+    case System.get_env("DUCKDB_EXTENSION_DIRECTORY", "priv/duckdb/extensions") do
+      "/" <> _ = absolute_path -> absolute_path
+      path -> Application.app_dir(:scouter, path)
+    end
+  end
 end

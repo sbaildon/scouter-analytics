@@ -16,7 +16,7 @@ defmodule Mix.Tasks.Duckdb.DownloadExtensions do
     {:ok, database} = Adbc.Database.start_link(driver: driver, entrypoint: "duckdb_adbc_init", path: ":memory:")
     {:ok, conn} = Adbc.Connection.start_link(database: database)
 
-    extension_directory = Application.app_dir(:scouter, "priv/duckdb/extensions")
+    extension_directory = Ecto.Adapters.DuckDB.resolve_extension_directory()
 
     {:ok, config_query} = Adbc.Connection.prepare(conn, "SET extension_directory = ?")
     {:ok, _} = Adbc.Connection.query(conn, config_query, [extension_directory])
