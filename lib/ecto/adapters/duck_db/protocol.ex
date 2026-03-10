@@ -15,7 +15,10 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
          {:ok, directory} <- resolve_directory(Scouter.Instance.lakehouse_data_path(instance)),
          :ok <- File.mkdir_p(directory),
          {:ok, extension_directory_query} <- Adbc.Connection.prepare(conn, "SET extension_directory = ?"),
-         {:ok, _} <- Adbc.Connection.query(conn, extension_directory_query, [Application.app_dir(:scouter, "priv/duckdb/extensions")]),
+         {:ok, _} <-
+           Adbc.Connection.query(conn, extension_directory_query, [
+             Application.app_dir(:scouter, "priv/duckdb/extensions")
+           ]),
          {:ok, _} <-
            Adbc.Connection.query(
              conn,
