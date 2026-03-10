@@ -47,8 +47,7 @@ defmodule Dashboard.TrustedProxiesPlug do
     |> halt()
   end
 
-  defp unspecified_environment(conn),
-    do: conn |> assign(:environment, :unspecified) |> put_session(:environment, :unspecified)
+  defp unspecified_environment(conn), do: assign(conn, :environment, :unspecified)
 
   defp trusted_proxies do
     case Dashboard.Endpoint.config(:trusted_proxies) do
