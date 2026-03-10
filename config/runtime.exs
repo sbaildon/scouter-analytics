@@ -1,5 +1,7 @@
 import Config
 
+require Logger
+
 convert = fn term, as ->
   case as do
     :integer ->
@@ -55,6 +57,7 @@ credential = fn env, size, file ->
       File.read!(fallback_path)
 
     true ->
+      Logger.info("generating credential '#{fallback_path}'")
       secret = size |> :crypto.strong_rand_bytes() |> Base.encode64()
       File.mkdir_p!(Path.dirname(fallback_path))
       File.write!(fallback_path, secret)
