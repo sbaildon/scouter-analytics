@@ -4,6 +4,7 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
 
   require Explorer.DataFrame, as: DF
   require Explorer.Series, as: S
+  require Logger
 
   defstruct [:conn, transaction_status: :idle]
 
@@ -122,8 +123,12 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
 
   defp handle_df_query(query, params, _opts, state) do
     case DF.from_query(state.conn, query.statement, params) do
-      {:ok, result} -> {:ok, query, result, state}
-      _ -> {:error, :bad}
+      {:ok, result} ->
+        {:ok, query, result, state}
+
+      {:error, reason} ->
+        Logger.warning(reason)
+        {:error, reason, state}
     end
   end
 
