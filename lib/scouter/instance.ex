@@ -190,7 +190,7 @@ defmodule Scouter.Instance do
   def lakehouse_data_path(name), do: Path.join([state_directory(), "instances", name, "lakehouse", "data"])
 
   defp skip_migrations? do
-    value = System.get_env("RUN_MIGRATIONS", "false")
+    value = System.get_env("RUN_MIGRATIONS", "true")
     not String.to_existing_atom(value)
   end
 
