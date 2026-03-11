@@ -19,8 +19,6 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
          {:ok, _} <-
            Adbc.Connection.query(conn, extension_directory_query, [Ecto.Adapters.DuckDB.resolve_extension_directory()]),
          {:ok, _} <-
-           force_install_extensions(conn),
-         {:ok, _} <-
            Adbc.Connection.query(
              conn,
              "ATTACH IF NOT EXISTS 'ducklake:sqlite:#{Scouter.Instance.lakehouse_catalog_path(instance)}' AS ducklake (DATA_PATH '#{Scouter.Instance.lakehouse_data_path(instance)}');"
@@ -35,17 +33,6 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
 
       {:ok, state}
     end
-  end
-
-  defp force_install_extensions(conn) do
-    names =
-      for {"DUCKDB_EXTENSION_" <> name, extension} <- System.get_env() do
-        Logger.info("force installing duckdb extension: #{extension}")
-        {:ok, _} = Adbc.Connection.query(conn, "FORCE INSTALL '#{extension}';")
-        name
-      end
-
-    {:ok, names}
   end
 
   defp resolve_directory(path), do: {:ok, Path.dirname(path)}
