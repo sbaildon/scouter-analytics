@@ -36,11 +36,15 @@ defmodule Dashboard.InitAssigns do
     |> Enum.map(fn item -> item |> String.trim() |> String.split(";", trim: true) end)
     |> Enum.map(fn
       [services, "instance=" <> instance] ->
-        {instance, services |> String.trim_leading("(") |> String.trim_trailing(")") |> String.split(" ")}
+        {instance, parse_structured_inner_list(services)}
 
       [services | []] ->
-        {"main", services |> String.trim_leading("(") |> String.trim_trailing(")") |> String.split(" ")}
+        {"main", parse_structured_inner_list(services)}
     end)
+  end
+
+  defp parse_structured_inner_list(list) do
+    list |> String.trim_leading("(") |> String.trim_trailing(")") |> String.split(" ", trim: true)
   end
 
   defp decode_authorization(scheme_and_parameters) do
