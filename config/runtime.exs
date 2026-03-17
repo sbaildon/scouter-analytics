@@ -73,8 +73,8 @@ config :scouter, Admin.Endpoint, server: env_as.("ADMIN", "false", :boolean)
 config :scouter, Dashboard.Endpoint,
   url: [
     host: env.("SCOUTER_HOST", nil),
-    port: 443,
-    scheme: "https",
+    port: System.get_env("SCOUTER_HOST") && 443 || 80,
+    scheme: System.get_env("SCOUTER_HOST") && "https" || "http",
     path: env.("DASHBOARD_PATH", "/")
   ],
   static_url: [host: env.("SCOUTER_HOST", nil), port: 443, scheme: "https", path: "/_app/analytics/static"],
