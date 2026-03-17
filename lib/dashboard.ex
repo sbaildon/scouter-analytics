@@ -26,7 +26,7 @@ defmodule Dashboard do
 
   defp http do
     case :systemd.listen_fds() do
-      [] -> Socket.af_inet6("DASHBOARD_PORT", "4000")
+      [] -> Socket.af_inet6("DASHBOARD_PORT", "80")
       fds -> Socket.socket_activation(fds, Socket.name!("DASHBOARD_SOCKET"))
     end
   end
