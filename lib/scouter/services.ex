@@ -14,7 +14,9 @@ defmodule Scouter.Services do
 
   @impl Supervisor
   def init(_init_arg) do
-    children = []
+    children = [
+      {Task, &Services.DeclarativeConfig.initialize/0}
+    ]
 
     Supervisor.init(children, strategy: :one_for_one)
   end

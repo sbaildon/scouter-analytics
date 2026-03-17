@@ -92,7 +92,8 @@ defmodule Scouter.MixProject do
       {:referrer_blocklist, git: "https://github.com/sbaildon/referrer-blocklist"},
       {:cidr, "~> 1.2"},
       {:systemd, "~> 0.6"},
-      {:con_cache, "~> 1.1"}
+      {:con_cache, "~> 1.1"},
+      {:configparser_ex, "~> 5.0"}
     ]
   end
 
