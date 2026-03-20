@@ -21,7 +21,7 @@ IMAGE := $(NAME)_$(VERSION).raw
 # Find all .service files in dist/systemd/
 SYSTEMD_SERVICES := $(wildcard dist/systemd/usr/lib/systemd/system/*.service)
 ROOTFS_SERVICES := $(patsubst dist/systemd/%,$(ROOTFS)/%,$(SYSTEMD_SERVICES))
-ROOTFS_MOUNT_POINT_DIRS := $(ROOTFS)/proc/ $(ROOTFS)/sys/ $(ROOTFS)/dev/ $(ROOTFS)/run/ $(ROOTFS)/tmp/ $(ROOTFS)/var/tmp/ $(ROOTFS)/var/lib/scouter/analytics/
+ROOTFS_MOUNT_POINT_DIRS := $(ROOTFS)/proc/ $(ROOTFS)/sys/ $(ROOTFS)/dev/ $(ROOTFS)/run/ $(ROOTFS)/tmp/ $(ROOTFS)/var/tmp/ $(ROOTFS)/var/lib/scouter/analytics/ $(ROOTFS)/usr/share/scouter/analytics/services.d $(ROOTFS)/etc/scouter/analytics/services.d
 ROOTFS_MOUNT_POINT_FILES := $(ROOTFS)/etc/resolv.conf $(ROOTFS)/etc/machine-id
 
 # Aggregate all rootfs contents
