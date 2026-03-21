@@ -19,6 +19,10 @@ defmodule Dashboard.Router do
     plug Dashboard.AuthzPlug
   end
 
+  scope "/up", Dashboard do
+    get "/", HealthController, :check
+  end
+
   scope "/", Dashboard do
     pipe_through [:browser, :authz]
 
