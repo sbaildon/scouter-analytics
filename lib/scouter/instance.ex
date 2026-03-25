@@ -210,8 +210,6 @@ defmodule Scouter.Instance do
     |> File.stream!()
     |> Enum.at(0)
     |> String.trim()
-    |> String.split("\n", parts: 2)
-    |> hd()
   end
 
   defp skip_migrations? do
