@@ -25,24 +25,23 @@ defmodule Ecto.Adapters.DuckDB.Query do
     defp encode_param(param), do: param
 
     def decode(_query, %Adbc.Result{} = result, _opts) do
-      {num_rows, materialized_rows} =
-        result
-        |> Adbc.Result.materialize()
-        |> columns_to_rows()
-
-      %{num_rows: num_rows, rows: materialized_rows}
+      columns_to_rows(result)
     end
 
     def decode(_query, result, _opts) do
       result
     end
 
-    defp columns_to_rows(adbc_result) do
-      adbc_result.data
-      |> Enum.map(&Map.fetch!(&1, :data))
-      |> Enum.zip_reduce({0, []}, fn row, {count, rows} ->
-        {count + 1, [row | rows]}
-      end)
+    defp columns_to_rows(result) do
+      {num_rows, rows} =
+        result
+        |> Adbc.Result.to_map()
+        |> Map.values()
+        |> Enum.zip_reduce({0, []}, fn row, {count, acc} ->
+          {count + 1, [row | acc]}
+        end)
+
+      %{num_rows: num_rows, rows: rows}
     end
   end
 
