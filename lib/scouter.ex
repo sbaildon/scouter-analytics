@@ -79,7 +79,7 @@ defmodule Scouter do
     |> Keyword.keys()
   end
 
-  def credentials_directory() do
+  def credentials_directory do
     System.get_env("CREDENTIALS_DIRECTORY", "/run/secrets")
   end
 end
