@@ -194,7 +194,7 @@ defmodule Scouter.Instance do
       [lakehouse_data_root_credential(name), lakehouse_data_root_credential("main")],
       state_directory(),
       fn credential_file ->
-        (File.exists?(credential_file) && credential_file |> File.read!() |> normalise_credential()) || false
+        (File.exists?(credential_file) && read_credential(credential_file)) || false
       end
     )
   end
@@ -205,8 +205,13 @@ defmodule Scouter.Instance do
   defp lakehouse_data_root_credential(name),
     do: Path.join([Scouter.credentials_directory(), ["scouter-analytics", ?., name, ?., "lakehouse", ?., "data_root"]])
 
-  defp normalise_credential(credential) do
-    String.trim(credential)
+  defp read_credential(credential_file) do
+    credential_file
+    |> File.stream!()
+    |> Enum.at(0)
+    |> String.trim()
+    |> String.split("\n", parts: 2)
+    |> hd()
   end
 
   defp skip_migrations? do
