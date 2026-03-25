@@ -183,11 +183,31 @@ defmodule Scouter.Instance do
 
   def lakehouse_catalog_path("main"), do: Path.join([state_directory(), "lakehouse", "catalog.db"])
   def lakehouse_catalog_path(name) when is_atom(name), do: name |> Atom.to_string() |> lakehouse_catalog_path()
-  def lakehouse_catalog_path(name), do: Path.join([state_directory(), "instances", name, "lakehouse", "catalog.db"])
+  def lakehouse_catalog_path(name), do: Path.join([state_directory(), name, "lakehouse", "catalog.db"])
 
-  def lakehouse_data_path("main"), do: Path.join([state_directory(), "lakehouse", "data"])
+  def lakehouse_data_path("main"), do: Path.join([lakehouse_data_root("main"), "lakehouse", "data"])
   def lakehouse_data_path(name) when is_atom(name), do: name |> Atom.to_string() |> lakehouse_data_path()
-  def lakehouse_data_path(name), do: Path.join([state_directory(), "instances", name, "lakehouse", "data"])
+  def lakehouse_data_path(name), do: Path.join([lakehouse_data_root(name), name, "lakehouse", "data"])
+
+  defp lakehouse_data_root(name) do
+    Enum.find_value(
+      [lakehouse_data_root_credential(name), lakehouse_data_root_credential("main")],
+      state_directory(),
+      fn credential_file ->
+        (File.exists?(credential_file) && credential_file |> File.read!() |> normalise_credential()) || false
+      end
+    )
+  end
+
+  defp lakehouse_data_root_credential("main"),
+    do: Path.join([Scouter.credentials_directory(), ["scouter-analytics", ?., "lakehouse", ?., "data_root"]])
+
+  defp lakehouse_data_root_credential(name),
+    do: Path.join([Scouter.credentials_directory(), ["scouter-analytics", ?., name, ?., "lakehouse", ?., "data_root"]])
+
+  defp normalise_credential(credential) do
+    String.trim(credential)
+  end
 
   defp skip_migrations? do
     value = System.get_env("RUN_MIGRATIONS", "true")

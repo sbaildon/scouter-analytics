@@ -13,8 +13,8 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
     with {instance, _opts} <- Keyword.pop!(opts, :instance),
          db = lookup({:via, Registry, {Scouter.InstanceRegistry, {instance, :adbc_db}}}),
          {:ok, conn} <- Adbc.Connection.start_link(database: db),
-         {:ok, lakehouse_directory} <- resolve_directory(Scouter.Instance.lakehouse_data_path(instance)),
-         :ok <- File.mkdir_p(lakehouse_directory),
+         {:ok, _} <- prepare_lakhouse_catalog_path(Scouter.Instance.lakehouse_catalog_path(instance)),
+         {:ok, _} <- prepare_lakehouse_data_path(instance, conn, Scouter.Instance.lakehouse_data_path(instance)),
          {:ok, extension_directory_query} <- Adbc.Connection.prepare(conn, "SET extension_directory = ?"),
          {:ok, _} <-
            Adbc.Connection.query(conn, extension_directory_query, [Ecto.Adapters.DuckDB.resolve_extension_directory()]),
@@ -36,7 +36,104 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
     end
   end
 
-  defp resolve_directory(path), do: {:ok, Path.dirname(path)}
+  defp prepare_lakhouse_catalog_path(path) do
+    case path |> Path.dirname() |> File.mkdir_p() do
+      :ok -> {:ok, path}
+      other -> other
+    end
+  end
+
+  defp prepare_lakehouse_data_path(_instance, _conn, %{scheme: nil, path: lakehouse_directory}) do
+    with :ok <- File.mkdir_p(lakehouse_directory), do: {:ok, lakehouse_directory}
+  end
+
+  defp prepare_lakehouse_data_path(instance, conn, %{scheme: scheme, host: lakehouse_uri}) do
+    opts =
+      instance
+      |> read_credential("duckdb_secret", "lakehouse")
+      |> parse_credential()
+      |> Map.put_new("SCOPE", "#{scheme}://#{lakehouse_uri}")
+
+    secret_params =
+      Enum.map_join(opts, ", ", fn
+        {"TYPE", v} -> "TYPE #{v}"
+        {"EXTRA_HTTP_HEADERS", v} -> "EXTRA_HTTP_HEADERS #{list_to_map(v)}"
+        {k, v} -> "#{k} '#{v}'"
+      end)
+
+    secret_query = IO.inspect(~s"CREATE TEMPORARY SECRET IF NOT EXISTS lakehouse ( #{secret_params} );")
+
+    with {:ok, _} <- maybe_set_ca_cert(instance, conn) do
+      Adbc.Connection.query(conn, secret_query)
+    end
+  end
+
+  defp prepare_lakehouse_data_path(instance, conn, uri_or_path) do
+    prepare_lakehouse_data_path(instance, conn, URI.parse(uri_or_path))
+  end
+
+  defp list_to_map(list) do
+    kvs = list |> String.split(";") |> Enum.map(&String.split(&1, "=", parts: 2))
+
+    "MAP { #{Enum.map_join(kvs, ", ", fn [k, v] -> "'#{k}': '#{v}'" end)} }"
+  end
+
+  def credential_file(instance, namespace, credential) do
+    Path.join([
+      System.get_env("CREDENTIALS_DIRECTORY", "/run/secrets"),
+      ["scouter-analytics", ".", instance, ".", namespace, ".", credential]
+    ])
+  end
+
+  defp generic_credential_file(namespace, credential) do
+    Path.join([
+      System.get_env("CREDENTIALS_DIRECTORY", "/run/secrets"),
+      ["scouter-analytics", ".", namespace, ".", credential]
+    ])
+  end
+
+  defp parse_credential(content) do
+    content
+    |> String.split("\n", trim: true)
+    |> Map.new(fn line ->
+      [key, value] = String.split(line, "=", parts: 2)
+      {String.trim(key), String.trim(value)}
+    end)
+  end
+
+  defp find_credential(instance, namespace, credential) do
+    instance_path = credential_file(instance, namespace, credential)
+    generic_path = generic_credential_file(namespace, credential)
+
+    cond do
+      File.exists?(instance_path) -> instance_path
+      File.exists?(generic_path) -> generic_path
+      true -> nil
+    end
+  end
+
+  defp maybe_set_ca_cert(instance, conn) do
+    case find_credential(instance, "duckdb", "ca_cert_file") do
+      nil ->
+        {:ok, nil}
+
+      path ->
+        with {:ok, _} <- Adbc.Connection.query(conn, "SET ca_cert_file = '#{path}';") do
+          Adbc.Connection.query(conn, "SET enable_server_cert_verification = TRUE;")
+        end
+    end
+  end
+
+  defp read_credential(instance, namespace, credential) do
+    instance_path = credential_file(instance, namespace, credential)
+    generic_path = generic_credential_file(namespace, credential)
+
+    cond do
+      File.exists?(instance_path) -> File.read!(instance_path)
+      File.exists?(generic_path) -> File.read!(generic_path)
+      true -> raise "No credential file found at #{instance_path} or #{generic_path}"
+    end
+  end
 
   @impl DBConnection
   def disconnect(_err, state) do
