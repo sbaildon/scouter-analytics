@@ -29,3 +29,35 @@ migrate repo=default_repo:
 
 rollback to repo=default_repo:
     mix ecto.rollback --no-compile -r {{ repo }} --to={{ to }}
+
+download-libduckdb version dir=".local/lib":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    os=$(uname -s | tr '[:upper:]' '[:lower:]')
+    arch=$(uname -m)
+    case "$os" in
+        darwin) platform="osx"; arch="universal" ;;
+        linux)  platform="linux" ;;
+        *)      echo "Unsupported OS: $os"; exit 1 ;;
+    esac
+    url="https://github.com/duckdb/duckdb/releases/download/v{{ version }}/libduckdb-${platform}-${arch}.zip"
+    mkdir -p {{ dir }}
+    tmp=$(mktemp)
+    curl -fSL "$url" -o "$tmp"
+    unzip -o "$tmp" -d {{ dir }}
+    rm "$tmp"
+
+download-duckdb-extension name version dir=".local/lib/duckdb/extensions":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    os=$(uname -s | tr '[:upper:]' '[:lower:]')
+    arch=$(uname -m)
+    case "$os" in
+        darwin) platform="osx"; arch="arm64" ;;
+        linux)  platform="linux"; arch="${arch/x86_64/amd64}" ;;
+        *)      echo "Unsupported OS: $os"; exit 1 ;;
+    esac
+    url="https://extensions.duckdb.org/v{{ version }}/${platform}_${arch}/{{ name }}.duckdb_extension.gz"
+    outdir="{{ dir }}/v{{ version }}/${platform}_${arch}"
+    mkdir -p "$outdir"
+    curl -fSL "$url" | gunzip > "$outdir/{{ name }}.duckdb_extension"
