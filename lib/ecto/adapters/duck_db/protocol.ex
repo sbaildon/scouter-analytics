@@ -26,6 +26,7 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
          {:ok, _} <- Adbc.Connection.query(conn, "USE ducklake;"),
          {:ok, _} <- Adbc.Connection.query(conn, "CALL ducklake.set_option('parquet_compression', 'zstd');"),
          {:ok, _} <- Adbc.Connection.query(conn, "CALL ducklake.set_option('hive_file_pattern', true);"),
+         {:ok, _} <- Adbc.Connection.query(conn, "CALL ducklake.set_option('data_inlining_row_limit', 0);"),
          {:ok, _} <- Adbc.Connection.query(conn, "PRAGMA enable_checkpoint_on_shutdown;") do
       state = %__MODULE__{
         conn: conn
