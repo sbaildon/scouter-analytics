@@ -24,6 +24,7 @@
         devShells.default = pkgs.mkShell {
           buildInputs = [
             beamPkgs.elixir_1_18
+            beamPkgs.erlang
             pkgs.erofs-utils
             pkgs.caddy
             pkgs.duckdb
