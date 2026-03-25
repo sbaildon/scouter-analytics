@@ -78,4 +78,8 @@ defmodule Scouter do
     |> Registry.select([{{:"$1", :"$2", :_}, [], [{{:"$1", :"$2"}}]}])
     |> Keyword.keys()
   end
+
+  def credentials_directory() do
+    System.get_env("CREDENTIALS_DIRECTORY", "/run/secrets")
+  end
 end
