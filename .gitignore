@@ -50,3 +50,4 @@ npm-debug.log
 
 .local/state/scouter/analytics/*
 .local/lib
+.run
