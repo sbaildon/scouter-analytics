@@ -7,7 +7,7 @@ defmodule Scouter.EventsRepo.Migrations.CreateEvents do
       add :entity_id, :uuid, null: false
       add :timestamp, :timestamp, null: false
       add :type, :string, null: false
-      add :properties, :json, null: false
+      add :properties, :variant, null: false
     end
 
     execute(
