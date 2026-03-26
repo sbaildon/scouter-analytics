@@ -25,14 +25,6 @@ defmodule Ecto.Adapters.DuckDB.Query do
     defp encode_param(param), do: param
 
     def decode(_query, %Adbc.Result{} = result, _opts) do
-      columns_to_rows(result)
-    end
-
-    def decode(_query, result, _opts) do
-      result
-    end
-
-    defp columns_to_rows(result) do
       {num_rows, rows} =
         result
         |> Adbc.Result.to_map()
@@ -42,6 +34,10 @@ defmodule Ecto.Adapters.DuckDB.Query do
         end)
 
       %{num_rows: num_rows, rows: rows}
+    end
+
+    def decode(_query, result, _opts) do
+      result
     end
   end
 
