@@ -21,7 +21,7 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
          {:ok, _} <-
            Adbc.Connection.query(
              conn,
-             "ATTACH IF NOT EXISTS 'ducklake:sqlite:#{Scouter.Instance.lakehouse_catalog_path(instance)}' AS ducklake (DATA_PATH '#{Scouter.Instance.lakehouse_data_path(instance)}');"
+             "ATTACH IF NOT EXISTS 'ducklake:sqlite:#{Scouter.Instance.lakehouse_catalog_path(instance)}' AS ducklake (DATA_PATH '#{Scouter.Instance.lakehouse_data_path(instance)}', AUTOMATIC_MIGRATION true);"
            ),
          {:ok, _} <- Adbc.Connection.query(conn, "USE ducklake;"),
          {:ok, _} <- Adbc.Connection.query(conn, "CALL ducklake.set_option('parquet_compression', 'zstd');"),
