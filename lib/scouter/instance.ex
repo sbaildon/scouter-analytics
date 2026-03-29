@@ -189,10 +189,10 @@ defmodule Scouter.Instance do
   def lakehouse_data_path(name) when is_atom(name), do: name |> Atom.to_string() |> lakehouse_data_path()
   def lakehouse_data_path(name), do: Path.join([lakehouse_data_root(name), "lakehouse", "data"])
 
-  defp lakehouse_data_root("main" = name) do
+  defp lakehouse_data_root("main") do
     cond do
-      File.exists?(lakehouse_data_root_credential(name)) ->
-        read_credential(lakehouse_data_root_credential(name))
+      File.exists?(lakehouse_data_root_credential("main")) ->
+        read_credential(lakehouse_data_root_credential("main"))
 
       File.exists?(lakehouse_data_root_credential()) ->
         read_credential(lakehouse_data_root_credential())
