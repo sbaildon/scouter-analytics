@@ -181,32 +181,13 @@ defmodule Scouter.Instance do
   def database_path(name) when is_atom(name), do: name |> Atom.to_string() |> database_path()
   def database_path(name), do: Path.join([state_directory(), "instances", name, "domain.db"])
 
-  def lakehouse_catalog_path("main"), do: Path.join([lakehouse_catalog_root("main"), "lakehouse", "catalog.db"])
+  def lakehouse_catalog_path("main"), do: Path.join([state_directory(), "lakehouse", "catalog.db"])
   def lakehouse_catalog_path(name) when is_atom(name), do: name |> Atom.to_string() |> lakehouse_catalog_path()
-  def lakehouse_catalog_path(name), do: Path.join([lakehouse_catalog_root(name), name, "lakehouse", "catalog.db"])
+  def lakehouse_catalog_path(name), do: Path.join([state_directory(), "instances", name, "lakehouse", "catalog.db"])
 
   def lakehouse_data_path("main"), do: Path.join([lakehouse_data_root("main"), "lakehouse", "data"])
   def lakehouse_data_path(name) when is_atom(name), do: name |> Atom.to_string() |> lakehouse_data_path()
   def lakehouse_data_path(name), do: Path.join([lakehouse_data_root(name), name, "lakehouse", "data"])
-
-  defp lakehouse_catalog_root(name) do
-    Enum.find_value(
-      [lakehouse_catalog_root_credential(name), lakehouse_catalog_root_credential("main")],
-      lakehouse_catalog_root_default(name),
-      fn credential_file ->
-        (File.exists?(credential_file) && read_credential(credential_file)) || false
-      end
-    )
-  end
-
-  defp lakehouse_catalog_root_credential("main"),
-    do: Path.join([Scouter.credentials_directory(), ["scouter-analytics", ?., "lakehouse", ?., "catalog_root"]])
-
-  defp lakehouse_catalog_root_credential(name),
-    do: Path.join([Scouter.credentials_directory(), ["scouter-analytics", ?., name, ?., "lakehouse", ?., "catalog_root"]])
-
-  defp lakehouse_catalog_root_default("main"), do: state_directory()
-  defp lakehouse_catalog_root_default(_name), do: Path.join([state_directory(), "instances"])
 
   defp lakehouse_data_root(name) do
     Enum.find_value(
