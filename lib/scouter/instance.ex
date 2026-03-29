@@ -192,7 +192,7 @@ defmodule Scouter.Instance do
   defp lakehouse_catalog_root(name) do
     Enum.find_value(
       [lakehouse_catalog_root_credential(name), lakehouse_catalog_root_credential("main")],
-      state_directory(),
+      lakehouse_catalog_root_default(name),
       fn credential_file ->
         (File.exists?(credential_file) && read_credential(credential_file)) || false
       end
@@ -205,10 +205,13 @@ defmodule Scouter.Instance do
   defp lakehouse_catalog_root_credential(name),
     do: Path.join([Scouter.credentials_directory(), ["scouter-analytics", ?., name, ?., "lakehouse", ?., "catalog_root"]])
 
+  defp lakehouse_catalog_root_default("main"), do: state_directory()
+  defp lakehouse_catalog_root_default(_name), do: Path.join([state_directory(), "instances"])
+
   defp lakehouse_data_root(name) do
     Enum.find_value(
       [lakehouse_data_root_credential(name), lakehouse_data_root_credential("main")],
-      state_directory(),
+      lakehouse_data_root_default(name),
       fn credential_file ->
         (File.exists?(credential_file) && read_credential(credential_file)) || false
       end
@@ -220,6 +223,9 @@ defmodule Scouter.Instance do
 
   defp lakehouse_data_root_credential(name),
     do: Path.join([Scouter.credentials_directory(), ["scouter-analytics", ?., name, ?., "lakehouse", ?., "data_root"]])
+
+  defp lakehouse_data_root_default("main"), do: state_directory()
+  defp lakehouse_data_root_default(_name), do: Path.join([state_directory(), "instances"])
 
   defp read_credential(credential_file) do
     credential_file
