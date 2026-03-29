@@ -30,11 +30,17 @@ migrate repo=default_repo:
 rollback to repo=default_repo:
     mix ecto.rollback --no-compile -r {{ repo }} --to={{ to }}
 
-download-libduckdb version dir=".local/lib":
+download-libduckdb version os="" arch="" dir=".local/lib":
     #!/usr/bin/env bash
     set -euo pipefail
-    os=$(uname -s | tr '[:upper:]' '[:lower:]')
-    arch=$(uname -m)
+    os="{{ os }}"
+    arch="{{ arch }}"
+    if [ -z "$os" ]; then
+        os=$(uname -s | tr '[:upper:]' '[:lower:]')
+    fi
+    if [ -z "$arch" ]; then
+        arch=$(uname -m)
+    fi
     case "$os" in
         darwin) platform="osx"; arch="universal" ;;
         linux)  platform="linux" ;;
@@ -47,11 +53,17 @@ download-libduckdb version dir=".local/lib":
     unzip -o "$tmp" -d {{ dir }}
     rm "$tmp"
 
-download-duckdb-extension name version dir=".local/lib/duckdb/extensions":
+download-duckdb-extension name version os="" arch="" dir=".local/lib/duckdb/extensions":
     #!/usr/bin/env bash
     set -euo pipefail
-    os=$(uname -s | tr '[:upper:]' '[:lower:]')
-    arch=$(uname -m)
+    os="{{ os }}"
+    arch="{{ arch }}"
+    if [ -z "$os" ]; then
+        os=$(uname -s | tr '[:upper:]' '[:lower:]')
+    fi
+    if [ -z "$arch" ]; then
+        arch=$(uname -m)
+    fi
     case "$os" in
         darwin) platform="osx"; arch="arm64" ;;
         linux)  platform="linux"; arch="${arch/x86_64/amd64}" ;;
