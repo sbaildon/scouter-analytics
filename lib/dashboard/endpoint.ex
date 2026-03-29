@@ -15,6 +15,8 @@ defmodule Dashboard.Endpoint do
 
   socket "/_app/analytics/live", Dashboard.ArrowSocket, websocket: [connect_info: [:x_headers, session: @session_options]]
 
+  plug :telemetry_js
+
   # Serve at "/" the static files from "priv/static" directory.
   #
   # When code reloading is disabled (e.g., in production),
@@ -58,4 +60,14 @@ defmodule Dashboard.Endpoint do
   plug Plug.Session, @session_options
 
   plug Dashboard.Router
+
+  defp telemetry_js(%{path_info: ["telemetry.js"]} = conn, _opts) do
+    conn
+    |> put_resp_header("content-type", "application/javascript")
+    |> put_resp_header("cache-control", "public, max-age=3600")
+    |> send_file(200, "priv/static/telemetry.js")
+    |> halt()
+  end
+
+  defp telemetry_js(conn, _opts), do: conn
 end
