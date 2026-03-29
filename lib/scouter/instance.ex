@@ -187,26 +187,39 @@ defmodule Scouter.Instance do
 
   def lakehouse_data_path("main"), do: Path.join([lakehouse_data_root("main"), "lakehouse", "data"])
   def lakehouse_data_path(name) when is_atom(name), do: name |> Atom.to_string() |> lakehouse_data_path()
-  def lakehouse_data_path(name), do: Path.join([lakehouse_data_root(name), name, "lakehouse", "data"])
+  def lakehouse_data_path(name), do: Path.join([lakehouse_data_root(name), "lakehouse", "data"])
 
-  defp lakehouse_data_root(name) do
-    Enum.find_value(
-      [lakehouse_data_root_credential(name), lakehouse_data_root_credential("main")],
-      lakehouse_data_root_default(name),
-      fn credential_file ->
-        (File.exists?(credential_file) && read_credential(credential_file)) || false
-      end
-    )
+  defp lakehouse_data_root("main" = name) do
+    cond do
+      File.exists?(lakehouse_data_root_credential(name)) ->
+        read_credential(lakehouse_data_root_credential(name))
+
+      File.exists?(lakehouse_data_root_credential()) ->
+        read_credential(lakehouse_data_root_credential())
+
+      true ->
+        state_directory()
+    end
   end
 
-  defp lakehouse_data_root_credential("main"),
+  defp lakehouse_data_root(name) do
+    cond do
+      File.exists?(lakehouse_data_root_credential(name)) ->
+        read_credential(lakehouse_data_root_credential(name))
+
+      File.exists?(lakehouse_data_root_credential()) ->
+        Path.join([read_credential(lakehouse_data_root_credential()), "instances"])
+
+      true ->
+        Path.join([state_directory(), "instances"])
+    end
+  end
+
+  defp lakehouse_data_root_credential,
     do: Path.join([Scouter.credentials_directory(), ["scouter-analytics", ?., "lakehouse", ?., "data_root"]])
 
   defp lakehouse_data_root_credential(name),
     do: Path.join([Scouter.credentials_directory(), ["scouter-analytics", ?., name, ?., "lakehouse", ?., "data_root"]])
-
-  defp lakehouse_data_root_default("main"), do: state_directory()
-  defp lakehouse_data_root_default(_name), do: Path.join([state_directory(), "instances"])
 
   defp read_credential(credential_file) do
     credential_file
