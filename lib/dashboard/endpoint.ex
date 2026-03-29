@@ -65,7 +65,7 @@ defmodule Dashboard.Endpoint do
     conn
     |> put_resp_header("content-type", "application/javascript")
     |> put_resp_header("cache-control", "public, max-age=3600")
-    |> send_file(200, "priv/static/telemetry.js")
+    |> send_file(200, Application.app_dir(:scouter, "priv/static/telemetry.js"))
     |> halt()
   end
 
