@@ -10,7 +10,7 @@ ProtectSystem=full
 NoNewPrivileges=true
 PrivateDevices=true
 PrivateTmp=disconnected
-Type=notify
+Type=notify-reload
 StateDirectory=scouter/analytics
 Environment=HOME=%T
 Environment=ERL_CRASH_DUMP_SECONDS=0
