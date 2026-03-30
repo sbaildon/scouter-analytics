@@ -91,7 +91,7 @@ defmodule Scouter.MixProject do
       {:broadway_dashboard, "~> 0.4", only: [:dev, :test]},
       {:referrer_blocklist, git: "https://github.com/sbaildon/referrer-blocklist"},
       {:cidr, "~> 1.2"},
-      {:systemd, "~> 0.6"},
+      {:systemd, git: "https://github.com/hauleth/erlang-systemd", ref: "e6979a27cf5aca9f31d62a9a5bdad356af7b01b6"},
       {:con_cache, "~> 1.1"},
       {:configparser_ex, "~> 5.0"}
     ]
