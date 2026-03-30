@@ -9,6 +9,10 @@ defmodule Scouter.Signals do
   def init(_) do
     System.trap_signal(:sighup, :config_reload, fn ->
       Logger.info("trapped sighup")
+      :systemd.notify(:reloading)
+      Logger.info("reloading")
+      :systemd.notify(:ready)
+      Logger.info("ready")
       :ok
     end)
 
