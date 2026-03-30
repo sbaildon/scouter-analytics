@@ -29,7 +29,6 @@ defmodule Scouter.Application do
 
   @impl Application
   def start_phase(:post_start, :normal, _args) do
-    :systemd.unset_env(:listen_fds)
     :systemd.notify(:ready)
     Logger.info("notified systemd")
   end
