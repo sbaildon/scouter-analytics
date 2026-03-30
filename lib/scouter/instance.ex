@@ -208,10 +208,10 @@ defmodule Scouter.Instance do
         read_credential(lakehouse_data_root_credential(name))
 
       File.exists?(lakehouse_data_root_credential()) ->
-        Path.join([read_credential(lakehouse_data_root_credential()), "instances"])
+        Path.join([read_credential(lakehouse_data_root_credential()), "instances", name])
 
       true ->
-        Path.join([state_directory(), "instances"])
+        Path.join([state_directory(), "instances", name])
     end
   end
 
