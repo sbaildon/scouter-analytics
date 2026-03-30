@@ -17,7 +17,8 @@ defmodule Scouter.Application do
       Telemetry.Broadway,
       Dashboard,
       Admin,
-      {Finch, Application.fetch_env!(:scouter, Finch)}
+      {Finch, Application.fetch_env!(:scouter, Finch)},
+      Scouter.Signals
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
