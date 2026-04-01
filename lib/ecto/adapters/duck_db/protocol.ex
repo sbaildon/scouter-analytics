@@ -50,7 +50,7 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
   defp prepare_lakehouse_data_path(instance, conn, %{scheme: scheme, host: lakehouse_uri}) do
     opts =
       instance
-      |> read_credential("duckdb_secret", "lakehouse")
+      |> read_credential("duckdb.secret", "lakehouse")
       |> parse_credential()
       |> Map.put_new("SCOPE", "#{scheme}://#{lakehouse_uri}")
 
