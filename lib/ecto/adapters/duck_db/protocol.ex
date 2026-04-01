@@ -61,7 +61,7 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
         {k, v} -> "#{k} '#{v}'"
       end)
 
-    secret_query = IO.inspect(~s"CREATE TEMPORARY SECRET IF NOT EXISTS lakehouse ( #{secret_params} );")
+    secret_query = ~s"CREATE TEMPORARY SECRET IF NOT EXISTS lakehouse ( #{secret_params} );"
 
     with {:ok, _} <- maybe_set_ca_cert(instance, conn) do
       Adbc.Connection.query(conn, secret_query)
