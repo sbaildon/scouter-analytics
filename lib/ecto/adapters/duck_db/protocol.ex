@@ -50,7 +50,7 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
   defp prepare_lakehouse_data_path(instance, conn, %{scheme: scheme, host: lakehouse_uri}) do
     opts =
       instance
-      |> read_credential("duckdb.secret", "lakehouse")
+      |> read_credential("lakehouse.secret")
       |> parse_credential()
       |> Map.put_new("SCOPE", "#{scheme}://#{lakehouse_uri}")
 
@@ -78,17 +78,17 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
     "MAP { #{Enum.map_join(kvs, ", ", fn [k, v] -> "'#{k}': '#{v}'" end)} }"
   end
 
-  def credential_file(instance, namespace, credential) do
+  def credential_file(instance, credential) do
     Path.join([
       System.get_env("CREDENTIALS_DIRECTORY", "/run/secrets"),
-      ["scouter-analytics", ".", instance, ".", namespace, ".", credential]
+      [instance, ?., credential]
     ])
   end
 
-  defp generic_credential_file(namespace, credential) do
+  defp generic_credential_file(credential) do
     Path.join([
       System.get_env("CREDENTIALS_DIRECTORY", "/run/secrets"),
-      ["scouter-analytics", ".", namespace, ".", credential]
+      credential
     ])
   end
 
@@ -101,19 +101,8 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
     end)
   end
 
-  defp find_credential(instance, namespace, credential) do
-    instance_path = credential_file(instance, namespace, credential)
-    generic_path = generic_credential_file(namespace, credential)
-
-    cond do
-      File.exists?(instance_path) -> instance_path
-      File.exists?(generic_path) -> generic_path
-      true -> nil
-    end
-  end
-
   defp maybe_set_ca_cert(instance, conn) do
-    case find_credential(instance, "duckdb", "ca_cert_file") do
+    case find_credential(instance, "ca_cert_file") do
       nil ->
         {:ok, nil}
 
@@ -124,9 +113,20 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
     end
   end
 
-  defp read_credential(instance, namespace, credential) do
-    instance_path = credential_file(instance, namespace, credential)
-    generic_path = generic_credential_file(namespace, credential)
+  defp find_credential(instance, credential) do
+    instance_path = credential_file(instance, credential)
+    generic_path = generic_credential_file(credential)
+
+    cond do
+      File.exists?(instance_path) -> instance_path
+      File.exists?(generic_path) -> generic_path
+      true -> nil
+    end
+  end
+
+  defp read_credential(instance, credential) do
+    instance_path = credential_file(instance, credential)
+    generic_path = generic_credential_file(credential)
 
     cond do
       File.exists?(instance_path) -> File.read!(instance_path)

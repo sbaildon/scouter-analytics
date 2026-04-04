@@ -215,11 +215,10 @@ defmodule Scouter.Instance do
     end
   end
 
-  defp lakehouse_data_root_credential,
-    do: Path.join([Scouter.credentials_directory(), ["scouter-analytics", ?., "lakehouse", ?., "data_root"]])
+  defp lakehouse_data_root_credential, do: Path.join([Scouter.credentials_directory(), ["lakehouse", ?., "data_root"]])
 
   defp lakehouse_data_root_credential(name),
-    do: Path.join([Scouter.credentials_directory(), ["scouter-analytics", ?., name, ?., "lakehouse", ?., "data_root"]])
+    do: Path.join([Scouter.credentials_directory(), [name, ?., "lakehouse", ?., "data_root"]])
 
   defp read_credential(credential_file) do
     credential_file
