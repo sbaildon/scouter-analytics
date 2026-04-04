@@ -102,7 +102,7 @@ defmodule Ecto.Adapters.DuckDB.Protocol do
   end
 
   defp maybe_set_ca_cert(instance, conn) do
-    case find_credential(instance, "ca_cert_file") do
+    case find_credential(instance, "duckdb.ca_cert_file") do
       nil ->
         {:ok, nil}
 
