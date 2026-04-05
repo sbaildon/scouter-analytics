@@ -51,6 +51,8 @@ config :scouter,
   app_name: "Scouter",
   generators: [timestamp_type: :utc_datetime, binary_id: true]
 
+config :systemd, handle_event: false
+
 config :tailwind,
   version: "4.1.3",
   dashboard: [
