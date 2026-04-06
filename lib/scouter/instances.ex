@@ -21,6 +21,13 @@ defmodule Scouter.Instances do
     Supervisor.init(children, strategy: :one_for_one)
   end
 
+  def running?(instance) do
+    case Registry.lookup(Scouter.InstanceRegistry, instance) do
+      [{pid, _}] when is_pid(pid) -> true
+      _ -> false
+    end
+  end
+
   def get_cache(instance), do: {:via, Registry, {Scouter.InstanceRegistry, {instance, :cache}}}
 
   def clear_cache(instance) do
