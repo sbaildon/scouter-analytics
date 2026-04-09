@@ -67,6 +67,9 @@ defmodule Scouter.Events do
       count when is_integer(count) ->
         {:ok, count}
 
+      :not_running ->
+        Logger.info("instance not running for count/3")
+
       result ->
         Logger.info(result)
         :error
