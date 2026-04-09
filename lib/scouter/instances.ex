@@ -28,6 +28,18 @@ defmodule Scouter.Instances do
     end
   end
 
+  def healthy?(instance) do
+    Scouter.with_instance(instance, fn _ ->
+      events_repo = Scouter.EventsRepo.query("SELECT 1;")
+      repo = Scouter.EventsRepo.query("SELECT 1;")
+
+      case {events_repo, repo} do
+        {{:ok, _}, {:ok, _}} -> true
+        _ -> false
+      end
+    end)
+  end
+
   def get_cache(instance), do: {:via, Registry, {Scouter.InstanceRegistry, {instance, :cache}}}
 
   def clear_cache(instance) do
