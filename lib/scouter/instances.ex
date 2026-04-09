@@ -22,8 +22,8 @@ defmodule Scouter.Instances do
   end
 
   def running?(instance) do
-    case Registry.lookup(Scouter.InstanceRegistry, instance) do
-      [{pid, _}] when is_pid(pid) -> true
+    case Scouter.with_instance(instance, fn _ -> :ok end) do
+      :ok -> true
       _ -> false
     end
   end
