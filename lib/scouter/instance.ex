@@ -109,15 +109,23 @@ defmodule Scouter.Instance do
   end
 
   def registered_pids(name) do
-    {:ok,
-     %{
-       repo: lookup_pid!(InstanceRegistry, {name, :repo}),
-       events_repo: lookup_pid!(InstanceRegistry, {name, :events_repo})
-     }}
+    pids = %{
+      repo: lookup_pid(InstanceRegistry, {name, :repo}),
+      events_repo: lookup_pid(InstanceRegistry, {name, :events_repo})
+    }
+
+    if Enum.all?(pids, fn {_, v} -> is_pid(v) end) do
+      {:ok, pids}
+    else
+      :not_running
+    end
   end
 
-  defp lookup_pid!(registry, key) do
-    with [{pid, _}] <- Registry.lookup(registry, key), do: pid
+  defp lookup_pid(registry, key) do
+    case Registry.lookup(registry, key) do
+      [{pid, _}] -> pid
+      _ -> nil
+    end
   end
 
   defp bandit(opts) do
