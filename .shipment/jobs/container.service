@@ -1,0 +1,8 @@
+[Service]
+ExecStart=bash -c '\
+	podman build \
+		--label=org.opencontainers.image.source=https://github.com/sbaildon/scouter-analytics \
+		-t ghcr.io/sbaildon/scouter-analytics:$(cat $CREDENTIALS_DIRECTORY/ref) .'
+ExecStart=bash -c '\
+	podman push \
+		ghcr.io/sbaildon/scouter-analytics:$(cat $CREDENTIALS_DIRECTORY/ref)'
