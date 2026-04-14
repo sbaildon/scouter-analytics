@@ -1,4 +1,12 @@
 [Service]
+LoadCredential=registry:shipment.github.sbaildon.scouter-analytics.registry
+LoadCredential=registry_user:shipment.github.sbaildon.scouter-analytics.registry_user
+LoadCredential=registry_password:shipment.github.sbaildon.scouter-analytics.registry_password
+ExecStart=/bin/bash -c 'podman login \
+	-u "$(cat $CREDENTIALS_DIRECTORY/registry_user)" \
+	--password-stdin \
+	"$(cat $CREDENTIALS_DIRECTORY/registry)" \
+	< $CREDENTIALS_DIRECTORY/registry_password'
 ExecStart=bash -c '\
 	podman build \
 		--label=org.opencontainers.image.source=https://github.com/sbaildon/scouter-analytics \
